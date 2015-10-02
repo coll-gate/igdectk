@@ -1,0 +1,6 @@
+./igdectk.egg-info
+./build
+./dist
+*.pyc
+*.sublime-*
+__pycache__
