@@ -3,6 +3,7 @@
 """
 
 import json
+import validictory
 
 from datetime import date, datetime
 
@@ -123,9 +124,13 @@ def def_request(method, format, parameters=(), content=()):
             # check for the existence of the values into the encoded body
             data = request.data if hasattr(request, 'data') else request.POST
 
-            for p in content:
-                if p not in data:
-                    raise ViewExceptionRest("Missing parameter " + p, 400)
+            if type(content) == tuple:
+                for p in content:
+                    if p not in data:
+                        raise ViewExceptionRest("Missing parameter " + p, 400)
+            elif type(content) == dict and request.format.upper() == "JSON":
+                # or do a data validation
+                validictory.validate(data, content)
 
             # call the function
             return func(*args, **kwargs)
@@ -195,9 +200,13 @@ def def_auth_request(
             # check for the existence of the values into the encoded body
             data = request.data if hasattr(request, 'data') else request.POST
 
-            for p in content:
-                if p not in data:
-                    raise ViewExceptionRest("Missing parameter " + p, 400)
+            if type(content) == tuple:
+                for p in content:
+                    if p not in data:
+                        raise ViewExceptionRest("Missing parameter " + p, 400)
+            elif type(content) == dict and request.format.upper() == "JSON":
+                # or do a data validation
+                validictory.validate(data, content)
 
             # call the function
             return func(*args, **kwargs)
@@ -267,9 +276,13 @@ def def_admin_request(
             # check for the existence of the values into the encoded body
             data = request.data if hasattr(request, 'data') else request.POST
 
-            for p in content:
-                if p not in data:
-                    raise ViewExceptionRest("Missing parameter " + p, 400)
+            if type(content) == tuple:
+                for p in content:
+                    if p not in data:
+                        raise ViewExceptionRest("Missing parameter " + p, 400)
+            elif type(content) == dict and request.format.upper() == "JSON":
+                # or do a data validation
+                validictory.validate(data, content)
 
             # call the function
             return func(*args, **kwargs)
