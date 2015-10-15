@@ -1,3 +1,11 @@
+# -*- coding: utf-8; -*-
+#
+# Copyright (c) 2015 INRA UMR1095 GDEC
+
+"""
+Application startup process around django.apps.AppConfig.
+"""
+
 import os
 import logging
 
@@ -6,10 +14,22 @@ from django.apps import AppConfig
 
 from .evaluator import eval_expr
 
+__date__ = "2015-04-13"
+__author__ = "Frédéric Scherma"
+
 logger = logging.getLogger(__name__)
 
 
 def startup(appconfig, logger):
+    """
+    Helper function called by :class:`ApplicationMain` on ready.
+
+    It validates the settings for a specific application. If a setting
+    is not found into the settings table of the application, the value entry
+    is inserted.
+
+    Later any other generic application startup processing will goes here.
+    """
     logger.info("%s process %i started..." % (appconfig.verbose_name, os.getpid()))
     logger.info("> Looking for the model %s..." % (appconfig.settings_model,))
 
@@ -71,6 +91,29 @@ def startup(appconfig, logger):
 
 
 def get_app_db_settings(app_short_name):
+    """
+    It will look for the settings.APPLICATIONS dict that contains
+    specifics parameters for each application.
+    Each entry use the short name of the application.
+
+    This settings are used to fill the database settings table for an
+    application. Once the value exists into the database this is
+    the database value that is taken en priority.
+
+    Normaly should be reserved for internal usage only.
+
+    Parameters
+    ----------
+    app_short_name: string
+        Short name of the application to get the settings dict.
+
+    Returns
+    -------
+    :dict
+        The application settings to store into the database, or
+        None if there is no settings for the application at settings
+        level.
+    """
     if hasattr(settings, 'APPLICATIONS'):
         applications = getattr(settings, 'APPLICATIONS')
     else:
@@ -87,7 +130,43 @@ def get_app_db_settings(app_short_name):
 
 class ApplicationMain(AppConfig):
 
+    """
+    Advanced Django AppConfig.
+
+    It looks for a module appsettings into the application folder.
+
+    Some globals variables into appsettings are looked for :
+
+    Parameters
+    ----------
+    name: string
+        Application short name
+
+    See also
+    --------
+    :attr:`igdectk.appsettings.APP_VERBOSE_NAME`
+        A string containing the tong name of the application.
+        Application short name is used if not founds.
+    :attr:`igdectk.appsettings.APP_DB_DEFAULT_SETTINGS`
+        A dict containing default settings to put into the settings table
+        of the application. An empty dict if used if not founds.
+    :attr:`igdectk.appsettings.APP_SETTINGS_MODEL`
+        Object containing default settings table name.
+        '<appname>_settings' is used if not founds.
+    :attr:`igdectk.appsettings.HTTP_TEMPLATE_STRING`
+        Compoundable string (containing a %s parameters) to build
+        the path of the HTTP error pages (40x, 50x) template.
+        '<appname>/%s.html' is used if not founds.
+    :attr:`igdectk.appsettings.APP_VERSION`
+        Application version as list.
+        (0, 1) is defined if not founds.
+    """
+
     def ready(self):
+        """
+        Called by Django application manager when the application is loaded.
+        """
+
         # application settings
         self.appsettings = __import__(
             '%s.appsettings' % self.module.__name__, fromlist=['*'])
@@ -101,7 +180,7 @@ class ApplicationMain(AppConfig):
         self.default_settings = get_app_db_settings(self.name) or (
             getattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
             if hasattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
-            else self.name)
+            else {})
 
         self.settings_model = (
             getattr(self.appsettings, 'APP_SETTINGS_MODEL')
@@ -128,9 +207,17 @@ class ApplicationMain(AppConfig):
 
         Parameters
         ----------
-
         param_name : string
             name of the settings parameters key
+
+        Returns
+        -------
+        result: any
+            returns the asked value or None if not founds.
+
+        See also
+        --------
+        :func:`igdectk.helpers.get_setting`: to get settings from another application.
         """
         # get settings table from the application
         setting = self.settings_table.objects.filter(param_name=param_name)

@@ -1,3 +1,7 @@
+# -*- coding: utf-8; -*-
+#
+# Copyright (c) 2015 INRA UMR1095 GDEC
+
 """
     Usefull common helpers.
 """
@@ -8,35 +12,42 @@ import validictory
 from datetime import date, datetime
 
 from django.apps import apps
-from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404
 from django.core import serializers
+from django.http import HttpResponse
 from django.db.models.query import QuerySet
 from django.db.models import Model
 
-from .evaluator import eval_expr
-from .restmiddleware import ViewExceptionRest
+from igdectk.rest.restmiddleware import ViewExceptionRest
 
-__title__ = 'Inra Unit Tools Common'
-__copyright__ = "Copyright (c) 2015 INRA UMR1095 GDEC"
-__organisation__ = "INRA"
+from .evaluator import eval_expr
+
 __date__ = "2015-04-13"
 __author__ = "Frédéric Scherma"
-__license__ = 'Private'
 
 
 def get_setting(app_name, param_name):
-    """Get a setting value.
+    """
+    Get a setting value.
 
     Parameters
     ----------
-
-    app_name : string
+    app_name: string
         name of the django application
 
-    param_name : string
+    param_name: string
         name of the settings parameters key
+
+    Returns
+    -------
+    result: any
+        returns the asked value
+
+    Raises
+    ------
+    ViewExceptionRest:
+        if not found
     """
+
     # get settings table from the application
     settings_table = apps.get_app_config(app_name).settings_table
 
@@ -50,7 +61,8 @@ def get_setting(app_name, param_name):
 
 class ComplexEncoder(json.JSONEncoder):
 
-    """Support standard json dumps plus serializers for django
+    """
+    Support standard json dumps plus serializers for django
     query set and model object.
     """
 
@@ -69,7 +81,12 @@ class ComplexEncoder(json.JSONEncoder):
 
 
 def HttpResponseRest(request, data):
-    """Return an Http response into the correct output format
+    """
+    Return an Http response into the correct output format (JSON or HTML),
+    according of the request.format parameters.
+
+    Format is automaticaly added when using the
+    :class:`igdectk.rest.restmiddleware.IGdecTkRestMiddleware` and views decorators.
     """
     if request.format == 'JSON':
         jsondata = json.dumps(data, cls=ComplexEncoder)
@@ -79,28 +96,28 @@ def HttpResponseRest(request, data):
 
 
 def def_request(method, format, parameters=(), content=()):
-    """Check the method of the request, and then the list of parameters.
+    """
+    Check the method of the request, and then the list of parameters.
     If the format is incorrect or a parameter is missing raise a ViewException
     Html or Json depending of the format.
 
     If it pass the test, the function will contains two news parameters :
-    - method : from the decorator
-    - format : from the decorator
+        - method : from the decorator
+        - format : from the decorator
 
     Parameters
     ----------
-
-    method : string
+    method: string
         'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'
 
-    format : string
+    format: string
         'JSON' or 'HTML', defines the format of the http response.
 
-    parameters : list
+    parameters: list
         A list of strings or an empty list, containing the names of the
         mandatory parameters requested in the URL.
 
-    content : list
+    content: list
         A list of strings or an empty list, containing the names of the
         mandatory parameters requested in the body.
     """
@@ -144,33 +161,33 @@ def def_auth_request(
         method, format,
         parameters=(), content=(),
         fallback=None):
-    """Check the method of the request, then is the user is authenticated and finaly,
+    """
+    Check the method of the request, then is the user is authenticated and finaly,
     the list of parameters.
     If the format is incorrect or a parameter is missing raise a ViewException
     Html or Json depending of the format.
 
     If it pass the test, the function will contains two news parameters :
-    - method : from the decorator
-    - format : from the decorator
+        - method : from the decorator
+        - format : from the decorator
 
     Parameters
     ----------
-
-    method : string
+    method: string
         'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'
 
-    format : string
+    format: string
         'JSON' or 'HTML', defines the format of the http response.
 
-    parameters : list
+    parameters: list
         A list of strings or an empty list, containing the names of the
         mandatory parameters requested in the URL.
 
-    content : list
+    content: list
         A list of strings or an empty list, containing the names of the
         mandatory parameters requested in the body.
 
-    fallback : function
+    fallback: function
         None or a function object that will be called if the user
         is not authenticated.
     """
@@ -220,33 +237,33 @@ def def_admin_request(
         method, format,
         parameters=(), content=(),
         fallback=None):
-    """Check the method of the request, then is the user is authenticated super-user
+    """
+    Check the method of the request, then is the user is authenticated super-user
     and finaly, the list of parameters.
     If the format is incorrect or a parameter is missing raise a ViewException
     Html or Json depending of the format.
 
     If it pass the test, the function will contains two news parameters :
-    - method : from the decorator
-    - format : from the decorator
+        - method : from the decorator
+        - format : from the decorator
 
     Parameters
     ----------
-
-    method : string
+    method: string
         'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'
 
-    format : string
+    format: string
         'JSON' or 'HTML', defines the format of the http response.
 
-    parameters : list
+    parameters: list
         A list of strings or an empty list, containing the names of the
         mandatory parameters requested in the URL.
 
-    content : list
+    content: list
         A list of strings or an empty list, containing the names of the
         mandatory parameters requested in the body.
 
-    fallback : function
+    fallback: function
         None or a function object that will be called if the user
         is not authenticated.
     """
@@ -292,15 +309,9 @@ def def_admin_request(
     return decorator
 
 
-def get_object_or_404_rest(klass, *args, **kwargs):
-    try:
-        return get_object_or_404(klass, *args, **kwargs)
-    except Http404 as e:
-        raise ViewExceptionRest(str(e), 404)
-
-
 def rest_handler(func):
-    """Helper to define a url handler for differents methods.
+    """
+    Helper to define a url handler for differents methods.
     """
     def wrapper(request, **kwargs):
         # call the function
@@ -322,6 +333,19 @@ def rest_handler(func):
 
 
 def int_arg(v):
+    """
+    Check if v is an integer.
+
+    Parameters
+    ----------
+    v: int, any
+        Potential integer to check
+
+    Returns
+    -------
+    : boolean
+        True if success
+    """
     try:
         return int(v)
     except:
@@ -333,6 +357,21 @@ def int_arg(v):
 
 
 def rint_arg(v, r):
+    """
+    Check if v is an integer into a specific range r.
+
+    Parameters
+    ----------
+    v: int or any
+        Potential integer to check
+    r: list
+        2 integers list (min and max inclusive of the range)
+
+    Returns
+    -------
+    : boolean
+        True if success
+    """
     try:
         value = int(v)
     except:

@@ -1,3 +1,7 @@
+# -*- coding: utf-8; -*-
+#
+# Copyright (c) 2015 INRA UMR1095 GDEC
+
 """
     Middleware thats manage common view errors.
     The middleware decorate the request with a format (HTML by default),
@@ -16,25 +20,50 @@ from django.contrib import messages
 from django.core.urlresolvers import resolve
 from django.apps import apps
 
-__title__ = 'Inra Unit Tools Common'
-__copyright__ = "Copyright (c) 2015 INRA UMR1095 GDEC"
-__organisation__ = "INRA"
 __date__ = "2015-04-13"
 __author__ = "Frédéric Scherma"
-__license__ = 'Private'
+
 
 logger = logging.getLogger(__name__)
 
 
 class ViewExceptionRest(Exception):
-    pass
+
+    """
+    Formated exception with message and code.
+
+    Parameters
+    ----------
+    message: string
+        Cause of the exception
+
+    code: int
+        HTTP error code
+    """
+
+    def __init__(self, message, code):
+        super(Exception, self).__init__(message, code)
+        self.code = code
 
 
 class HttpResponseUnauthorized(http.HttpResponse):
     status_code = 401
 
 
-class InraUnitToolsRestMiddleware(object):
+class IGdecTkRestMiddleware(object):
+
+    """
+        Middleware that manages request format and catch views exceptions.
+        It also manage the customized view errors (page if HTML else JSON).
+
+        The middleware decorate the request with a format (HTML by default),
+        and by a list of URL parameters.
+
+        When a view is decorated by :class:`igdectk.helpers.def_request`,
+        :class:`igdectk.helpers.def_auth_request` or by
+        :class:`igdectk.helpers.def_admin_request`,
+        the decorator can attach a data dict to the request object.
+    """
 
     def process_request(self, request):
         # defines a default request format to HTML
@@ -62,7 +91,15 @@ class InraUnitToolsRestMiddleware(object):
                 "cause": message,
                 "code": code})
 
-            return http.HttpResponse(jsondata, content_type="application/json")
+            types = {
+                400: http.HttpResponseBadRequest,
+                401: HttpResponseUnauthorized,
+                404: http.HttpResponseNotFound,
+                500: http.HttpResponseServerError,
+            }
+            response_type = types.get(code, http.HttpResponse)
+
+            return response_type(jsondata, content_type="application/json")
 
         # HTML format
         elif request.format == 'HTML':
@@ -74,6 +111,7 @@ class InraUnitToolsRestMiddleware(object):
             }
             response_type = types.get(code, http.HttpResponse)
 
+            # append a Boostrap message error
             messages.error(request, 'Http %i: %s' % (code, message))
 
             # render a default error page if it excepts

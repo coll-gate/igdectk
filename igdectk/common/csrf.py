@@ -1,3 +1,7 @@
+# -*- coding: utf-8; -*-
+#
+# Copyright (c) 2015 INRA UMR1095 GDEC
+
 from __future__ import unicode_literals
 
 from django.conf import settings
@@ -9,15 +13,20 @@ from django.utils.http import same_origin
 from django.middleware.csrf import *
 from django.middleware.csrf import _sanitize_token, _get_failure_view, _get_new_csrf_key
 
+__date__ = "2015-04-13"
+__author__ = "Frédéric Scherma"
+
 
 class CsrfViewMiddleware(object):
 
     """
     Middleware that requires a present and correct csrfmiddlewaretoken
-    for POST requests that have a CSRF cookie, and sets an outgoing
+    for POST/PUT/DELETE requests that have a CSRF cookie, and sets an outgoing
     CSRF cookie.
     This middleware should be used in conjunction with the csrf_token template
     tag.
+    The CSRF cookie rotate after it was consumed. That mean the client side must
+    takes care to always sending the latest value of the cookie.
     """
     # The _accept and _reject methods currently only exist for the sake of the
     # requires_csrf_token decorator.

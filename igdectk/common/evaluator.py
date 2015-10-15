@@ -1,3 +1,7 @@
+# -*- coding: utf-8; -*-
+#
+# Copyright (c) 2015 INRA UMR1095 GDEC
+
 """
     Python expression safe evaluator, supporting basic mathematics and
     booleans operators.
@@ -6,12 +10,8 @@
 import ast
 import operator as op
 
-__title__ = 'Inra Unit Tools Common'
-__copyright__ = "Copyright (c) 2015 INRA UMR1095 GDEC"
-__organisation__ = "INRA"
 __date__ = "2015-04-13"
 __author__ = "Frédéric Scherma"
-__license__ = 'Private'
 
 
 # supported operators
@@ -62,4 +62,24 @@ def _eval(node_or_string):
 
 
 def eval_expr(expr):
+    """
+    Evaluate a Python expression safely. Support unaries and binaries
+    operators, string, numeric, tuple, list, dict, set.
+
+    Parameters
+    ----------
+    expr: string
+        Literal expression to Evaluate
+
+    Raises
+    ------
+    TypeError:
+        If a type of the expression is not supported or the expression
+        contains an error.
+
+    Returns
+    -------
+    :any
+        According to the expression, return an object of its type.
+    """
     return _eval(ast.parse(expr, mode='eval').body)

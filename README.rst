@@ -1,4 +1,4 @@
 Inra GDEC Toolkit
 =================
 
-Set a very usefull component used in many of our projects.
+Set of very usefull components used in many of our projects.
