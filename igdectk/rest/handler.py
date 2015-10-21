@@ -23,16 +23,48 @@ __author__ = "Frédéric Scherma"
 logger = logging.getLogger(__name__)
 
 
-class RestHandler(object):
+class RestRegistrationException(Exception):
+
+    """
+    Occurs during registration of a handler or a method
+    into a REST handler.
+    """
+
+    pass
+
+
+class RestHandlerMeta(type):
+
+    def __init__(cls, name, base, d):
+        type.__init__(cls, name, base, d)
+
+        # register only when inheritance (not base)
+        if cls.__name__ is not 'RestHandler':
+            cls._register(cls.regex, cls.name, cls.application, urls='urls')
+
+
+class RestHandler(object, metaclass=RestHandlerMeta):
 
     """
     Manage RESTfull API with autogenenation and registration of urls.
     """
 
-    handlers = []
+    regex = r"^$"
+    name = ''
+    application = None
+    methods = []
+
+    unprocessed_handlers = []  # intermediary list of handle to register
+    handlers = []              # list of registered handlers (by register_urls)
 
     @classmethod
-    def register(cls, regex, name, application=None, urls='urls'):
+    def _register(cls, regex, name, application=None, urls='urls'):
+        """
+        Internaly called by RestHandlerMeta on class definition
+        in way to create a new entry into the list of managed handlers.
+        This list is finally manually inserted into each application urlpatterns
+        classing register_urls.
+        """
         cls.regex = regex
         cls.name = name
         cls.methods = {}
@@ -54,7 +86,7 @@ class RestHandler(object):
         except ImportError:
             raise
 
-        RestHandler.handlers.append(cls)
+        RestHandler.unprocessed_handlers.append(cls)
 
     @classmethod
     def _interceptor(cls, request, **kwargs):
@@ -86,8 +118,11 @@ class RestHandler(object):
                         fallback = sub
                         continue
 
+                    # TODO ne marche pas avec action='options' pourquoi
+
                     for condition in submethod[4]:
                         if condition[0] not in request.GET:
+                            print(request.GET)
                             sub = None
                             break
 
@@ -129,16 +164,90 @@ class RestHandler(object):
     @staticmethod
     def register_urls():
         """
-        TODO
+        This method must be called once time in the urls.py
         """
-        for handler in RestHandler.handlers:
+        for handler in RestHandler.unprocessed_handlers:
             handler.urls.urlpatterns.append(
                 url(handler.regex, handler._interceptor, name=handler.name))
+
+            # append to registered handlers
+            handler.handlers.append(handler)
+
+        # Empty list of unprocessed handlers
+        RestHandler.unprocessed_handlers = []
+
+    @classmethod
+    def _register_wrapper(cls, wrapper, method, format, parameters, content, conditions):
+        # register the wrapper
+        if cls.methods.get(method):
+            # look for an existing empty conditions wrapper for this method
+            if not conditions:
+                methods = cls.methods[method]
+
+                for m in methods:
+                    if not m.conditions:
+                        raise RestRegistrationException(
+                            "Only one empty conditions wrapper is allowed per method of a REST handler")
+
+            if type(cls.methods[method]) is list:
+                cls.methods[method].append(
+                    (wrapper, format, parameters, content, conditions))
+            else:
+                cls.methods[method] = [
+                    cls.methods[method],
+                    (wrapper, format, parameters, content, conditions)
+                ]
+        else:
+            cls.methods[method] = (wrapper, format, parameters, content, conditions)
 
     @classmethod
     def def_request(cls, method, format, parameters=(), content=(), **kwargs):
         """
-        TODO
+        Request function register and wrapper for non auth requests.
+
+        Check the list of mandatory URL parameters.
+
+        Check the list of mandatory content Form/JSON parameters, or validate the
+        content using validictory format.
+
+        If the format is incorrect or a parameter is missing raise a ViewException
+        HTML or JSON depending of the format.
+
+        If it pass the test, the function will contains two news parameters :
+            - method : from the decorator
+            - format : from the decorator
+
+        Parameters
+        ----------
+        method: string
+            'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'
+
+        format: string
+            'JSON' or 'HTML', defines the format of the http response.
+
+        parameters: list
+            A list of strings or an empty list, containing the names of the
+            mandatory parameters requested in the URL.
+
+        content: list
+            A list of strings or an empty list, containing the names of the
+            mandatory parameters requested in the body.
+
+        conditions: string
+            The next parameters if theirs names starts with a 'url__' will
+            be used as condition expression for the url parameters.
+
+            For example, having url__action='save' mean that the url must
+            contains the parameter action with the value 'save'.
+
+            This is useful to have many action for a same HTTP method.
+            It is possible to have many 'url__' conditions.
+
+        Notes
+        -----
+
+            Only once free of conditions method per handler can be registered.
+            Otherwise a :any:`RestRegistrationException` exception is raised.
         """
         # create a decorator for the function
         def decorator(func):
@@ -149,11 +258,6 @@ class RestHandler(object):
                 request.format = format
                 request.parameters = parameters
 
-                # check request method (should never fail here because of the
-                # _interceptor)
-                if request.method != method:
-                    raise ViewExceptionRest(method + " is excepted", 400)
-
                 # check for the existence of the parameters into the encoded URL
                 for p in parameters:
                     if p not in request.GET:
@@ -161,7 +265,7 @@ class RestHandler(object):
 
                 # check for the existence of the values into the encoded body
                 data = request.data if hasattr(request, 'data') else request.POST
-                print(content)
+
                 if type(content) == tuple:
                     for p in content:
                         if p not in data:
@@ -180,18 +284,134 @@ class RestHandler(object):
                 if argn.startswith('url__'):
                     conditions.append((argn[5:], argv))
 
-            # TODO is fallback always works ?
-            # we should avoid the possibility to register many zero conditions
-            # for the same method type
+            # register the wrapper
+            cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
+
+            return wrapper
+
+        return decorator
+
+    @classmethod
+    def def_auth_request(cls, method, format, parameters=(), content=(), fallback=None, **kwargs):
+        """
+        Same as :meth:`def_request` but in addition the user must be authenticated.
+
+        Parameters
+        ----------
+
+        fallback: func
+            Optional callback function called in case the user is not authenticated.
+        """
+        # create a decorator for the function
+        def decorator(func):
+            def wrapper(*args, **kwargs):
+                request = args[0]
+
+                # add the parameters to the request
+                request.format = format
+                request.parameters = parameters
+
+                # check for user authentication
+                if not request.user.is_authenticated():
+                    if fallback:
+                        fallback()
+                    raise ViewExceptionRest("Unauthorized", 401)
+
+                # check for the existence of the parameters into the encoded URL
+                for p in parameters:
+                    if p not in request.GET:
+                        raise ViewExceptionRest("Missing parameter " + p, 400)
+
+                # check for the existence of the values into the encoded body
+                data = request.data if hasattr(request, 'data') else request.POST
+
+                if type(content) == tuple:
+                    for p in content:
+                        if p not in data:
+                            raise ViewExceptionRest("Missing parameter " + p, 400)
+                elif type(content) == dict and request.format.upper() == "JSON":
+                    # or do a data validation
+                    validictory.validate(data, content)
+
+                # call the function
+                return func(*args, **kwargs)
+
+            # parse the url__ conditions
+            conditions = []
+
+            for argn, argv in kwargs.items():
+                if argn.startswith('url__'):
+                    conditions.append((argn[5:], argv))
 
             # register the wrapper
-            if cls.methods.get(method):
-                cls.methods[method] = [
-                    cls.methods[method],
-                    (wrapper, format, parameters, content, conditions)
-                ]
-            else:
-                cls.methods[method] = (wrapper, format, parameters, content, conditions)
+            cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
+
+            return wrapper
+
+        return decorator
+
+    @classmethod
+    def def_admin_request(cls, method, format, parameters=(), content=(), fallback=None, **kwargs):
+        """
+        Same as :meth:`def_request` but in addition the user must be authenticated
+        and superuser.
+
+        Parameters
+        ----------
+
+        fallback: func
+            Optional callback function called in case the user is not authenticated.
+        """
+        # create a decorator for the function
+        def decorator(func):
+            def wrapper(*args, **kwargs):
+                request = args[0]
+
+                # add the parameters to the request
+                request.format = format
+                request.parameters = parameters
+
+                # check for user authentication
+                if not request.user.is_authenticated():
+                    if fallback:
+                        fallback()
+                    raise ViewExceptionRest("Unauthorized", 401)
+
+                # check for super-user authentication
+                if not request.user.is_superuser:
+                    if fallback:
+                        fallback()
+                    raise ViewExceptionRest("Forbidden", 403)
+
+                # check for the existence of the parameters into the encoded URL
+                for p in parameters:
+                    if p not in request.GET:
+                        raise ViewExceptionRest("Missing parameter " + p, 400)
+
+                # check for the existence of the values into the encoded body
+                data = request.data if hasattr(request, 'data') else request.POST
+
+                if type(content) == tuple:
+                    for p in content:
+                        if p not in data:
+                            raise ViewExceptionRest("Missing parameter " + p, 400)
+                elif type(content) == dict and request.format.upper() == "JSON":
+                    # or do a data validation
+                    validictory.validate(data, content)
+
+                # call the function
+                return func(*args, **kwargs)
+
+            # parse the url__ conditions
+            conditions = []
+
+            for argn, argv in kwargs.items():
+                if argn.startswith('url__'):
+                    conditions.append((argn[5:], argv))
+
+            # register the wrapper
+            cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
+
             return wrapper
 
         return decorator

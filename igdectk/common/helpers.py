@@ -9,13 +9,7 @@
 import json
 import validictory
 
-from datetime import date, datetime
-
 from django.apps import apps
-from django.core import serializers
-from django.http import HttpResponse
-from django.db.models.query import QuerySet
-from django.db.models import Model
 
 from igdectk.rest.restmiddleware import ViewExceptionRest
 
@@ -57,42 +51,6 @@ def get_setting(app_name, param_name):
         return eval_expr(setting[0].value)
     else:
         raise ViewExceptionRest('Bad configuration.', 500)
-
-
-class ComplexEncoder(json.JSONEncoder):
-
-    """
-    Support standard json dumps plus serializers for django
-    query set and model object.
-    """
-
-    def default(self, obj):
-        if isinstance(obj, QuerySet):
-            return serializers.serialize("python", obj)
-        elif isinstance(obj, Model):
-            return serializers.serialize('python', [obj])[0]
-        elif isinstance(obj, date):
-            return str(obj)
-        elif isinstance(obj, datetime):
-            return str(obj)
-        else:
-            # Let the base class default method raise the TypeError
-            return json.JSONEncoder.default(self, obj)
-
-
-def HttpResponseRest(request, data):
-    """
-    Return an Http response into the correct output format (JSON or HTML),
-    according of the request.format parameters.
-
-    Format is automaticaly added when using the
-    :class:`igdectk.rest.restmiddleware.IGdecTkRestMiddleware` and views decorators.
-    """
-    if request.format == 'JSON':
-        jsondata = json.dumps(data, cls=ComplexEncoder)
-        return HttpResponse(jsondata, content_type="application/json")
-    elif request.format == 'HTML':
-        return HttpResponse(data)
 
 
 def def_request(method, format, parameters=(), content=()):
