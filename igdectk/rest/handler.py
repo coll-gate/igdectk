@@ -54,7 +54,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
     application = None
     methods = []
 
-    unprocessed_handlers = []  # intermediary list of handle to register
+    unprocessed_handlers = []  # intermediary list of handles to register
     handlers = []              # list of registered handlers (by register_urls)
 
     @classmethod
@@ -118,18 +118,18 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                         fallback = sub
                         continue
 
-                    # TODO ne marche pas avec action='options' pourquoi
-
                     for condition in submethod[4]:
+                        # compare key
                         if condition[0] not in request.GET:
-                            print(request.GET)
                             sub = None
                             break
 
-                            if condition[1] != request.GET[condition[0]]:
-                                sub = None
-                                break
+                        # compare value
+                        if condition[1] != request.GET[condition[0]]:
+                            sub = None
+                            break
 
+                    # we have our method
                     if sub:
                         break
 
@@ -415,3 +415,13 @@ class RestHandler(object, metaclass=RestHandlerMeta):
             return wrapper
 
         return decorator
+
+
+def inline_rest_handler(regex, name, application=None, version='1.0'):
+    class InlineRestHandler(RestHandler):
+        version = version
+        regex = regex
+        name = name
+        application = application
+
+    return InlineRestHandler
