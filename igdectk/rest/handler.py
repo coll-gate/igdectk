@@ -16,6 +16,7 @@ from django.apps import apps
 from django.conf.urls import url
 
 from .restmiddleware import ViewExceptionRest
+from igdectk.common.helpers import *
 
 __date__ = "2015-10-15"
 __author__ = "Frédéric Scherma"
@@ -417,11 +418,77 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         return decorator
 
 
-def inline_rest_handler(regex, name, application=None, version='1.0'):
-    class InlineRestHandler(RestHandler):
-        version = version
-        regex = regex
-        name = name
-        application = application
+class InlineRestHandler(object):
 
-    return InlineRestHandler
+    def __init__(self, regex, name, application=None, version='1.0'):
+        self.regex = regex
+        self.name = name
+        self.application = application
+        self.version = version
+
+
+def def_inline_request(inline_handler, method, format, parameters=(), content=()):
+    """
+    Check the method of the request, and then the list of parameters.
+    If the format is incorrect or a parameter is missing raise a ViewException
+    Html or Json depending of the format.
+
+    If it pass the test, the function will contains two news parameters :
+        - method : from the decorator
+        - format : from the decorator
+
+    Parameters
+    ----------
+    method: string
+        'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'
+
+    format: string
+        'JSON' or 'HTML', defines the format of the http response.
+
+    parameters: list
+        A list of strings or an empty list, containing the names of the
+        mandatory parameters requested in the URL.
+
+    content: list
+        A list of strings or an empty list, containing the names of the
+        mandatory parameters requested in the body.
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            request = args[0]
+
+            # add the parameters to the request
+            request.format = format
+            request.parameters = parameters
+
+            # check for the existence of the parameters into the encoded URL
+            for p in parameters:
+                if p not in request.GET:
+                    raise ViewExceptionRest("Missing parameter " + p, 400)
+
+            # check for the existence of the values into the encoded body
+            data = request.data if hasattr(request, 'data') else request.POST
+
+            if type(content) == tuple:
+                for p in content:
+                    if p not in data:
+                        raise ViewExceptionRest("Missing parameter " + p, 400)
+            elif type(content) == dict and request.format.upper() == "JSON":
+                # or do a data validation
+                validictory.validate(data, content)
+
+            # call the function
+            return func(*args, **kwargs)
+
+        class InlineRestHandler(RestHandler):
+            version = inline_handler.version
+            regex = inline_handler.regex
+            name = inline_handler.name
+            application = inline_handler.application
+
+        # register the wrapper
+        InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, [])
+
+        return wrapper
+
+    return decorator
