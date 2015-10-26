@@ -7,6 +7,7 @@
 """
 
 import json
+import igdectk.xml
 
 from datetime import date, datetime
 
@@ -42,7 +43,7 @@ class ComplexEncoder(json.JSONEncoder):
 
 def HttpResponseRest(request, data):
     """
-    Return an Http response into the correct output format (JSON or HTML),
+    Return an Http response into the correct output format (JSON, XML or HTML),
     according of the request.format parameters.
 
     Format is automaticaly added when using the
@@ -53,3 +54,6 @@ def HttpResponseRest(request, data):
         return HttpResponse(jsondata, content_type="application/json")
     elif request.format == 'HTML':
         return HttpResponse(data)
+    elif request.format == 'XML':
+        xmldata = igdectk.xml.dumps(data)
+        return HttpResponse(xmldata)

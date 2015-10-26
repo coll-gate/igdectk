@@ -41,7 +41,7 @@ class RestHandlerMeta(type):
 
         # register only when inheritance (not base)
         if cls.__name__ is not 'RestHandler':
-            cls._register(cls.regex, cls.name, cls.application, urls='urls')
+            cls._register(cls.regex, cls.name, cls.app_name, urls='urls')
 
 
 class RestHandler(object, metaclass=RestHandlerMeta):
@@ -52,6 +52,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
     regex = r"^$"
     name = ''
+    app_name = None
     application = None
     methods = []
 
@@ -59,7 +60,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
     handlers = []              # list of registered handlers (by register_urls)
 
     @classmethod
-    def _register(cls, regex, name, application=None, urls='urls'):
+    def _register(cls, regex, name, app_name=None, urls='urls'):
         """
         Internaly called by RestHandlerMeta on class definition
         in way to create a new entry into the list of managed handlers.
@@ -70,12 +71,12 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         cls.name = name
         cls.methods = {}
 
-        if application:
-            cls.appname = application
+        if app_name:
+            cls.app_name = app_name
         else:
-            cls.appname = cls.__module__.split('.')[0]
+            cls.app_name = cls.__module__.split('.')[0]
 
-        cls.application = apps.get_app_config(cls.appname)
+        cls.application = apps.get_app_config(cls.app_name)
 
         # application urls
         cls.urlsname = urls if urls else 'urls'
@@ -126,8 +127,12 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                             break
 
                         # compare value
-                        if condition[1] != request.GET[condition[0]]:
-                            sub = None
+                        if condition[2] == 'eq':
+                            if condition[1] != request.GET[condition[0]]:
+                                sub = None
+                                break
+                        # or just contains
+                        elif condition[2] == 'has':
                             break
 
                     # we have our method
@@ -155,7 +160,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         if request.META['CONTENT_TYPE'].startswith('application/json'):
             request.format = 'JSON'
         elif request.META['CONTENT_TYPE'].startswith('application/xml'):
-            request.format = 'HTML'  # 'XML' TODO HTML for the moment
+            request.format = 'XML'
         else:
             request.format = 'HTML'
 
@@ -184,11 +189,19 @@ class RestHandler(object, metaclass=RestHandlerMeta):
             # look for an existing empty conditions wrapper for this method
             if not conditions:
                 methods = cls.methods[method]
+                failed = False
 
-                for m in methods:
-                    if not m.conditions:
-                        raise RestRegistrationException(
-                            "Only one empty conditions wrapper is allowed per method of a REST handler")
+                if type(methods) is list:
+                    for m in methods:
+                        if not m[4]:
+                            failed = True
+                else:
+                    if not methods[4]:
+                        failed = True
+
+                if failed:
+                    raise RestRegistrationException(
+                        "Only one empty conditions wrapper is allowed per method of a REST handler")
 
             if type(cls.methods[method]) is list:
                 cls.methods[method].append(
@@ -283,7 +296,10 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
             for argn, argv in kwargs.items():
                 if argn.startswith('url__'):
-                    conditions.append((argn[5:], argv))
+                    conditions.append((argn[5:], argv, 'eq'))
+                elif argn == 'url_contains':
+                    for a in argv:
+                        conditions.append((a, '', 'has'))
 
             # register the wrapper
             cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
@@ -342,7 +358,10 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
             for argn, argv in kwargs.items():
                 if argn.startswith('url__'):
-                    conditions.append((argn[5:], argv))
+                    conditions.append((argn[5:], argv, 'eq'))
+                elif argn == 'url_contains':
+                    for a in argv:
+                        conditions.append((a, '', 'has'))
 
             # register the wrapper
             cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
@@ -408,7 +427,10 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
             for argn, argv in kwargs.items():
                 if argn.startswith('url__'):
-                    conditions.append((argn[5:], argv))
+                    conditions.append((argn[5:], argv, 'eq'))
+                elif argn == 'url_contains':
+                    for a in argv:
+                        conditions.append((a, '', 'has'))
 
             # register the wrapper
             cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
@@ -420,10 +442,10 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
 class InlineRestHandler(object):
 
-    def __init__(self, regex, name, application=None, version='1.0'):
+    def __init__(self, regex, name, app_name=None, version='1.0'):
         self.regex = regex
         self.name = name
-        self.application = application
+        self.app_name = app_name
         self.version = version
 
 
@@ -439,6 +461,9 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
 
     Parameters
     ----------
+    inline_handler: InlineRestHandler
+        Inline version of the RestHandler class definition.
+
     method: string
         'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'
 
@@ -480,11 +505,149 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
             # call the function
             return func(*args, **kwargs)
 
+        # get the default application name from decorated function
+        if inline_handler.app_name:
+            _app_name = inline_handler.app_name
+        else:
+            _app_name = func.__module__.split('.')[0]
+
         class InlineRestHandler(RestHandler):
             version = inline_handler.version
             regex = inline_handler.regex
             name = inline_handler.name
-            application = inline_handler.application
+            app_name = _app_name
+
+        # register the wrapper
+        InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, [])
+
+        return wrapper
+
+    return decorator
+
+
+def def_inline_auth_request(inline_handler, method, format, parameters=(), content=(), fallback=None):
+    """
+    Same as :func:`def_inline_request` but in addition the user must be authenticated.
+
+    Parameters
+    ----------
+
+    fallback: func
+        Optional callback function called in case the user is not authenticated.
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            request = args[0]
+
+            # add the parameters to the request
+            request.format = format
+            request.parameters = parameters
+
+            # check for user authentication
+            if not request.user.is_authenticated():
+                if fallback:
+                    fallback()
+                raise ViewExceptionRest("Unauthorized", 401)
+
+            # check for the existence of the parameters into the encoded URL
+            for p in parameters:
+                if p not in request.GET:
+                    raise ViewExceptionRest("Missing parameter " + p, 400)
+
+            # check for the existence of the values into the encoded body
+            data = request.data if hasattr(request, 'data') else request.POST
+
+            if type(content) == tuple:
+                for p in content:
+                    if p not in data:
+                        raise ViewExceptionRest("Missing parameter " + p, 400)
+            elif type(content) == dict and request.format.upper() == "JSON":
+                # or do a data validation
+                validictory.validate(data, content)
+
+            # call the function
+            return func(*args, **kwargs)
+
+        # get the default application name from decorated function
+        if inline_handler.app_name:
+            _app_name = inline_handler.app_name
+        else:
+            _app_name = func.__module__.split('.')[0]
+
+        class InlineRestHandler(RestHandler):
+            version = inline_handler.version
+            regex = inline_handler.regex
+            name = inline_handler.name
+            app_name = _app_name
+
+        # register the wrapper
+        InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, [])
+
+        return wrapper
+
+    return decorator
+
+
+def def_inline_admin_request(inline_handler, method, format, parameters=(), content=(), fallback=None):
+    """
+    Same as :meth:`def_inline_request` but in addition the user must be authenticated.
+
+    Parameters
+    ----------
+
+    fallback: func
+        Optional callback function called in case the user is not authenticated.
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            request = args[0]
+
+            # add the parameters to the request
+            request.format = format
+            request.parameters = parameters
+
+            # check for user authentication
+            if not request.user.is_authenticated():
+                if fallback:
+                    fallback()
+                raise ViewExceptionRest("Unauthorized", 401)
+
+            # check for super-user authentication
+            if not request.user.is_superuser:
+                if fallback:
+                    fallback()
+                raise ViewExceptionRest("Forbidden", 403)
+
+            # check for the existence of the parameters into the encoded URL
+            for p in parameters:
+                if p not in request.GET:
+                    raise ViewExceptionRest("Missing parameter " + p, 400)
+
+            # check for the existence of the values into the encoded body
+            data = request.data if hasattr(request, 'data') else request.POST
+
+            if type(content) == tuple:
+                for p in content:
+                    if p not in data:
+                        raise ViewExceptionRest("Missing parameter " + p, 400)
+            elif type(content) == dict and request.format.upper() == "JSON":
+                # or do a data validation
+                validictory.validate(data, content)
+
+            # call the function
+            return func(*args, **kwargs)
+
+        # get the default application name from decorated function
+        if inline_handler.app_name:
+            _app_name = inline_handler.app_name
+        else:
+            _app_name = func.__module__.split('.')[0]
+
+        class InlineRestHandler(RestHandler):
+            version = inline_handler.version
+            regex = inline_handler.regex
+            name = inline_handler.name
+            app_name = _app_name
 
         # register the wrapper
         InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, [])
