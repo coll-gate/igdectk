@@ -15,6 +15,8 @@ import logging
 from django.apps import apps
 from django.conf.urls import url
 
+import igdectk.xml
+
 from .restmiddleware import ViewExceptionRest
 from igdectk.common.helpers import *
 
@@ -95,10 +97,14 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         methods = cls.methods.get(request.method)
 
         if methods:
-            if request.META['CONTENT_TYPE'].startswith('application/json') and request.body:
+            if request.header.content_type[0] == 'application/json' and request.body:
                 data = json.loads(request.body.decode())
+            elif request.header.content_type[0] == 'application/xml' and request.body:
+                data = igdectk.xml.loads(request.body.decode())
+            elif request.header.content_type[0] == 'multipart/form-data':
+                data = request.POST  # Form POST encoded
             else:
-                data = request.POST
+                data = request.POST  # Form POST encoded
 
             # check for the existence of the parameters into the encoded URL
             for p in request.parameters:
@@ -107,44 +113,53 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
             request.data = data
 
-            # constrained by GET parameters method
-            if type(methods) is list:
-                sub = None
-                fallback = None
+            # conditionned selection of the handler
+            sub = None
+            fallback = None
 
-                for submethod in methods:
-                    sub = submethod
+            for submethod in methods:
+                sub = submethod
 
-                    # fallback method is the one having no conditions
-                    if not submethod[4]:
-                        fallback = sub
-                        continue
+                # fallback method is the one having only the accept condition
+                if len(submethod[4]) == 1 and submethod[4][0][2] is 'accept':
+                    fallback = sub
+                    continue
 
-                    for condition in submethod[4]:
+                for condition in submethod[4]:
+                    # key/value URL parameters (must be equal)
+                    if condition[2] == 'eq':
                         # compare key
                         if condition[0] not in request.GET:
                             sub = None
                             break
 
-                        # compare value
-                        if condition[2] == 'eq':
-                            if condition[1] != request.GET[condition[0]]:
+                        # and value
+                        if condition[1] != request.GET[condition[0]]:
+                            sub = None
+                            break
+                    # key in URL (just contains)
+                    elif condition[2] == 'has':
+                        # compare key
+                        if condition[0] not in request.GET:
+                            sub = None
+                            break
+                    # or HTTP_ACCEPT (must be equal)
+                    elif condition[2] == 'accept':
+                        # accept any
+                        if request.header.accepted_types != ['*/*']:
+                            # compare content
+                            if condition[0] not in request.header.accepted_types:
                                 sub = None
                                 break
-                        # or just contains
-                        elif condition[2] == 'has':
-                            break
 
-                    # we have our method
-                    if sub:
-                        break
-
+                # we have our method
                 if sub:
-                    method = sub
-                else:
-                    method = fallback
+                    break
+
+            if sub:
+                method = sub
             else:
-                method = methods
+                method = fallback
 
             if method:
                 result = method[0](request, **kwargs)
@@ -157,12 +172,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
         # when no view is defined for the method, there is no decorator
         # to apply the format, so we have to look what client ask for
-        if request.META['CONTENT_TYPE'].startswith('application/json'):
-            request.format = 'JSON'
-        elif request.META['CONTENT_TYPE'].startswith('application/xml'):
-            request.format = 'XML'
-        else:
-            request.format = 'HTML'
+        request.format = request.header.prefered_type(True)
 
         raise ViewExceptionRest(
             'Undefined view for %s %s' % (request.path, request.method), 404)
@@ -184,6 +194,9 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
     @classmethod
     def _register_wrapper(cls, wrapper, method, format, parameters, content, conditions):
+        """
+        Internaly register a wrapper for a specific method and conditions.
+        """
         # register the wrapper
         if cls.methods.get(method):
             # look for an existing empty conditions wrapper for this method
@@ -191,28 +204,50 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 methods = cls.methods[method]
                 failed = False
 
-                if type(methods) is list:
-                    for m in methods:
-                        if not m[4]:
-                            failed = True
-                else:
-                    if not methods[4]:
+                for m in methods:
+                    if not m[4]:
                         failed = True
 
                 if failed:
                     raise RestRegistrationException(
                         "Only one empty conditions wrapper is allowed per method of a REST handler")
 
-            if type(cls.methods[method]) is list:
-                cls.methods[method].append(
-                    (wrapper, format, parameters, content, conditions))
-            else:
-                cls.methods[method] = [
-                    cls.methods[method],
-                    (wrapper, format, parameters, content, conditions)
-                ]
+            cls.methods[method].append((wrapper, format, parameters, content, conditions))
         else:
-            cls.methods[method] = (wrapper, format, parameters, content, conditions)
+            cls.methods[method] = [(wrapper, format, parameters, content, conditions)]
+
+    @staticmethod
+    def _make_conditions(format, kwargs):
+        """
+        For requests decorator submethod creating the conditions
+        for a specific method, using optionals arguments dictionnary.
+        This conditions list is a parameter for :meth:`_register_wrapper`.
+        """
+        # parse the url__ conditions
+        conditions = []
+
+        for argn, argv in kwargs.items():
+            # url constraint for a key having value equality
+            if argn.startswith('url__'):
+                conditions.append((argn[5:], argv, 'eq'))
+            # url constraint presence of a key
+            elif argn == 'url_contains':
+                for a in argv:
+                    conditions.append((a, '', 'has'))
+
+        # HTTP_ACCEPT must respect the format value
+        if format.upper() == 'JSON':
+            accept = 'application/json'
+        elif format.upper() == 'XML':
+            accept = 'application/xml'
+        elif format.upper() == 'HTML':
+            accept = 'text/html'
+        else:
+            raise RestRegistrationException('%s is not a supported accept format' % argv)
+
+        conditions.append((accept, '', 'accept'))
+
+        return conditions
 
     @classmethod
     def def_request(cls, method, format, parameters=(), content=(), **kwargs):
@@ -247,6 +282,10 @@ class RestHandler(object, metaclass=RestHandlerMeta):
             A list of strings or an empty list, containing the names of the
             mandatory parameters requested in the body.
 
+        accept: string
+            Specify a request method accepting only to returns a specific format.
+            Must be 'JSON', 'XML', 'HTML' or None.
+
         conditions: string
             The next parameters if theirs names starts with a 'url__' will
             be used as condition expression for the url parameters.
@@ -256,6 +295,9 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
             This is useful to have many action for a same HTTP method.
             It is possible to have many 'url__' conditions.
+
+        url_contains: tuple
+            Tuple of URL parameters that identify this handler.
 
         Notes
         -----
@@ -291,15 +333,8 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 # call the function
                 return func(*args, **kwargs)
 
-            # parse the url__ conditions
-            conditions = []
-
-            for argn, argv in kwargs.items():
-                if argn.startswith('url__'):
-                    conditions.append((argn[5:], argv, 'eq'))
-                elif argn == 'url_contains':
-                    for a in argv:
-                        conditions.append((a, '', 'has'))
+            # target conditions
+            conditions = RestHandler._make_conditions(format, kwargs)
 
             # register the wrapper
             cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
@@ -353,15 +388,8 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 # call the function
                 return func(*args, **kwargs)
 
-            # parse the url__ conditions
-            conditions = []
-
-            for argn, argv in kwargs.items():
-                if argn.startswith('url__'):
-                    conditions.append((argn[5:], argv, 'eq'))
-                elif argn == 'url_contains':
-                    for a in argv:
-                        conditions.append((a, '', 'has'))
+            # target conditions
+            conditions = RestHandler._make_conditions(format, kwargs)
 
             # register the wrapper
             cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
@@ -422,15 +450,8 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 # call the function
                 return func(*args, **kwargs)
 
-            # parse the url__ conditions
-            conditions = []
-
-            for argn, argv in kwargs.items():
-                if argn.startswith('url__'):
-                    conditions.append((argn[5:], argv, 'eq'))
-                elif argn == 'url_contains':
-                    for a in argv:
-                        conditions.append((a, '', 'has'))
+            # target conditions
+            conditions = RestHandler._make_conditions(format, kwargs)
 
             # register the wrapper
             cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
@@ -449,7 +470,7 @@ class InlineRestHandler(object):
         self.version = version
 
 
-def def_inline_request(inline_handler, method, format, parameters=(), content=()):
+def def_inline_request(inline_handler, method, format, parameters=(), content=(), **kwargs):
     """
     Check the method of the request, and then the list of parameters.
     If the format is incorrect or a parameter is missing raise a ViewException
@@ -468,7 +489,7 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
         'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'
 
     format: string
-        'JSON' or 'HTML', defines the format of the http response.
+        'JSON', 'HTML' or 'XML' defines the format of the HTTP response.
 
     parameters: list
         A list of strings or an empty list, containing the names of the
@@ -517,15 +538,18 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
             name = inline_handler.name
             app_name = _app_name
 
+        # target conditions
+        conditions = RestHandler._make_conditions(format, kwargs)
+
         # register the wrapper
-        InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, [])
+        InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, conditions)
 
         return wrapper
 
     return decorator
 
 
-def def_inline_auth_request(inline_handler, method, format, parameters=(), content=(), fallback=None):
+def def_inline_auth_request(inline_handler, method, format, parameters=(), content=(), fallback=None, **kwargs):
     """
     Same as :func:`def_inline_request` but in addition the user must be authenticated.
 
@@ -580,15 +604,18 @@ def def_inline_auth_request(inline_handler, method, format, parameters=(), conte
             name = inline_handler.name
             app_name = _app_name
 
+        # target conditions
+        conditions = RestHandler._make_conditions(format, kwargs)
+
         # register the wrapper
-        InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, [])
+        InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, conditions)
 
         return wrapper
 
     return decorator
 
 
-def def_inline_admin_request(inline_handler, method, format, parameters=(), content=(), fallback=None):
+def def_inline_admin_request(inline_handler, method, format, parameters=(), content=(), fallback=None, **kwargs):
     """
     Same as :meth:`def_inline_request` but in addition the user must be authenticated.
 
@@ -649,8 +676,11 @@ def def_inline_admin_request(inline_handler, method, format, parameters=(), cont
             name = inline_handler.name
             app_name = _app_name
 
+        # target conditions
+        conditions = RestHandler._make_conditions(format, kwargs)
+
         # register the wrapper
-        InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, [])
+        InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, conditions)
 
         return wrapper
 

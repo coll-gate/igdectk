@@ -11,3 +11,7 @@ from .encoder import Encoder
 
 def dumps(obj):
     return Encoder().encode(obj)
+
+
+def loads(data):
+    raise Exception("Undefined loads...")
