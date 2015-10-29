@@ -18,6 +18,8 @@ from django.conf.urls import url
 import igdectk.xml
 
 from .restmiddleware import ViewExceptionRest
+
+from igdectk.rest import Format
 from igdectk.common.helpers import *
 
 __date__ = "2015-10-15"
@@ -56,7 +58,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
     name = ''
     app_name = None
     application = None
-    methods = []
+    methods = {}
 
     unprocessed_handlers = []  # intermediary list of handles to register
     handlers = []              # list of registered handlers (by register_urls)
@@ -97,19 +99,15 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         methods = cls.methods.get(request.method)
 
         if methods:
-            if request.header.content_type[0] == 'application/json' and request.body:
+            # decode the incoming data (json, xml, form-data, multipart/form-data)
+            if request.header.content_format == Format.JSON and request.body:
                 data = json.loads(request.body.decode())
-            elif request.header.content_type[0] == 'application/xml' and request.body:
+            elif request.header.content_format == Format.XML and request.body:
                 data = igdectk.xml.loads(request.body.decode())
-            elif request.header.content_type[0] == 'multipart/form-data':
+            elif request.header.content_format == Format.MULTIPART:
                 data = request.POST  # Form POST encoded
             else:
                 data = request.POST  # Form POST encoded
-
-            # check for the existence of the parameters into the encoded URL
-            for p in request.parameters:
-                if p not in request.GET:
-                    raise ViewExceptionRest("Missing parameter " + p, 400)
 
             request.data = data
 
@@ -122,8 +120,11 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
                 # fallback method is the one having only the accept condition
                 if len(submethod[4]) == 1 and submethod[4][0][2] is 'accept':
-                    fallback = sub
-                    continue
+                    if request.header.accepted_types != ['*/*']:
+                        # compare accept
+                        if submethod[4][0][0] == request.header.accepted_types:
+                            fallback = sub
+                            continue
 
                 for condition in submethod[4]:
                     # key/value URL parameters (must be equal)
@@ -147,21 +148,23 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                     elif condition[2] == 'accept':
                         # accept any
                         if request.header.accepted_types != ['*/*']:
-                            # compare content
+                            # compare accept
                             if condition[0] not in request.header.accepted_types:
                                 sub = None
                                 break
 
-                # we have our method
+                # we have our candidat
                 if sub:
                     break
 
+            # if no candidat, try to use fallback
             if sub:
                 method = sub
             else:
                 method = fallback
 
             if method:
+                # call the request function by calling its decorator wrapper
                 result = method[0](request, **kwargs)
 
                 if not result:
@@ -172,7 +175,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
         # when no view is defined for the method, there is no decorator
         # to apply the format, so we have to look what client ask for
-        request.format = request.header.prefered_type(True)
+        request.format = request.header.prefered_type
 
         raise ViewExceptionRest(
             'Undefined view for %s %s' % (request.path, request.method), 404)
@@ -198,26 +201,28 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         Internaly register a wrapper for a specific method and conditions.
         """
         # register the wrapper
-        if cls.methods.get(method):
-            # look for an existing empty conditions wrapper for this method
-            if not conditions:
-                methods = cls.methods[method]
-                failed = False
+        if method.name in cls.methods:
+            # look for an existing similar entry
+            methods = cls.methods[method.name]
 
-                for m in methods:
-                    if not m[4]:
-                        failed = True
+            for m in methods:
+                if len(m[4]) == len(conditions):
+                    count = 0
 
-                if failed:
-                    raise RestRegistrationException(
-                        "Only one empty conditions wrapper is allowed per method of a REST handler")
+                    for condition in conditions:
+                        if condition in m[4]:
+                            count += 1
 
-            cls.methods[method].append((wrapper, format, parameters, content, conditions))
+                    if count == len(conditions):
+                        raise RestRegistrationException(
+                            "Duplicate entry for %s with %s" % (cls.__name__, wrapper.target_name))
+
+            cls.methods[method.name].append((wrapper, format, parameters, content, conditions))
         else:
-            cls.methods[method] = [(wrapper, format, parameters, content, conditions)]
+            cls.methods[method.name] = [(wrapper, format, parameters, content, conditions)]
 
     @staticmethod
-    def _make_conditions(format, kwargs):
+    def _make_conditions(format, parameters, kwargs):
         """
         For requests decorator submethod creating the conditions
         for a specific method, using optionals arguments dictionnary.
@@ -230,22 +235,13 @@ class RestHandler(object, metaclass=RestHandlerMeta):
             # url constraint for a key having value equality
             if argn.startswith('url__'):
                 conditions.append((argn[5:], argv, 'eq'))
-            # url constraint presence of a key
-            elif argn == 'url_contains':
-                for a in argv:
-                    conditions.append((a, '', 'has'))
+
+        # url constraint presence of a parameter
+        for param in parameters:
+            conditions.append((param, '', 'has'))
 
         # HTTP_ACCEPT must respect the format value
-        if format.upper() == 'JSON':
-            accept = 'application/json'
-        elif format.upper() == 'XML':
-            accept = 'application/xml'
-        elif format.upper() == 'HTML':
-            accept = 'text/html'
-        else:
-            raise RestRegistrationException('%s is not a supported accept format' % argv)
-
-        conditions.append((accept, '', 'accept'))
+        conditions.append((format.accept, '', 'accept'))
 
         return conditions
 
@@ -268,11 +264,12 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
         Parameters
         ----------
-        method: string
-            'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'
+        method: igdectk.rest.Method
+            One of the Method value (GET, POST...) define the accepted method.
 
-        format: string
-            'JSON' or 'HTML', defines the format of the http response.
+        format: igdectk.rest.Format
+            One of the Format value (JSON, HTML...) defines the format of the http response,
+            and the accepted value from HTTP_ACCEPT.
 
         parameters: list
             A list of strings or an empty list, containing the names of the
@@ -281,10 +278,6 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         content: list
             A list of strings or an empty list, containing the names of the
             mandatory parameters requested in the body.
-
-        accept: string
-            Specify a request method accepting only to returns a specific format.
-            Must be 'JSON', 'XML', 'HTML' or None.
 
         conditions: string
             The next parameters if theirs names starts with a 'url__' will
@@ -295,9 +288,6 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
             This is useful to have many action for a same HTTP method.
             It is possible to have many 'url__' conditions.
-
-        url_contains: tuple
-            Tuple of URL parameters that identify this handler.
 
         Notes
         -----
@@ -314,11 +304,6 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 request.format = format
                 request.parameters = parameters
 
-                # check for the existence of the parameters into the encoded URL
-                for p in parameters:
-                    if p not in request.GET:
-                        raise ViewExceptionRest("Missing parameter " + p, 400)
-
                 # check for the existence of the values into the encoded body
                 data = request.data if hasattr(request, 'data') else request.POST
 
@@ -326,7 +311,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                     for p in content:
                         if p not in data:
                             raise ViewExceptionRest("Missing parameter " + p, 400)
-                elif type(content) == dict and request.format.upper() == "JSON":
+                elif type(content) == dict and request.header.content_type[0] == Format.JSON.content_type:
                     # or do a data validation
                     validictory.validate(data, content)
 
@@ -334,9 +319,10 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 return func(*args, **kwargs)
 
             # target conditions
-            conditions = RestHandler._make_conditions(format, kwargs)
+            conditions = RestHandler._make_conditions(format, parameters, kwargs)
 
             # register the wrapper
+            wrapper.target_name = func.__module__ + '.' + func.__qualname__
             cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
 
             return wrapper
@@ -369,29 +355,26 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                         fallback()
                     raise ViewExceptionRest("Unauthorized", 401)
 
-                # check for the existence of the parameters into the encoded URL
-                for p in parameters:
-                    if p not in request.GET:
-                        raise ViewExceptionRest("Missing parameter " + p, 400)
-
                 # check for the existence of the values into the encoded body
                 data = request.data if hasattr(request, 'data') else request.POST
 
                 if type(content) == tuple:
+                    # simple existence of a parameter into the body (dict and flat model)
                     for p in content:
                         if p not in data:
                             raise ViewExceptionRest("Missing parameter " + p, 400)
-                elif type(content) == dict and request.format.upper() == "JSON":
-                    # or do a data validation
+                elif type(content) == dict and request.header.content_format == Format.JSON:
+                    # or do a data validation for JSON content (dict and tree model)
                     validictory.validate(data, content)
 
                 # call the function
                 return func(*args, **kwargs)
 
             # target conditions
-            conditions = RestHandler._make_conditions(format, kwargs)
+            conditions = RestHandler._make_conditions(format, parameters, kwargs)
 
             # register the wrapper
+            wrapper.target_name = func.__module__ + '.' + func.__qualname__
             cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
 
             return wrapper
@@ -431,29 +414,26 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                         fallback()
                     raise ViewExceptionRest("Forbidden", 403)
 
-                # check for the existence of the parameters into the encoded URL
-                for p in parameters:
-                    if p not in request.GET:
-                        raise ViewExceptionRest("Missing parameter " + p, 400)
-
                 # check for the existence of the values into the encoded body
                 data = request.data if hasattr(request, 'data') else request.POST
 
                 if type(content) == tuple:
+                    # simple existence of a parameter into the body (dict and flat model)
                     for p in content:
                         if p not in data:
                             raise ViewExceptionRest("Missing parameter " + p, 400)
-                elif type(content) == dict and request.format.upper() == "JSON":
-                    # or do a data validation
+                elif type(content) == dict and request.header.content_format == Format.JSON:
+                    # or do a data validation for JSON content (dict and tree model)
                     validictory.validate(data, content)
 
                 # call the function
                 return func(*args, **kwargs)
 
             # target conditions
-            conditions = RestHandler._make_conditions(format, kwargs)
+            conditions = RestHandler._make_conditions(format, parameters, kwargs)
 
             # register the wrapper
+            wrapper.target_name = func.__module__ + '.' + func.__qualname__
             cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
 
             return wrapper
@@ -472,9 +452,15 @@ class InlineRestHandler(object):
 
 def def_inline_request(inline_handler, method, format, parameters=(), content=(), **kwargs):
     """
-    Check the method of the request, and then the list of parameters.
+    Request function register and wrapper for non auth requests.
+
+    Check the list of mandatory URL parameters.
+
+    Check the list of mandatory content Form/JSON parameters, or validate the
+    content using validictory format.
+
     If the format is incorrect or a parameter is missing raise a ViewException
-    Html or Json depending of the format.
+    HTML or JSON depending of the format.
 
     If it pass the test, the function will contains two news parameters :
         - method : from the decorator
@@ -482,14 +468,12 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
 
     Parameters
     ----------
-    inline_handler: InlineRestHandler
-        Inline version of the RestHandler class definition.
+    method: igdectk.rest.Method
+        One of the Method value (GET, POST...) define the accepted method.
 
-    method: string
-        'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'
-
-    format: string
-        'JSON', 'HTML' or 'XML' defines the format of the HTTP response.
+    format: igdectk.rest.Format
+        One of the Format value (JSON, HTML...) defines the format of the http response,
+        and the accepted value from HTTP_ACCEPT.
 
     parameters: list
         A list of strings or an empty list, containing the names of the
@@ -498,6 +482,22 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
     content: list
         A list of strings or an empty list, containing the names of the
         mandatory parameters requested in the body.
+
+    conditions: string
+        The next parameters if theirs names starts with a 'url__' will
+        be used as condition expression for the url parameters.
+
+        For example, having url__action='save' mean that the url must
+        contains the parameter action with the value 'save'.
+
+        This is useful to have many action for a same HTTP method.
+        It is possible to have many 'url__' conditions.
+
+    Notes
+    -----
+
+        Only once free of conditions method per handler can be registered.
+        Otherwise a :any:`RestRegistrationException` exception is raised.
     """
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -507,20 +507,16 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
             request.format = format
             request.parameters = parameters
 
-            # check for the existence of the parameters into the encoded URL
-            for p in parameters:
-                if p not in request.GET:
-                    raise ViewExceptionRest("Missing parameter " + p, 400)
-
             # check for the existence of the values into the encoded body
             data = request.data if hasattr(request, 'data') else request.POST
 
             if type(content) == tuple:
+                # simple existence of a parameter into the body (dict and flat model)
                 for p in content:
                     if p not in data:
                         raise ViewExceptionRest("Missing parameter " + p, 400)
-            elif type(content) == dict and request.format.upper() == "JSON":
-                # or do a data validation
+            elif type(content) == dict and request.header.content_format == Format.JSON:
+                # or do a data validation for JSON content (dict and tree model)
                 validictory.validate(data, content)
 
             # call the function
@@ -539,9 +535,10 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
             app_name = _app_name
 
         # target conditions
-        conditions = RestHandler._make_conditions(format, kwargs)
+        conditions = RestHandler._make_conditions(format, parameters, kwargs)
 
         # register the wrapper
+        wrapper.target_name = func.__module__ + '.' + func.__qualname__
         InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, conditions)
 
         return wrapper
@@ -573,20 +570,16 @@ def def_inline_auth_request(inline_handler, method, format, parameters=(), conte
                     fallback()
                 raise ViewExceptionRest("Unauthorized", 401)
 
-            # check for the existence of the parameters into the encoded URL
-            for p in parameters:
-                if p not in request.GET:
-                    raise ViewExceptionRest("Missing parameter " + p, 400)
-
             # check for the existence of the values into the encoded body
             data = request.data if hasattr(request, 'data') else request.POST
 
             if type(content) == tuple:
+                # simple existence of a parameter into the body (dict and flat model)
                 for p in content:
                     if p not in data:
                         raise ViewExceptionRest("Missing parameter " + p, 400)
-            elif type(content) == dict and request.format.upper() == "JSON":
-                # or do a data validation
+            elif type(content) == dict and request.header.content_format == Format.JSON:
+                # or do a data validation for JSON content (dict and tree model)
                 validictory.validate(data, content)
 
             # call the function
@@ -605,9 +598,10 @@ def def_inline_auth_request(inline_handler, method, format, parameters=(), conte
             app_name = _app_name
 
         # target conditions
-        conditions = RestHandler._make_conditions(format, kwargs)
+        conditions = RestHandler._make_conditions(format, parameters, kwargs)
 
         # register the wrapper
+        wrapper.target_name = func.__module__ + '.' + func.__qualname__
         InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, conditions)
 
         return wrapper
@@ -645,20 +639,16 @@ def def_inline_admin_request(inline_handler, method, format, parameters=(), cont
                     fallback()
                 raise ViewExceptionRest("Forbidden", 403)
 
-            # check for the existence of the parameters into the encoded URL
-            for p in parameters:
-                if p not in request.GET:
-                    raise ViewExceptionRest("Missing parameter " + p, 400)
-
             # check for the existence of the values into the encoded body
             data = request.data if hasattr(request, 'data') else request.POST
 
             if type(content) == tuple:
+                # simple existence of a parameter into the body (dict and flat model)
                 for p in content:
                     if p not in data:
                         raise ViewExceptionRest("Missing parameter " + p, 400)
-            elif type(content) == dict and request.format.upper() == "JSON":
-                # or do a data validation
+            elif type(content) == dict and request.header.content_format == Format.JSON:
+                # or do a data validation for JSON content (dict and tree model)
                 validictory.validate(data, content)
 
             # call the function
@@ -677,9 +667,10 @@ def def_inline_admin_request(inline_handler, method, format, parameters=(), cont
             app_name = _app_name
 
         # target conditions
-        conditions = RestHandler._make_conditions(format, kwargs)
+        conditions = RestHandler._make_conditions(format, parameters, kwargs)
 
         # register the wrapper
+        wrapper.target_name = func.__module__ + '.' + func.__qualname__
         InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, conditions)
 
         return wrapper

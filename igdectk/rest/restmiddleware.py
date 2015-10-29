@@ -21,6 +21,8 @@ from django.core.urlresolvers import resolve
 from django.apps import apps
 from django.utils.translation.trans_real import parse_accept_lang_header
 
+from igdectk.rest import Format
+
 __date__ = "2015-04-13"
 __author__ = "Frédéric Scherma"
 
@@ -109,6 +111,10 @@ class HttpHeader(object):
         self._accept_languages = None
         self._accepted_laguages_codes = None
 
+        # CONTENT_TYPE
+        self._content_type = None
+        self._content_format = None
+
     def _cache_http_accept(self):
         accept = parse_accept_header(self.request.META.get("HTTP_ACCEPT", ""))
         self._accept = accept
@@ -128,15 +134,25 @@ class HttpHeader(object):
             self._cache_http_accept()
         return self._accepted_types
 
-    def prefered_type(self, simplified=False):
+    @property
+    def prefered_type(self):
         # not cached
         if not self._accepted_types:
             self._cache_http_accept()
 
-        if simplified:
-            return self._accepted_types[0].split('/')[1].upper() if self._accepted_types else 'HTML'
-        else:
-            return self._accepted_types[0] if self._accepted_types else 'text/html'
+        if not self._accepted_types:
+            return Format.HTML
+
+        if self._accepted_types[0] == Format.JSON.content_type:
+            return Format.JSON
+        elif self._accepted_types[0] == Format.XML.content_type:
+            return Format.XML
+        elif self._accepted_types[0] == Format.HTML.content_type:
+            return Format.HTML
+        elif self._accepted_types[0] == Format.MULTIPART.content_type:
+            return Format.MULTIPART
+        elif self._accepted_types[0] == Format.TEXT.content_type:
+            return Format.TEXT
 
     def _cache_http_accept_language(self):
         accept_language = parse_accept_lang_header(self.request.META.get("HTTP_ACCEPT_LANGUAGE", ""))
@@ -157,13 +173,39 @@ class HttpHeader(object):
             self._cache_http_accept_language()
         return self._accepted_language_codes
 
+    def _cache_content_type(self):
+        self._content_type = parse_content_type(self.request.META.get("CONTENT_TYPE", ""))
+
+        if self._content_type[0] == Format.JSON.content_type:
+            self._content_format = Format.JSON
+        elif self._content_type[0] == Format.XML.content_type:
+            self._content_format = Format.XML
+        elif self._content_type[0] == Format.HTML.content_type:
+            self._content_format = Format.HTML
+        elif self._content_type[0] == Format.MULTIPART.content_type:
+            self._content_format = Format.MULTIPART
+        elif self._content_type[0] == Format.TEXT.content_type:
+            self._content_format = Format.TEXT
+        else:
+            self._content_format = Format.ANY
+
     @property
     def content_type(self):
         """
         Returns a pair with content type and a tuples of content settings.
         """
-        content_type = parse_content_type(self.request.META.get("CONTENT_TYPE", ""))
-        return content_type
+        if not self._content_type:
+            self._cache_content_type()
+        return self._content_type
+
+    @property
+    def content_format(self):
+        """
+        Returns a Format for the content type.
+        """
+        if not self._content_format:
+            self._cache_content_type()
+        return self._content_format
 
 
 class IGdecTkRestMiddleware(object):
@@ -183,7 +225,7 @@ class IGdecTkRestMiddleware(object):
 
     def process_request(self, request):
         # default request data format to HTML
-        request.format = 'HTML'
+        request.format = Format.HTML
 
         # an empty list of url parameters
         request.parameters = ()
@@ -205,7 +247,7 @@ class IGdecTkRestMiddleware(object):
             logger.error(traceback.format_exc())
 
         # JSON format
-        if request.format == 'JSON':
+        if request.format == Format.JSON:
             jsondata = json.dumps({
                 "result": "failed",
                 "cause": message,
@@ -219,10 +261,10 @@ class IGdecTkRestMiddleware(object):
             }
             response_type = types.get(code, http.HttpResponse)
 
-            return response_type(jsondata, content_type="application/json")
+            return response_type(jsondata, content_type=Format.JSON.content_type)
 
         # HTML format
-        elif request.format == 'HTML':
+        elif request.format == Format.HTML:
             types = {
                 400: http.HttpResponseBadRequest,
                 401: HttpResponseUnauthorized,

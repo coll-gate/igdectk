@@ -7,7 +7,6 @@
 """
 
 import json
-import igdectk.xml
 
 from datetime import date, datetime
 
@@ -15,6 +14,10 @@ from django.core import serializers
 from django.http import HttpResponse
 from django.db.models.query import QuerySet
 from django.db.models import Model
+
+import igdectk.xml
+
+from igdectk.rest import Format
 
 __date__ = "2015-04-13"
 __author__ = "Frédéric Scherma"
@@ -49,11 +52,15 @@ def HttpResponseRest(request, data):
     Format is automaticaly added when using the
     :class:`igdectk.rest.restmiddleware.IGdecTkRestMiddleware` and views decorators.
     """
-    if request.format == 'JSON':
-        jsondata = json.dumps(data, cls=ComplexEncoder)
-        return HttpResponse(jsondata, content_type="application/json")
-    elif request.format == 'HTML':
+    if request.format == Format.JSON:
+        encoded = json.dumps(data, cls=ComplexEncoder)
+        return HttpResponse(encoded, content_type=Format.JSON.content_type)
+    elif request.format == Format.HTML:
         return HttpResponse(data)
-    elif request.format == 'XML':
-        xmldata = igdectk.xml.dumps(data)
-        return HttpResponse(xmldata)
+    elif request.format == Format.XML:
+        encoded = igdectk.xml.dumps(data)
+        return HttpResponse(encoded, content_type=Format.XML.content_type)
+    elif request.format == Format.TEXT:
+        return HttpResponse(data, content_type=Format.TEXT.content_type)
+    else:
+        return None
