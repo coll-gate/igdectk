@@ -2,6 +2,10 @@
 #
 # Copyright (c) 2015 INRA UMR1095 GDEC
 
+"""
+Advanced CSRF middleware for django.
+"""
+
 from __future__ import unicode_literals
 
 from django.conf import settings

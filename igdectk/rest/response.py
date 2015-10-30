@@ -3,7 +3,7 @@
 # Copyright (c) 2015 INRA UMR1095 GDEC
 
 """
-    Usefull common responses.
+Usefull common responses.
 """
 
 import json

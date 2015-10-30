@@ -3,7 +3,7 @@
 # Copyright (c) 2015 INRA UMR1095 GDEC
 
 """
-    Simplest XML encoder.
+Simplest XML encoder.
 """
 
 from datetime import date, datetime

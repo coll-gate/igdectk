@@ -2,6 +2,10 @@
 #
 # Copyright (c) 2015 INRA UMR1095 GDEC
 
+"""
+ldap authentication backend for django.
+"""
+
 from __future__ import unicode_literals
 
 import ldap3

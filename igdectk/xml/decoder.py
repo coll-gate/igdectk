@@ -3,7 +3,7 @@
 # Copyright (c) 2015 INRA UMR1095 GDEC
 
 """
-    Simplest XML decoder.
+Simplest XML decoder.
 """
 
 import xml.etree.cElementTree as etree

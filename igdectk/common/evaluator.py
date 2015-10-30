@@ -3,8 +3,8 @@
 # Copyright (c) 2015 INRA UMR1095 GDEC
 
 """
-    Python expression safe evaluator, supporting basic mathematics and
-    booleans operators.
+Python expression safe evaluator, supporting basic mathematics and
+booleans operators.
 """
 
 import ast

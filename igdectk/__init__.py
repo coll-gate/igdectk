@@ -2,6 +2,10 @@
 #
 # Copyright (c) 2015 INRA UMR1095 GDEC
 
+"""
+init of the igdectk package.
+"""
+
 __title__ = 'INRA GDEC Toolkit'
 __copyright__ = "Copyright (c) 2015 INRA UMR1095 GDEC"
 __organisation__ = "INRA"

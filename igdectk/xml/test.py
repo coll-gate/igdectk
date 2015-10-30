@@ -1,8 +1,15 @@
+# -*- coding: utf-8; -*-
+#
+# Copyright (c) 2015 INRA UMR1095 GDEC
+
+"""
+xml sub-package unit tests.
+"""
+
 import unittest
 
 from .decoder import Decoder
 from .encoder import Encoder
-
 
 xml1 = """
 <encspot test="true">

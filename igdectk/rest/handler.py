@@ -3,8 +3,8 @@
 # Copyright (c) 2015 INRA UMR1095 GDEC
 
 """
-    Easy manage RESTfull urls and views according
-    to the HTTP method and content format.
+Easy manage RESTfull urls and views according
+to the HTTP method and content format.
 """
 
 import re

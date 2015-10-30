@@ -3,11 +3,11 @@
 # Copyright (c) 2015 INRA UMR1095 GDEC
 
 """
-    Middleware thats manage common view errors.
-    The middleware decorate the request with a format (HTML by default),
-    and by a list of URL parameters.
-    When a view is decorated by def_request or def_auth_request,
-    this modify the data attached to the request and the format.
+Middleware thats manage common view errors.
+The middleware decorate the request with a format (HTML by default),
+and by a list of URL parameters.
+When a view is decorated by def_request or def_auth_request,
+this modify the data attached to the request and the format.
 """
 
 import json
