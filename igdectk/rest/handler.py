@@ -7,6 +7,7 @@
     to the HTTP method and content format.
 """
 
+import re
 import json
 import validictory
 
@@ -14,12 +15,13 @@ import logging
 
 from django.apps import apps
 from django.conf.urls import url
+from django.shortcuts import render, redirect
 
 import igdectk.xml
 
 from .restmiddleware import ViewExceptionRest
 
-from igdectk.rest import Format
+from igdectk.rest import Format, Method
 from igdectk.common.helpers import *
 
 __date__ = "2015-10-15"
@@ -38,41 +40,210 @@ class RestRegistrationException(Exception):
     pass
 
 
+class RestForm(object):
+
+    """
+    Rest handler to register a form with GET and POST method and HTML format.
+
+    Attributes
+    ----------
+
+    form_class: django.forms.Form
+        Django formular class.
+
+    form_template: string
+        Complete name of the template used to render the formular.
+
+    form_template_name: string
+        Name of the template form variable. Default is 'form'.
+
+    auth : boolean
+        True if the user must be authenticated. Default False.
+
+    admin : boolean
+        True if the user must be a super-user. Default False.
+
+    redirect: boolean
+        If True, when form POST success the client is redirected to attr:`success`
+        location.
+
+    success: string
+        If attr:`redirect` is True success defines the location URL to the redirection
+        when form POST success.
+        If False, success defines the template name to render.
+    """
+
+    form_class = None
+    form_template = ''
+    form_template_name = 'form'
+
+    auth = False
+    admin = False
+
+    redirect = True
+    success = '/'
+
+    @classmethod
+    def get(cls, request, form):
+        """
+        Method to override when it is necessary to perform initialization
+        on the form before sending it to the client.
+
+        It is permit to raise an exception here.
+        """
+        pass
+
+    @classmethod
+    def valid_form(cls, request, form):
+        """
+        Method to override to use the result of the form, when it pass
+        the django form validation tests. For example updating a model.
+
+        If False is returned the form page is returned to the client.
+
+        It is permit to raise an exception here.
+        """
+        pass
+
+    @classmethod
+    def invalid_form(cls, request, form):
+        """
+        Method to override to use the result of the form, when it failed
+        to pass the django form validation tests. For example highlight
+        some fields, display an error message..
+
+        It is permit to raise an exception here.
+        """
+        pass
+
+    @classmethod
+    def _register_form(cls, handler):
+        # target conditions
+        conditions = RestHandler._make_conditions(Format.HTML, (), {})
+
+        # register the 'get' wrapper
+        def wrapper_get(*args, **kwargs):
+            request = args[0]
+
+            # check for user authentication
+            if cls.auth and not request.user.is_authenticated():
+                raise ViewExceptionRest("Unauthorized", 401)
+
+            # check for super-user authentication
+            if cls.admin and not request.user.is_superuser:
+                raise ViewExceptionRest("Forbidden", 403)
+
+            form = cls.form_class()
+            cls.get(request, form)
+            return render(request, cls.form_template, {cls.form_template_name: form})
+
+        wrapper_get.target_name = handler.__module__ + '.' + handler.__qualname__
+        handler._register_wrapper(wrapper_get, Method.GET, Format.HTML, (), (), conditions)
+
+        # register the 'post' wrapper
+        def wrapper_post(*args, **kwargs):
+            request = args[0]
+            form = cls.form_class(request.POST)
+
+            if form.is_valid():
+                result = cls.valid_form(request, form)
+
+                if result is not None and result is False:
+                    cls.invalid_form(request, form)
+                    return render(request, cls.form_template, {cls.form_template_name: form})
+
+                if cls.redirect:
+                    # success redirect
+                    return redirect(cls.success)
+                else:
+                    return render(request, cls.redirect, {})
+            else:
+                # invalid form
+                cls.invalid_form(request, form)
+                return render(request, cls.form_template, {cls.form_template_name: form})
+
+        wrapper_post.target_name = handler.__module__ + '.' + handler.__qualname__
+        handler._register_wrapper(wrapper_post, Method.POST, Format.HTML, (), (), conditions)
+
+
 class RestHandlerMeta(type):
+
+    """
+    Metaclass for :class:`RestHandler` used to automatize the registration of
+    the handler.
+    """
 
     def __init__(cls, name, base, d):
         type.__init__(cls, name, base, d)
 
         # register only when inheritance (not base)
         if cls.__name__ is not 'RestHandler':
-            cls._register(cls.regex, cls.name, cls.app_name, urls='urls')
+            cls._register(base, cls.regex, cls.name, cls.app_name, urls='urls')
 
 
 class RestHandler(object, metaclass=RestHandlerMeta):
 
     """
     Manage RESTfull API with autogenenation and registration of urls.
+
+    Attributes
+    ----------
+
+    regex: string
+        Python regular expression of the URL. It is combined with its parent
+        handler regex when using inheritance of handlers.
+
+    name: string
+        Qualified name of the URL to be used into reverse URL and templates.
+        It is possible to omit it and use :attr:`suffix` when using inheritance.
+
+    suffix: string
+        When inherit of a parent handler (excepted RestHandler base class),
+        and if :attr:`name` is empty or None, suffix is added to the URL name
+        of its parent. It is useful to avoid the rewriting of the complete path name.
+        There is no need to add a separator before.
+
+    name_separator: string
+        Separator used between each word into the URL name. Default is '-'.
+
+    app_name: string
+        Application name. If None it is detect from the module where the
+        class is defined.
     """
 
-    regex = r"^$"
+    regex = ''
     name = ''
+    name_separator = '-'
+    suffix = ''
     app_name = None
     application = None
+    # classname_prefix = 'Rest'
     methods = {}
 
     unprocessed_handlers = []  # intermediary list of handles to register
     handlers = []              # list of registered handlers (by register_urls)
 
     @classmethod
-    def _register(cls, regex, name, app_name=None, urls='urls'):
+    def _register(cls, base, regex, name, app_name=None, urls='urls'):
         """
         Internaly called by RestHandlerMeta on class definition
         in way to create a new entry into the list of managed handlers.
         This list is finally manually inserted into each application urlpatterns
         classing register_urls.
         """
-        cls.regex = regex
-        cls.name = name
+        # inheritance of the class name prefix
+        # cls.classname_prefix = base[-1].classname_prefix if base[-1].classname_prefix else 'Rest'
+        # last_name = cls.__name__.lstrip(base[-1].__name__).lower()
+
+        # regex is compound of its parent regex + himself OR only himself if no parent
+        cls.regex = base[-1].regex.rstrip('$') + regex.lstrip('^') if base[-1].regex else regex
+
+        # name is compound of its parent name + suffix OR only name
+        if cls.suffix:
+            if base[-1] is RestHandler:
+                raise RestRegistrationException('Suffix can only be defined on inherited rest handlers')
+            cls.name = base[-1].name + cls.name_separator + cls.suffix
+
         cls.methods = {}
 
         if app_name:
@@ -91,6 +262,9 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 fromlist=['*'])
         except ImportError:
             raise
+
+        if RestForm in base:
+            cls._register_form(cls)
 
         RestHandler.unprocessed_handlers.append(cls)
 

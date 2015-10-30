@@ -7,6 +7,7 @@
 """
 
 from .encoder import Encoder
+from .decoder import Decoder
 
 
 def dumps(obj):
@@ -14,4 +15,4 @@ def dumps(obj):
 
 
 def loads(data):
-    raise Exception("Undefined loads...")
+    return Decoder().decode(data)
