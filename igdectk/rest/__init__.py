@@ -3,7 +3,7 @@
 # Copyright (c) 2015 INRA UMR1095 GDEC
 
 """
-rest subpackage init. Contains common enums.
+rest sub-package init. Contains common enums.
 """
 
 from enum import Enum

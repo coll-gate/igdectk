@@ -7,7 +7,6 @@ Easy manage RESTfull urls and views according
 to the HTTP method and content format.
 """
 
-import re
 import json
 import validictory
 

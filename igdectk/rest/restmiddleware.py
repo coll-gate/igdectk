@@ -14,6 +14,7 @@ import json
 import logging
 
 from django import http
+from django.core.exceptions import *
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.contrib import messages
@@ -21,7 +22,9 @@ from django.core.urlresolvers import resolve
 from django.apps import apps
 from django.utils.translation.trans_real import parse_accept_lang_header
 
-from igdectk.rest import Format
+import igdectk.xml
+
+from . import Format
 
 __date__ = "2015-04-13"
 __author__ = "Frédéric Scherma"
@@ -210,6 +213,13 @@ class HttpHeader(object):
 
 class IGdecTkRestMiddleware(object):
 
+    TYPES = {
+        400: http.HttpResponseBadRequest,
+        401: HttpResponseUnauthorized,
+        404: http.HttpResponseNotFound,
+        500: http.HttpResponseServerError,
+    }
+
     """
     Middleware that manages request format and catch views exceptions.
     It also manage the customized view errors (page if HTML else JSON).
@@ -235,6 +245,12 @@ class IGdecTkRestMiddleware(object):
     def process_exception(self, request, exception):
         if isinstance(exception, ViewExceptionRest):
             message, code = exception.args
+        elif isinstance(exception, SuspiciousOperation):
+            message = exception.args[0]
+            code = 400
+        elif isinstance(exception, PermissionDenied):
+            message = exception.args[0]
+            code = 403
         elif isinstance(exception, http.Http404):
             message = exception.args[0]
             code = 404
@@ -246,33 +262,20 @@ class IGdecTkRestMiddleware(object):
             # write the traceback to the logger (should be redirected to console)
             logger.error(traceback.format_exc())
 
+        response_type = IGdecTkRestMiddleware.TYPES.get(code, http.HttpResponse)
+
+        result = {
+            "result": "failed",
+            "cause": message,
+            "code": code
+        }
+
         # JSON format
         if request.format == Format.JSON:
-            jsondata = json.dumps({
-                "result": "failed",
-                "cause": message,
-                "code": code})
-
-            types = {
-                400: http.HttpResponseBadRequest,
-                401: HttpResponseUnauthorized,
-                404: http.HttpResponseNotFound,
-                500: http.HttpResponseServerError,
-            }
-            response_type = types.get(code, http.HttpResponse)
-
-            return response_type(jsondata, content_type=Format.JSON.content_type)
+            data = json.dumps(result)
 
         # HTML format
         elif request.format == Format.HTML:
-            types = {
-                400: http.HttpResponseBadRequest,
-                401: HttpResponseUnauthorized,
-                404: http.HttpResponseNotFound,
-                500: http.HttpResponseServerError,
-            }
-            response_type = types.get(code, http.HttpResponse)
-
             # append a Boostrap message error
             messages.error(request, 'Http %i: %s' % (code, message))
 
@@ -283,12 +286,25 @@ class IGdecTkRestMiddleware(object):
                 current_app = apps.get_app_config(app_name)
                 http_template_string = current_app.http_template_string
 
-                t = render_to_string(
+                data = render_to_string(
                     http_template_string % (code,),
-                    {'error': message},
+                    result,
                     context_instance=RequestContext(request))
             except Exception:
-                return response_type('Http %i: %s' % (code, message),
-                                     RequestContext(request))
+                return response_type('Http %i: %s' % (code, message), RequestContext(request))
 
-            return response_type(t)
+            return response_type(data)
+
+        # XML format
+        elif request.format == Format.XML:
+            data = igdectk.xml.dumps(result)
+
+        # TEXT format
+        elif request.format == Format.TEXT:
+            data = "result: %(result)\ncause: %(cause)\ncode: %(code)" % result
+
+        # ANY others formats
+        else:
+            data = "result: %(result)\ncause: %(cause)\ncode: %(code)" % result
+
+        return response_type(data, content_type=request.format.content_type)
