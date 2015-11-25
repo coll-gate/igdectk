@@ -134,6 +134,7 @@ class RestForm(object):
 
             form = cls.form_class()
             cls.get(request, form)
+
             return render(request, cls.form_template, {cls.form_template_name: form})
 
         wrapper_get.target_name = handler.__module__ + '.' + handler.__qualname__
@@ -147,12 +148,17 @@ class RestForm(object):
             if form.is_valid():
                 result = cls.valid_form(request, form)
 
+                # valid form returns False meaning an invalid form processing
                 if result is not None and result is False:
                     cls.invalid_form(request, form)
                     return render(request, cls.form_template, {cls.form_template_name: form})
 
+                # success redirect to a dynamic location
+                elif result is not None and isinstance(result, str):
+                    return redirect(result)
+
+                # success redirect to the default static location
                 if cls.redirect:
-                    # success redirect
                     return redirect(cls.success)
                 else:
                     return render(request, cls.redirect, {})
@@ -220,7 +226,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
     methods = {}
 
     unprocessed_handlers = []  # intermediary list of handles to register
-    handlers = []              # list of registered handlers (by register_urls)
+    handlers = {}              # list of registered handlers (by register_urls)
 
     @classmethod
     def _register(cls, base, regex, name, app_name=None, urls='urls'):
@@ -359,11 +365,15 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         This method must be called once time in the urls.py
         """
         for handler in RestHandler.unprocessed_handlers:
+            if handler.regex in RestHandler.handlers:
+                raise RestRegistrationException(
+                    "Duplicate entry for %s('%s') with '%s'" % (handler.__name__, handler.name, handler.regex))
+
             handler.urls.urlpatterns.append(
                 url(handler.regex, handler._interceptor, name=handler.name))
 
-            # append to registered handlers
-            handler.handlers.append(handler)
+            # append to registered handlers dict
+            RestHandler.handlers[handler.regex] = handler
 
         # Empty list of unprocessed handlers
         RestHandler.unprocessed_handlers = []
@@ -373,9 +383,8 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         """
         Internaly register a wrapper for a specific method and conditions.
         """
-        # register the wrapper
+        # look for an existing similar entry
         if method.name in cls.methods:
-            # look for an existing similar entry
             methods = cls.methods[method.name]
 
             for m in methods:
@@ -525,7 +534,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 # check for user authentication
                 if not request.user.is_authenticated():
                     if fallback:
-                        fallback()
+                        return fallback(request)
                     raise ViewExceptionRest("Unauthorized", 401)
 
                 # check for the existence of the values into the encoded body
@@ -578,13 +587,13 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 # check for user authentication
                 if not request.user.is_authenticated():
                     if fallback:
-                        fallback()
+                        return fallback(request)
                     raise ViewExceptionRest("Unauthorized", 401)
 
                 # check for super-user authentication
                 if not request.user.is_superuser:
                     if fallback:
-                        fallback()
+                        return fallback(request)
                     raise ViewExceptionRest("Forbidden", 403)
 
                 # check for the existence of the values into the encoded body
@@ -740,7 +749,7 @@ def def_inline_auth_request(inline_handler, method, format, parameters=(), conte
             # check for user authentication
             if not request.user.is_authenticated():
                 if fallback:
-                    fallback()
+                    return fallback(request)
                 raise ViewExceptionRest("Unauthorized", 401)
 
             # check for the existence of the values into the encoded body
@@ -803,13 +812,13 @@ def def_inline_admin_request(inline_handler, method, format, parameters=(), cont
             # check for user authentication
             if not request.user.is_authenticated():
                 if fallback:
-                    fallback()
+                    return fallback(request)
                 raise ViewExceptionRest("Unauthorized", 401)
 
             # check for super-user authentication
             if not request.user.is_superuser:
                 if fallback:
-                    fallback()
+                    return fallback(request)
                 raise ViewExceptionRest("Forbidden", 403)
 
             # check for the existence of the values into the encoded body
