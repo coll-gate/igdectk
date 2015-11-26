@@ -4,10 +4,15 @@ List of changes
 Version 1.3
 -----------
 
+| 20151126 :
+
+    - LDAP authentication backend support now for first name and last name retrieving
+
 | 20151125 :
 
     - Add check registration with rest handler having the same regexp
     - Support for redirection into the valid_form return value a string
+    - Add support to manager the creation of user when connection using LDAP back and the user does not exists
 
 
 Version 1.2
@@ -21,5 +26,9 @@ Version 1.2
 Version 1.1
 -----------
 
+| 20150414 : Minor changes
+
 Version 1.0
 -----------
+
+| 20150413 : Initial version comes from inraunittools

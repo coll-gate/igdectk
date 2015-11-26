@@ -15,7 +15,9 @@ from django.utils.encoding import force_text
 from django.utils.http import same_origin
 
 from django.middleware.csrf import *
-from django.middleware.csrf import _sanitize_token, _get_failure_view, _get_new_csrf_key
+from django.middleware.csrf import _sanitize_token, _get_new_csrf_key  # , _get_failure_view
+
+from igdectk.rest.restmiddleware import IGdecTkRestMiddleware
 
 __date__ = "2015-04-13"
 __author__ = "Frédéric Scherma"
@@ -50,10 +52,14 @@ class CsrfViewMiddleware(object):
                 'request': request,
             }
         )
-        return _get_failure_view()(request, reason=reason)
+
+        # it is not defined at this level
+        request.format = request.header.prefered_type
+
+        return IGdecTkRestMiddleware.format_response(request, reason, 403)
+        # return _get_failure_view()(request, reason=reason)
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
-
         if getattr(request, 'csrf_processing_done', False):
             return None
 

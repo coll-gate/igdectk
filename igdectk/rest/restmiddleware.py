@@ -213,13 +213,6 @@ class HttpHeader(object):
 
 class IGdecTkRestMiddleware(object):
 
-    TYPES = {
-        400: http.HttpResponseBadRequest,
-        401: HttpResponseUnauthorized,
-        404: http.HttpResponseNotFound,
-        500: http.HttpResponseServerError,
-    }
-
     """
     Middleware that manages request format and catch views exceptions.
     It also manage the customized view errors (page if HTML else JSON).
@@ -233,35 +226,15 @@ class IGdecTkRestMiddleware(object):
     the decorator can attach a data dict to the request object.
     """
 
-    def process_request(self, request):
-        # default request data format to HTML
-        request.format = Format.HTML
+    TYPES = {
+        400: http.HttpResponseBadRequest,
+        401: HttpResponseUnauthorized,
+        404: http.HttpResponseNotFound,
+        500: http.HttpResponseServerError,
+    }
 
-        # an empty list of url parameters
-        request.parameters = ()
-
-        request.header = HttpHeader(request)
-
-    def process_exception(self, request, exception):
-        if isinstance(exception, ViewExceptionRest):
-            message, code = exception.args
-        elif isinstance(exception, SuspiciousOperation):
-            message = exception.args[0]
-            code = 400
-        elif isinstance(exception, PermissionDenied):
-            message = exception.args[0]
-            code = 403
-        elif isinstance(exception, http.Http404):
-            message = exception.args[0]
-            code = 404
-        else:
-            message = repr(exception)
-            code = 500
-
-            import traceback
-            # write the traceback to the logger (should be redirected to console)
-            logger.error(traceback.format_exc())
-
+    @staticmethod
+    def format_response(request, message, code):
         response_type = IGdecTkRestMiddleware.TYPES.get(code, http.HttpResponse)
 
         result = {
@@ -308,3 +281,34 @@ class IGdecTkRestMiddleware(object):
             data = "result: %(result)\ncause: %(cause)\ncode: %(code)" % result
 
         return response_type(data, content_type=request.format.content_type)
+
+    def process_request(self, request):
+        # default request data format to HTML
+        request.format = Format.HTML
+
+        # an empty list of url parameters
+        request.parameters = ()
+
+        request.header = HttpHeader(request)
+
+    def process_exception(self, request, exception):
+        if isinstance(exception, ViewExceptionRest):
+            message, code = exception.args
+        elif isinstance(exception, SuspiciousOperation):
+            message = exception.args[0]
+            code = 400
+        elif isinstance(exception, PermissionDenied):
+            message = exception.args[0]
+            code = 403
+        elif isinstance(exception, http.Http404):
+            message = exception.args[0]
+            code = 404
+        else:
+            message = repr(exception)
+            code = 500
+
+            import traceback
+            # write the traceback to the logger (should be redirected to console)
+            logger.error(traceback.format_exc())
+
+        return format_response(request, message, code)
