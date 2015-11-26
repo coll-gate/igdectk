@@ -127,7 +127,7 @@ class CsrfViewMiddleware(object):
 
             # Check non-cookie token for match.
             request_csrf_token = ""
-            if request.method == "POST":
+            if request.method in ("POST", "PUT", "DELETE", "PATCH"):
                 try:
                     request_csrf_token = request.POST.get('csrfmiddlewaretoken', '')
                 except IOError:

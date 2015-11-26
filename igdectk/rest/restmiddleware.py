@@ -156,6 +156,8 @@ class HttpHeader(object):
             return Format.MULTIPART
         elif self._accepted_types[0] == Format.TEXT.content_type:
             return Format.TEXT
+        else:
+            return Format.TEXT
 
     def _cache_http_accept_language(self):
         accept_language = parse_accept_lang_header(self.request.META.get("HTTP_ACCEPT_LANGUAGE", ""))
@@ -274,11 +276,11 @@ class IGdecTkRestMiddleware(object):
 
         # TEXT format
         elif request.format == Format.TEXT:
-            data = "result: %(result)\ncause: %(cause)\ncode: %(code)" % result
+            data = "result: %(result)s\ncause: %(cause)s\ncode: %(code)i" % result
 
         # ANY others formats
         else:
-            data = "result: %(result)\ncause: %(cause)\ncode: %(code)" % result
+            data = "result: %(result)s\ncause: %(cause)s\ncode: %(code)i" % result
 
         return response_type(data, content_type=request.format.content_type)
 
@@ -311,4 +313,4 @@ class IGdecTkRestMiddleware(object):
             # write the traceback to the logger (should be redirected to console)
             logger.error(traceback.format_exc())
 
-        return format_response(request, message, code)
+        return IGdecTkRestMiddleware.format_response(request, message, code)
