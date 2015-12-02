@@ -191,8 +191,11 @@ class LdapAuthenticationBackend(ModelBackend):
         return user
 
     def get_user(self, user_id):
-        # TODO maybe we want to lookup into the LDAP server at this level,
-        # like with the auto creation of the user when authenticating.
+        """
+        If the user does not exists into the DB but exists into the LDAP,
+        this method will returns None. Only the authenticate method automaticaly
+        create the user from LDAP into the DB.
+        """
         UserModel = get_user_model()
         try:
             return UserModel._default_manager.get(pk=user_id)

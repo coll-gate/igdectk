@@ -125,6 +125,10 @@ class HttpHeader(object):
 
     @property
     def accept(self):
+        """
+        Returns the HTTP_ACCEPT list of pairs (media_type, q_value).
+        This list is cached the first time.
+        """
         # not cached
         if not self._accept:
             self._cache_http_accept()
@@ -132,6 +136,10 @@ class HttpHeader(object):
 
     @property
     def accepted_types(self):
+        """
+        Sames as ::ref::`accept` but returns only the media_type.
+        This list is cached the first time.
+        """
         # not cached
         if not self._accepted_types:
             self._cache_http_accept()
@@ -139,6 +147,9 @@ class HttpHeader(object):
 
     @property
     def prefered_type(self):
+        """
+        Get the prefered media_type as Format enum.
+        """
         # not cached
         if not self._accepted_types:
             self._cache_http_accept()
@@ -166,6 +177,10 @@ class HttpHeader(object):
 
     @property
     def accept_language(self):
+        """
+        Returns the HTTP_ACCEPT_LANGUAGE as a list of pairs.
+        This list is cached the first time.
+        """
         # not cached
         if not self._accept_language:
             self._cache_http_accept_language()
@@ -173,6 +188,10 @@ class HttpHeader(object):
 
     @property
     def accepted_language_codes(self):
+        """
+        Sames as ::ref::`accept_language` but returns only the languages codes.
+        This list is cached the first time.
+        """
         # not cached
         if not self._accepted_language_codes:
             self._cache_http_accept_language()
@@ -237,6 +256,28 @@ class IGdecTkRestMiddleware(object):
 
     @staticmethod
     def format_response(request, message, code):
+        """
+        Helper to format a response related to the format and parameters
+        defined into the request, a message, and an HTTP code.
+
+        Parameters
+        ----------
+
+        request : RequestContext
+            Django request object.
+
+        message : str
+            Message contant string.
+
+        code : integer
+            HTTP code.
+
+        Returns
+        -------
+
+         : HttpResponse
+            An HTTP response object.
+        """
         response_type = IGdecTkRestMiddleware.TYPES.get(code, http.HttpResponse)
 
         result = {
