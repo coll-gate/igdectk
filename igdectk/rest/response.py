@@ -13,8 +13,9 @@ from datetime import date, datetime
 from django.core import serializers
 from django.http import HttpResponse
 from django.db.models.query import QuerySet
-from django.db.models import Model
+from django.db import models
 
+import decimal
 import igdectk.xml
 
 from igdectk.rest import Format
@@ -33,12 +34,14 @@ class ComplexEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, QuerySet):
             return serializers.serialize("python", obj)
-        elif isinstance(obj, Model):
+        elif isinstance(obj, models.Model):
             return serializers.serialize('python', [obj])[0]
         elif isinstance(obj, date):
             return str(obj)
         elif isinstance(obj, datetime):
             return str(obj)
+        elif isinstance(obj, decimal.Decimal):
+            return float(obj)  # TODO as str or as float because of the double precision ?
         else:
             # Let the base class default method raise the TypeError
             return json.JSONEncoder.default(self, obj)

@@ -1,6 +1,13 @@
 List of changes
 ===============
 
+Version 1.4
+-----------
+
+| 20151211 :
+
+    - Easy support for jquery and many jquery modules
+
 Version 1.3
 -----------
 

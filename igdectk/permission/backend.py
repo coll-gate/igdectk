@@ -16,7 +16,9 @@ class PermissionBackend(object):
     """
     Improved permission backend.
 
-    TODO
+    The idea is to keep the default Django permission mecanism, and
+    to add a support for per object per user/group permission, using a secondary
+    model (can be in a NoSQL DB).
     """
 
     def _get_user_permissions(self, user_obj):

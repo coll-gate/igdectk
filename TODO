@@ -1,0 +1,11 @@
+#1 - ENHANCEMENT
+    Support d3 ala jquery
+
+#2 - ENHANCEMENT
+    Support bootstrap version manement ala jquery (how to do that because of the django-bootstrap3 doesn't offers that)
+
+#3 - ENHANCEMENT 
+    Support an option in case of selecting the jquery-ui and fancytree theme/skin
+
+#4 - ENHANCEMENT
+    Find a way to define in settings.py which version(s) to install of jquery...

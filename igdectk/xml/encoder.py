@@ -6,6 +6,8 @@
 Simplest XML encoder.
 """
 
+import decimal
+
 from datetime import date, datetime
 
 from django.core import serializers
@@ -31,6 +33,8 @@ class Encoder():
         elif isinstance(obj, date):
             result = str(obj)
         elif isinstance(obj, datetime):
+            result = str(obj)
+        elif isinstance(obj, decimal.Decimal):
             result = str(obj)
         else:
             result = str(obj)
