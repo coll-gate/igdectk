@@ -6,6 +6,8 @@
 JQuery Django integrator with template tag.
 """
 
+import re
+
 from django.template import TemplateSyntaxError, Variable, Node, Library
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
@@ -53,48 +55,87 @@ class TemplateAppValue(Node):
     DEFAULT_COLPICK_VERSION = '1.0.0'
     DEFAULT_NUMERIC_VERSION = '1.4.1'
 
+    VALIDATOR = re.compile(r'^([a-zA-Z0-9-]+)(\.[a-zA-Z0-9-]+){0,1}_([a-zA-Z0-9-]+)(\|[a-zA-Z0-9\-]+){0,1}(#[a-zA-Z0-9-_\.]+){0,1}$')
+
     PROPERTIES = {
-        "version": lambda p: '.'.join([str(x) for x in appsettings.APP_VERSION]),
-        "jquery_js": lambda p: "<script src='%s'></script>" % static(
-            'jquery/js/jquery/%s/jquery.min.js' % (p if p else TemplateAppValue.DEFAULT_JQUERY_VERSION)),
-        "jquery_version": lambda p: TemplateAppValue.DEFAULT_JQUERY_VERSION,  # default version
-
-        "ui_js": lambda p: "<script src='%s'></script>" % static(
-            'jquery/js/jquery-ui/%s/jquery-ui.min.js' % (p if p else TemplateAppValue.DEFAULT_JQUERY_UI_VERSION)),
-        "ui_css": lambda p: '<link rel="stylesheet" href="%s" />' % static(
-            'jquery/css/jquery-ui/%s/ui-lightness/jquery-ui.min.css' % (p if p else TemplateAppValue.DEFAULT_JQUERY_UI_VERSION)),
-        "ui_version": lambda p: TemplateAppValue.DEFAULT_JQUERY_UI_VERSION,  # default version
-        "ui_anim_basic_16x16": lambda p: '%s' % static(
-            'jquery/img/jquery-ui/%s/ui-anim_basic_16x16.gif' % (p if p else TemplateAppValue.DEFAULT_JQUERY_UI_VERSION)),
-
-        "fancytree_js": lambda p: "<script src='%s'></script>" % static(
-            'jquery/js/fancytree/%s/jquery.fancytree.min.js' % (p if p else TemplateAppValue.DEFAULT_FANCYTREE_VERSION)),
-        "fancytree_version": lambda p: TemplateAppValue.DEFAULT_FANCYTREE_VERSION,  # default version
-        "fancytree_css": lambda p: '<link rel="stylesheet" href="%s" />' % static(
-            'jquery/css/fancytree/%s/skin-bootstrap/ui.fancytree.min.css' % (p if p else TemplateAppValue.DEFAULT_FANCYTREE_VERSION)),
-
-        "fancytree_glyph_js": lambda p: "<script src='%s'></script>" % static(
-            'jquery/js/fancytree/%s/jquery.fancytree.glyph.min.js' % (p if p else TemplateAppValue.DEFAULT_FANCYTREE_VERSION)),
-
-        "select2_js": lambda p: "<script src='%s'></script>" % static(
-            'jquery/js/select2/%s/select2.min.js' % (p if p else TemplateAppValue.DEFAULT_SELECT2_VERSION)),
-        "select2_version": lambda p: TemplateAppValue.DEFAULT_SELECT2_VERSION,  # default version
-        "select2_css": lambda p: '<link rel="stylesheet" href="%s" />' % static(
-            'jquery/css/select2/%s/select2.css' % (p if p else TemplateAppValue.DEFAULT_SELECT2_VERSION)),
-
-        "colpick_js": lambda p: "<script src='%s'></script>" % static(
-            'jquery/js/colpick/%s/colpick.js' % (p if p else TemplateAppValue.DEFAULT_COLPICK_VERSION)),
-        "colpick_version": lambda p: TemplateAppValue.DEFAULT_COLPICK_VERSION,  # default version
-        "colpick_css": lambda p: '<link rel="stylesheet" href="%s" />' % static(
-            'jquery/css/colpick/%s/colpick.css' % (p if p else TemplateAppValue.DEFAULT_COLPICK_VERSION)),
-
-        "numeric_js": lambda p: "<script src='%s'></script>" % static(
-            'jquery/js/numeric/%s/jquery.numeric.js' % (p if p else TemplateAppValue.DEFAULT_NUMERIC_VERSION)),
-        "numeric_version": lambda p: TemplateAppValue.DEFAULT_NUMERIC_VERSION,  # default version
+        'jquery': {'js': 'jquery.min.js', 'css': '', 'default_version': '2.1.4', 'versions': ('2.1.4',)},
+        'ui': {'js': 'jquery-ui.min.js', 'css': 'ui-%(theme)s/jquery-ui.min.css', 'img': '%(filename)s', 'default_version': '1.10.4', 'versions': ('1.10.4',), 'default_theme': 'lightness', 'themes': ('lightness',)},
+        'fancytree': {
+            'js': 'jquery.fancytree.min.js', 'css': 'skin-%(theme)s/ui.fancytree.min.css', 'default_version': '2.12.0', 'versions': ('2.12.0',), 'default_theme': 'bootstrap', 'themes': ('bootstrap',),
+            '.glyph': {'js': 'jquery.fancytree.glyph.min.js', 'css': '', 'default_version': '2.12.0', 'versions': ('2.12.0',), 'default_theme': ''}
+        },
+        'select2': {'js': 'select2.min.js', 'css': 'select2.css', 'default_version': '3.5.1', 'versions': ('3.5.1',)},
+        'colpick': {'js': 'colpick.js', 'css': 'colpick.css', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
+        'numeric': {'js': 'jquery.numeric.js', 'css': '', 'default_version': '1.4.1', 'versions': ('1.4.1',)}
     }
 
-    def foo():
-        return ""
+    CACHE = {}
+
+    def wrap(self, module, content):
+        if module == 'js':
+            return '<script src="%s"></script>' % static(content)
+        elif module == 'css':
+            return '<link rel="stylesheet" href="%s" />' % static(content)
+        else:
+            return static(content)
+
+    def get_property(self, args, param):
+        # try with cache...
+        cache = TemplateAppValue.CACHE.get(args + '=' + param)
+        if cache:
+            return cache
+
+        # cache miss, generates the string
+        matches = TemplateAppValue.VALIDATOR.match(args)
+
+        if not matches:
+            raise TemplateSyntaxError("invalid resource format for '%s'" % args)
+
+        libname = matches.group(1)
+        sublibname = matches.group(2)
+        module = matches.group(3)
+        theme = matches.group(4)
+        filename = matches.group(5)
+
+        if not libname:
+            raise TemplateSyntaxError("missing library name for '%s'" % args)
+
+        if not module:
+            raise TemplateSyntaxError("missing module name for '%s'" % args)
+
+        prop = TemplateAppValue.PROPERTIES.get(libname)
+        if not prop:
+            raise TemplateSyntaxError("undefined library '%s' for '%s'" % (libname, args))
+
+        if sublibname:
+            prop = prop.get(sublibname)
+            if not prop:
+                raise TemplateSyntaxError("undefined sub-library '%s' for '%s'" % (sublibname, args))
+
+        default_version = prop.get('default_version')
+        if not default_version:
+            raise TemplateSyntaxError("undefined default version for '%s'" % args)
+
+        version = param if param else default_version
+
+        if version and version not in prop.get('versions', ''):
+            raise TemplateSyntaxError("undefined version '%s' for '%s'" % (version, args))
+
+        resource = prop.get(module)
+        if not resource:
+            raise TemplateSyntaxError("undefined module '%s' for '%s'" % (module, args))
+
+        if theme and theme[1:] not in prop.get('themes', ''):
+            raise TemplateSyntaxError("undefined theme '%s' for '%s'" % (theme[1:], args))
+
+        resource = resource % {'theme': (theme[1:] if theme else prop.get('default_theme', '')), 'filename': (filename[1:] if filename else '')}
+
+        result = self.wrap(module, 'jquery/%s/%s/%s/%s' % (module, libname, version, resource))
+
+        # store in cache
+        TemplateAppValue.CACHE[args + '=' + param] = result
+
+        return result
 
     def __init__(self, settingsvar, param, asvar):
         self.arg = Variable(settingsvar)
@@ -102,13 +143,17 @@ class TemplateAppValue(Node):
         self.asvar = asvar
 
     def render(self, context):
-        arg_repr = str(self.arg)
+        args = str(self.arg)
 
         # lookup into PROPERTIES with a parameter (general version string number)
-        ret_val = TemplateAppValue.PROPERTIES.get(arg_repr, TemplateAppValue.foo)(self.param)
+        if args == 'version':
+            ret_val = '.'.join([str(x) for x in appsettings.APP_VERSION])
+        else:
+            ret_val = self.get_property(args, self.param)
+
         if not ret_val:
             # lookup for appsettings
-            ret_val = getattr(appsettings, arg_repr, "")
+            ret_val = getattr(appsettings, args, "")
 
         if self.asvar:
             context[self.asvar] = ret_val
