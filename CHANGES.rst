@@ -1,6 +1,20 @@
 List of changes
 ===============
 
+Version 1.4.2
+-------------
+
+| 20151217 :
+
+    - ColoredFormatter for logging to VT100 terminals
+
+Version 1.4.1
+-------------
+
+| 20151216 :
+
+    - Easy support for bootstrap and many bootstrap modules
+
 Version 1.4
 -----------
 

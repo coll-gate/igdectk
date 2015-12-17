@@ -121,16 +121,22 @@ class TemplateAppValue(Node):
         if version and version not in prop.get('versions', ''):
             raise TemplateSyntaxError("undefined version '%s' for '%s'" % (version, args))
 
-        resource = prop.get(module)
-        if not resource:
+        resources = prop.get(module)
+        if not resources:
             raise TemplateSyntaxError("undefined module '%s' for '%s'" % (module, args))
 
         if theme and theme[1:] not in prop.get('themes', ''):
             raise TemplateSyntaxError("undefined theme '%s' for '%s'" % (theme[1:], args))
 
-        resource = resource % {'theme': (theme[1:] if theme else prop.get('default_theme', '')), 'filename': (filename[1:] if filename else '')}
+        result = ''
 
-        result = self.wrap(module, 'jquery/%s/%s/%s/%s' % (module, libname, version, resource))
+        if isinstance(resources, tuple):
+            for resource in resources:
+                rc = resource % {'theme': (theme[1:] if theme else prop.get('default_theme', '')), 'filename': (filename[1:] if filename else '')}
+                result += self.wrap(module, 'jquery/%s/%s/%s/%s' % (module, libname, version, rc))
+        else:
+            rc = resources % {'theme': (theme[1:] if theme else prop.get('default_theme', '')), 'filename': (filename[1:] if filename else '')}
+            result = self.wrap(module, 'jquery/%s/%s/%s/%s' % (module, libname, version, rc))
 
         # store in cache
         TemplateAppValue.CACHE[args + '=' + param] = result

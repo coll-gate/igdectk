@@ -1,11 +1,10 @@
-#1 - ENHANCEMENT
-    Support d3 ala jquery
+#3 - SUGGESTION
+    Is the cache of jquery/bootstrap static data integration module correctly managed by the instance
+    because it could be linked to the MainApplication object, and controlled...
 
 #2 - ENHANCEMENT
-    Support bootstrap version manement ala jquery (how to do that because of the django-bootstrap3 doesn't offers that)
+    Support d3 ala jquery
 
-#3 - ENHANCEMENT 
-    Support an option in case of selecting the jquery-ui and fancytree theme/skin
-
-#4 - ENHANCEMENT
+#1 - ENHANCEMENT
     Find a way to define in settings.py which version(s) to install of jquery...
+    Force the default version into settings too

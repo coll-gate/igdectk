@@ -30,8 +30,12 @@ def startup(appconfig, logger):
 
     Later any other generic application startup processing will goes here.
     """
-    logger.info("%s process %i started..." % (appconfig.verbose_name, os.getpid()))
-    logger.info("> Looking for the model %s..." % (appconfig.settings_model,))
+    logger.info("'%s' application started into process %i..." % (appconfig.verbose_name, os.getpid()))
+
+    if not appconfig.settings_model:
+        return
+
+    logger.info("> Looking for the model settings '%s'..." % (appconfig.settings_model,))
 
     # first we look for the settings table
     from django.db import connection
@@ -43,7 +47,7 @@ def startup(appconfig, logger):
     appconfig.settings_table = getattr(module, appconfig.settings_model.split('.')[-1])
     appconfig.settings_table_name = appconfig.settings_table._meta.db_table
 
-    logger.info("> Validate defaults settings...")
+    logger.info("> Validate defaults settings :")
 
     if appconfig.settings_table_name in connection.introspection.table_names():
         # check or init default and mandatory settings
@@ -87,7 +91,7 @@ def startup(appconfig, logger):
 
         logger.info("> All checks passes. Now running...")
     else:
-        logger.warning('%s table does not exists' % (appconfig.settings_table_name,))
+        logger.warning("'%s' table does not exists (maybee you should apply the database migrations)" % (appconfig.settings_table_name,))
 
 
 def get_app_db_settings(app_short_name):
@@ -147,16 +151,20 @@ class ApplicationMain(AppConfig):
     :attr:`igdectk.appsettings.APP_VERBOSE_NAME`
         A string containing the tong name of the application.
         Application short name is used if not founds.
+
     :attr:`igdectk.appsettings.APP_DB_DEFAULT_SETTINGS`
         A dict containing default settings to put into the settings table
         of the application. An empty dict if used if not founds.
+
     :attr:`igdectk.appsettings.APP_SETTINGS_MODEL`
-        Object containing default settings table name.
+        Object containing default settings table name or None.
         '<appname>_settings' is used if not founds.
+
     :attr:`igdectk.appsettings.HTTP_TEMPLATE_STRING`
         Compoundable string (containing a %s parameters) to build
         the path of the HTTP error pages (40x, 50x) template.
         '<appname>/%s.html' is used if not founds.
+
     :attr:`igdectk.appsettings.APP_VERSION`
         Application version as list.
         (0, 1) is defined if not founds.
@@ -220,6 +228,9 @@ class ApplicationMain(AppConfig):
         :func:`igdectk.helpers.get_setting`: to get settings from another application.
         """
         # get settings table from the application
+        if not self.settings_table:
+            return None
+
         setting = self.settings_table.objects.filter(param_name=param_name)
 
         if len(setting) >= 1 and setting[0].value:

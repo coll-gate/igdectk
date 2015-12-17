@@ -5,3 +5,6 @@
 """
 JQuery Django integration sub-package init.
 """
+
+# Application Config for startup and more...
+default_app_config = __name__ + '.apps.IgdecTkJquery'

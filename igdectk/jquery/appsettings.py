@@ -6,12 +6,8 @@
 JQuery sub-module/Django-application settings
 """
 
-# Default settings of the application
-APP_DB_DEFAULT_SETTINGS = {
-}
-
 APP_VERBOSE_NAME = "igdectk.jquery"
 
-APP_SETTINGS_MODEL = 'igdectk.jquery.models.Settings'
+APP_SETTINGS_MODEL = None
 
-APP_VERSION = (1, 0, 0)
+APP_VERSION = (1, 0, 1)
