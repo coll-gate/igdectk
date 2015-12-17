@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>igdectk.common.apphelpers module &mdash; igdectk 1.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="top" title="igdectk 1.0.1 documentation" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-igdectk.common.apphelpers">
+<span id="igdectk-common-apphelpers-module"></span><h1>igdectk.common.apphelpers module<a class="headerlink" href="#module-igdectk.common.apphelpers" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="igdectk.common.apphelpers.ApplicationMain">
+<em class="property">class </em><code class="descclassname">igdectk.common.apphelpers.</code><code class="descname">ApplicationMain</code><span class="sig-paren">(</span><em>app_name</em>, <em>app_module</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/apphelpers.html#ApplicationMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.apphelpers.ApplicationMain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.apps.config.AppConfig</span></code></p>
+<p>Advanced Django AppConfig.</p>
+<p>It looks for a module appsettings into the application folder.</p>
+<p>Some globals variables into appsettings are looked for :</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name: string</strong></p>
+<blockquote class="last">
+<div><p>Application short name</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-attr docutils literal"><span class="pre">igdectk.appsettings.APP_VERBOSE_NAME</span></code></dt>
+<dd>A string containing the tong name of the application. Application short name is used if not founds.</dd>
+<dt><code class="xref py py-attr docutils literal"><span class="pre">igdectk.appsettings.APP_DB_DEFAULT_SETTINGS</span></code></dt>
+<dd>A dict containing default settings to put into the settings table of the application. An empty dict if used if not founds.</dd>
+<dt><code class="xref py py-attr docutils literal"><span class="pre">igdectk.appsettings.APP_SETTINGS_MODEL</span></code></dt>
+<dd>Object containing default settings table name. &#8216;&lt;appname&gt;_settings&#8217; is used if not founds.</dd>
+<dt><code class="xref py py-attr docutils literal"><span class="pre">igdectk.appsettings.HTTP_TEMPLATE_STRING</span></code></dt>
+<dd>Compoundable string (containing a %s parameters) to build the path of the HTTP error pages (40x, 50x) template. &#8216;&lt;appname&gt;/%s.html&#8217; is used if not founds.</dd>
+<dt><code class="xref py py-attr docutils literal"><span class="pre">igdectk.appsettings.APP_VERSION</span></code></dt>
+<dd>Application version as list. (0, 1) is defined if not founds.</dd>
+</dl>
+</div>
+<dl class="method">
+<dt id="igdectk.common.apphelpers.ApplicationMain.get_setting">
+<code class="descname">get_setting</code><span class="sig-paren">(</span><em>param_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/apphelpers.html#ApplicationMain.get_setting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.apphelpers.ApplicationMain.get_setting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a setting value for this application or None if not exists.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>param_name</strong> : string</p>
+<blockquote>
+<div><p>name of the settings parameters key</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">result: any</p>
+<blockquote class="last">
+<div><p>returns the asked value or None if not founds.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-func docutils literal"><span class="pre">igdectk.helpers.get_setting()</span></code></dt>
+<dd>to get settings from another application.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="igdectk.common.apphelpers.ApplicationMain.ready">
+<code class="descname">ready</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/apphelpers.html#ApplicationMain.ready"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.apphelpers.ApplicationMain.ready" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by Django application manager when the application is loaded.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="igdectk.common.apphelpers.get_app_db_settings">
+<code class="descclassname">igdectk.common.apphelpers.</code><code class="descname">get_app_db_settings</code><span class="sig-paren">(</span><em>app_short_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/apphelpers.html#get_app_db_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.apphelpers.get_app_db_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="igdectk.common.apphelpers.startup">
+<code class="descclassname">igdectk.common.apphelpers.</code><code class="descname">startup</code><span class="sig-paren">(</span><em>appconfig</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/apphelpers.html#startup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.apphelpers.startup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/igdectk.common.apphelpers.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Frederic Scherma, Nicolas Guilhot, INRA UMR1095 GDEC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/igdectk.common.apphelpers.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

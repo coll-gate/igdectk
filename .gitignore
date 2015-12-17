@@ -5,3 +5,4 @@
 *.sublime-*
 __pycache__
 /.project
+/docs

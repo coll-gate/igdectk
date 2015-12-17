@@ -1,0 +1,367 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>igdectk.rest package &mdash; igdectk 1.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="top" title="igdectk 1.0.1 documentation" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="igdectk-rest-package">
+<h1>igdectk.rest package<a class="headerlink" href="#igdectk-rest-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-igdectk.rest.handler">
+<span id="igdectk-rest-handler-module"></span><h2>igdectk.rest.handler module<a class="headerlink" href="#module-igdectk.rest.handler" title="Permalink to this headline">¶</a></h2>
+<p>Easy manage RESTfull urls and views according
+to the HTTP method and content format.</p>
+<dl class="class">
+<dt id="igdectk.rest.handler.RestHandler">
+<em class="property">class </em><code class="descclassname">igdectk.rest.handler.</code><code class="descname">RestHandler</code><a class="reference internal" href="../_modules/igdectk/rest/handler.html#RestHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.handler.RestHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Manage RESTfull API with autogenenation and registration of urls.</p>
+<dl class="attribute">
+<dt id="igdectk.rest.handler.RestHandler.application">
+<code class="descname">application</code><em class="property"> = None</em><a class="headerlink" href="#igdectk.rest.handler.RestHandler.application" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="igdectk.rest.handler.RestHandler.def_admin_request">
+<em class="property">classmethod </em><code class="descname">def_admin_request</code><span class="sig-paren">(</span><em>method</em>, <em>format</em>, <em>parameters=()</em>, <em>content=()</em>, <em>fallback=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/handler.html#RestHandler.def_admin_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.handler.RestHandler.def_admin_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#igdectk.rest.handler.RestHandler.def_request" title="igdectk.rest.handler.RestHandler.def_request"><code class="xref py py-meth docutils literal"><span class="pre">def_request()</span></code></a> but in addition the user must be authenticated
+and superuser.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fallback: func</strong></p>
+<blockquote class="last">
+<div><p>Optional callback function called in case the user is not authenticated.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="igdectk.rest.handler.RestHandler.def_auth_request">
+<em class="property">classmethod </em><code class="descname">def_auth_request</code><span class="sig-paren">(</span><em>method</em>, <em>format</em>, <em>parameters=()</em>, <em>content=()</em>, <em>fallback=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/handler.html#RestHandler.def_auth_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.handler.RestHandler.def_auth_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#igdectk.rest.handler.RestHandler.def_request" title="igdectk.rest.handler.RestHandler.def_request"><code class="xref py py-meth docutils literal"><span class="pre">def_request()</span></code></a> but in addition the user must be authenticated.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fallback: func</strong></p>
+<blockquote class="last">
+<div><p>Optional callback function called in case the user is not authenticated.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="igdectk.rest.handler.RestHandler.def_request">
+<em class="property">classmethod </em><code class="descname">def_request</code><span class="sig-paren">(</span><em>method</em>, <em>format</em>, <em>parameters=()</em>, <em>content=()</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/handler.html#RestHandler.def_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.handler.RestHandler.def_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request function register and wrapper for non auth requests.</p>
+<p>Check the list of mandatory URL parameters.</p>
+<p>Check the list of mandatory content Form/JSON parameters, or validate the
+content using validictory format.</p>
+<p>If the format is incorrect or a parameter is missing raise a ViewException
+HTML or JSON depending of the format.</p>
+<dl class="docutils">
+<dt>If it pass the test, the function will contains two news parameters :</dt>
+<dd><ul class="first last simple">
+<li>method : from the decorator</li>
+<li>format : from the decorator</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>method: string</strong></p>
+<blockquote>
+<div><p>&#8216;GET&#8217;, &#8216;POST&#8217;, &#8216;PUT&#8217;, &#8216;DELETE&#8217;, &#8216;PATCH&#8217;, &#8216;OPTIONS&#8217;, &#8216;HEAD&#8217;</p>
+</div></blockquote>
+<p><strong>format: string</strong></p>
+<blockquote>
+<div><p>&#8216;JSON&#8217; or &#8216;HTML&#8217;, defines the format of the http response.</p>
+</div></blockquote>
+<p><strong>parameters: list</strong></p>
+<blockquote>
+<div><p>A list of strings or an empty list, containing the names of the
+mandatory parameters requested in the URL.</p>
+</div></blockquote>
+<p><strong>content: list</strong></p>
+<blockquote>
+<div><p>A list of strings or an empty list, containing the names of the
+mandatory parameters requested in the body.</p>
+</div></blockquote>
+<p><strong>conditions: string</strong></p>
+<blockquote class="last">
+<div><p>The next parameters if theirs names starts with a &#8216;<a href="#id1"><span class="problematic" id="id2">url__</span></a>&#8216; will
+be used as condition expression for the url parameters.</p>
+<p>For example, having url__action=&#8217;save&#8217; mean that the url must
+contains the parameter action with the value &#8216;save&#8217;.</p>
+<p>This is useful to have many action for a same HTTP method.
+It is possible to have many &#8216;<a href="#id1"><span class="problematic" id="id3">url__</span></a>&#8216; conditions.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Only once free of conditions method per handler can be registered.
+Otherwise a <a class="reference internal" href="#igdectk.rest.handler.RestRegistrationException" title="igdectk.rest.handler.RestRegistrationException"><code class="xref any py py-exc docutils literal"><span class="pre">RestRegistrationException</span></code></a> exception is raised.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="igdectk.rest.handler.RestHandler.handlers">
+<code class="descname">handlers</code><em class="property"> = []</em><a class="headerlink" href="#igdectk.rest.handler.RestHandler.handlers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="igdectk.rest.handler.RestHandler.methods">
+<code class="descname">methods</code><em class="property"> = []</em><a class="headerlink" href="#igdectk.rest.handler.RestHandler.methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="igdectk.rest.handler.RestHandler.name">
+<code class="descname">name</code><em class="property"> = ''</em><a class="headerlink" href="#igdectk.rest.handler.RestHandler.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="igdectk.rest.handler.RestHandler.regex">
+<code class="descname">regex</code><em class="property"> = '^$'</em><a class="headerlink" href="#igdectk.rest.handler.RestHandler.regex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="igdectk.rest.handler.RestHandler.register_urls">
+<em class="property">static </em><code class="descname">register_urls</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/handler.html#RestHandler.register_urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.handler.RestHandler.register_urls" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method must be called once time in the urls.py</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="igdectk.rest.handler.RestHandler.unprocessed_handlers">
+<code class="descname">unprocessed_handlers</code><em class="property"> = []</em><a class="headerlink" href="#igdectk.rest.handler.RestHandler.unprocessed_handlers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="igdectk.rest.handler.RestHandlerMeta">
+<em class="property">class </em><code class="descclassname">igdectk.rest.handler.</code><code class="descname">RestHandlerMeta</code><span class="sig-paren">(</span><em>name</em>, <em>base</em>, <em>d</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/handler.html#RestHandlerMeta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.handler.RestHandlerMeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">type</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="igdectk.rest.handler.RestRegistrationException">
+<em class="property">exception </em><code class="descclassname">igdectk.rest.handler.</code><code class="descname">RestRegistrationException</code><a class="reference internal" href="../_modules/igdectk/rest/handler.html#RestRegistrationException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.handler.RestRegistrationException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Occurs during registration of a handler or a method
+into a REST handler.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="igdectk.rest.handler.inline_rest_handler">
+<code class="descclassname">igdectk.rest.handler.</code><code class="descname">inline_rest_handler</code><span class="sig-paren">(</span><em>regex</em>, <em>name</em>, <em>application=None</em>, <em>version='1.0'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/handler.html#inline_rest_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.handler.inline_rest_handler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-igdectk.rest.response">
+<span id="igdectk-rest-response-module"></span><h2>igdectk.rest.response module<a class="headerlink" href="#module-igdectk.rest.response" title="Permalink to this headline">¶</a></h2>
+<p>Usefull common responses.</p>
+<dl class="class">
+<dt id="igdectk.rest.response.ComplexEncoder">
+<em class="property">class </em><code class="descclassname">igdectk.rest.response.</code><code class="descname">ComplexEncoder</code><span class="sig-paren">(</span><em>skipkeys=False</em>, <em>ensure_ascii=True</em>, <em>check_circular=True</em>, <em>allow_nan=True</em>, <em>sort_keys=False</em>, <em>indent=None</em>, <em>separators=None</em>, <em>default=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/response.html#ComplexEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.response.ComplexEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">json.encoder.JSONEncoder</span></code></p>
+<p>Support standard json dumps plus serializers for django
+query set and model object.</p>
+<dl class="method">
+<dt id="igdectk.rest.response.ComplexEncoder.default">
+<code class="descname">default</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/response.html#ComplexEncoder.default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.response.ComplexEncoder.default" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="igdectk.rest.response.HttpResponseRest">
+<code class="descclassname">igdectk.rest.response.</code><code class="descname">HttpResponseRest</code><span class="sig-paren">(</span><em>request</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/response.html#HttpResponseRest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.response.HttpResponseRest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an Http response into the correct output format (JSON or HTML),
+according of the request.format parameters.</p>
+<p>Format is automaticaly added when using the
+<a class="reference internal" href="#igdectk.rest.restmiddleware.IGdecTkRestMiddleware" title="igdectk.rest.restmiddleware.IGdecTkRestMiddleware"><code class="xref py py-class docutils literal"><span class="pre">igdectk.rest.restmiddleware.IGdecTkRestMiddleware</span></code></a> and views decorators.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-igdectk.rest.restmiddleware">
+<span id="igdectk-rest-restmiddleware-module"></span><h2>igdectk.rest.restmiddleware module<a class="headerlink" href="#module-igdectk.rest.restmiddleware" title="Permalink to this headline">¶</a></h2>
+<p>Middleware thats manage common view errors.
+The middleware decorate the request with a format (HTML by default),
+and by a list of URL parameters.
+When a view is decorated by def_request or def_auth_request,
+this modify the data attached to the request and the format.</p>
+<dl class="class">
+<dt id="igdectk.rest.restmiddleware.HttpResponseUnauthorized">
+<em class="property">class </em><code class="descclassname">igdectk.rest.restmiddleware.</code><code class="descname">HttpResponseUnauthorized</code><span class="sig-paren">(</span><em>content=b''</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/restmiddleware.html#HttpResponseUnauthorized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.restmiddleware.HttpResponseUnauthorized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.http.response.HttpResponse</span></code></p>
+<dl class="attribute">
+<dt id="igdectk.rest.restmiddleware.HttpResponseUnauthorized.status_code">
+<code class="descname">status_code</code><em class="property"> = 401</em><a class="headerlink" href="#igdectk.rest.restmiddleware.HttpResponseUnauthorized.status_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="igdectk.rest.restmiddleware.IGdecTkRestMiddleware">
+<em class="property">class </em><code class="descclassname">igdectk.rest.restmiddleware.</code><code class="descname">IGdecTkRestMiddleware</code><a class="reference internal" href="../_modules/igdectk/rest/restmiddleware.html#IGdecTkRestMiddleware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.restmiddleware.IGdecTkRestMiddleware" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Middleware that manages request format and catch views exceptions.
+It also manage the customized view errors (page if HTML else JSON).</p>
+<p>The middleware decorate the request with a format (HTML by default),
+and by a list of URL parameters.</p>
+<p>When a view is decorated by <code class="xref py py-class docutils literal"><span class="pre">igdectk.helpers.def_request</span></code>,
+<code class="xref py py-class docutils literal"><span class="pre">igdectk.helpers.def_auth_request</span></code> or by
+<code class="xref py py-class docutils literal"><span class="pre">igdectk.helpers.def_admin_request</span></code>,
+the decorator can attach a data dict to the request object.</p>
+<dl class="method">
+<dt id="igdectk.rest.restmiddleware.IGdecTkRestMiddleware.process_exception">
+<code class="descname">process_exception</code><span class="sig-paren">(</span><em>request</em>, <em>exception</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/restmiddleware.html#IGdecTkRestMiddleware.process_exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.restmiddleware.IGdecTkRestMiddleware.process_exception" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="igdectk.rest.restmiddleware.IGdecTkRestMiddleware.process_request">
+<code class="descname">process_request</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/restmiddleware.html#IGdecTkRestMiddleware.process_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.restmiddleware.IGdecTkRestMiddleware.process_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="igdectk.rest.restmiddleware.ViewExceptionRest">
+<em class="property">exception </em><code class="descclassname">igdectk.rest.restmiddleware.</code><code class="descname">ViewExceptionRest</code><span class="sig-paren">(</span><em>message</em>, <em>code</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/igdectk/rest/restmiddleware.html#ViewExceptionRest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.restmiddleware.ViewExceptionRest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Formated exception with message and code.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>message: string</strong></p>
+<blockquote>
+<div><p>Cause of the exception</p>
+</div></blockquote>
+<p><strong>code: int</strong></p>
+<blockquote class="last">
+<div><p>HTTP error code</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-igdectk.rest">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-igdectk.rest" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">igdectk.rest package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-igdectk.rest.handler">igdectk.rest.handler module</a></li>
+<li><a class="reference internal" href="#module-igdectk.rest.response">igdectk.rest.response module</a></li>
+<li><a class="reference internal" href="#module-igdectk.rest.restmiddleware">igdectk.rest.restmiddleware module</a></li>
+<li><a class="reference internal" href="#module-igdectk.rest">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/igdectk.rest.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Frederic Scherma, Nicolas Guilhot, INRA UMR1095 GDEC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="../_sources/docs/igdectk.rest.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

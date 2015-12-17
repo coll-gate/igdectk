@@ -1,0 +1,8 @@
+include README.rst
+include LICENSE
+recursive-include igdectk/jquery/static *.js *.css *.png *.gif *.eot *.svg *.ttf *.woff
+recursive-include igdectk/jquery/templates *.html
+recursive-include igdectk/bootstrap/static *.js *.css *.png *.gif *.eot *.svg *.ttf *.woff
+recursive-include igdectk/bootstrap/templates *.html
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

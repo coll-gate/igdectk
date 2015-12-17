@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>igdectk.common.apphelpers &mdash; igdectk 1.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="top" title="igdectk 1.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for igdectk.common.apphelpers</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8; -*-</span>
+<span class="c">#</span>
+<span class="c"># Copyright (c) 2015 INRA UMR1095 GDEC</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Application startup process around django.apps.AppConfig.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.apps</span> <span class="kn">import</span> <span class="n">AppConfig</span>
+
+<span class="kn">from</span> <span class="nn">.evaluator</span> <span class="kn">import</span> <span class="n">eval_expr</span>
+
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2015-04-13&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Frédéric Scherma&quot;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="startup"><a class="viewcode-back" href="../../../igdectk.common.html#igdectk.common.apphelpers.startup">[docs]</a><span class="k">def</span> <span class="nf">startup</span><span class="p">(</span><span class="n">appconfig</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function called by :class:`ApplicationMain` on ready.</span>
+
+<span class="sd">    It validates the settings for a specific application. If a setting</span>
+<span class="sd">    is not found into the settings table of the application, the value entry</span>
+<span class="sd">    is inserted.</span>
+
+<span class="sd">    Later any other generic application startup processing will goes here.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> process </span><span class="si">%i</span><span class="s"> started...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">appconfig</span><span class="o">.</span><span class="n">verbose_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;&gt; Looking for the model </span><span class="si">%s</span><span class="s">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">appconfig</span><span class="o">.</span><span class="n">settings_model</span><span class="p">,))</span>
+
+    <span class="c"># first we look for the settings table</span>
+    <span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">connection</span>
+
+    <span class="n">module</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span>
+        <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">appconfig</span><span class="o">.</span><span class="n">settings_model</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="n">fromlist</span><span class="o">=</span><span class="p">[</span><span class="n">appconfig</span><span class="o">.</span><span class="n">settings_model</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+
+    <span class="n">appconfig</span><span class="o">.</span><span class="n">settings_table</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">appconfig</span><span class="o">.</span><span class="n">settings_model</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">appconfig</span><span class="o">.</span><span class="n">settings_table_name</span> <span class="o">=</span> <span class="n">appconfig</span><span class="o">.</span><span class="n">settings_table</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">db_table</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;&gt; Validate defaults settings...&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">appconfig</span><span class="o">.</span><span class="n">settings_table_name</span> <span class="ow">in</span> <span class="n">connection</span><span class="o">.</span><span class="n">introspection</span><span class="o">.</span><span class="n">table_names</span><span class="p">():</span>
+        <span class="c"># check or init default and mandatory settings</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">appconfig</span><span class="o">.</span><span class="n">default_settings</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">appconfig</span><span class="o">.</span><span class="n">settings_table</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">param_name</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">obj</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">appconfig</span><span class="o">.</span><span class="n">settings_table</span><span class="p">()</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">param_name</span> <span class="o">=</span> <span class="n">k</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">appconfig</span><span class="o">.</span><span class="n">default_settings</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">value_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">appconfig</span><span class="o">.</span><span class="n">default_settings</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span><span class="s">&#39;Unable to eval </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,))</span>
+                    <span class="k">raise</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;    </span><span class="si">%s</span><span class="s"> = </span><span class="si">%s</span><span class="s"> (inserted with default)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">value_str</span><span class="p">))</span>
+
+            <span class="k">elif</span> <span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                <span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">appconfig</span><span class="o">.</span><span class="n">default_settings</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">value_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span><span class="s">&#39;Unable to eval </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">param_name</span><span class="p">,))</span>
+                    <span class="k">raise</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s">&quot;    </span><span class="si">%s</span><span class="s"> = </span><span class="si">%s</span><span class="s"> (update to default)&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">param_name</span><span class="p">,</span> <span class="n">value_str</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">value_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">fatal</span><span class="p">(</span><span class="s">&#39;Unable to eval </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">param_name</span><span class="p">,))</span>
+                    <span class="k">raise</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;    </span><span class="si">%s</span><span class="s"> = </span><span class="si">%s</span><span class="s"> (found)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">param_name</span><span class="p">,</span> <span class="n">value_str</span><span class="p">))</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;&gt; All checks passes. Now running...&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> table does not exists&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">appconfig</span><span class="o">.</span><span class="n">settings_table_name</span><span class="p">,))</span>
+
+</div>
+<div class="viewcode-block" id="get_app_db_settings"><a class="viewcode-back" href="../../../igdectk.common.html#igdectk.common.apphelpers.get_app_db_settings">[docs]</a><span class="k">def</span> <span class="nf">get_app_db_settings</span><span class="p">(</span><span class="n">app_short_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    It will look for the settings.APPLICATIONS dict that contains</span>
+<span class="sd">    specifics parameters for each application.</span>
+<span class="sd">    Each entry use the short name of the application.</span>
+
+<span class="sd">    This settings are used to fill the database settings table for an</span>
+<span class="sd">    application. Once the value exists into the database this is</span>
+<span class="sd">    the database value that is taken en priority.</span>
+
+<span class="sd">    Normaly should be reserved for internal usage only.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    app_short_name: string</span>
+<span class="sd">        Short name of the application to get the settings dict.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :dict</span>
+<span class="sd">        The application settings to store into the database, or</span>
+<span class="sd">        None if there is no settings for the application at settings</span>
+<span class="sd">        level.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;APPLICATIONS&#39;</span><span class="p">):</span>
+        <span class="n">applications</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="s">&#39;APPLICATIONS&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">if</span> <span class="n">app_short_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">applications</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">if</span> <span class="s">&#39;DB_DEFAULT_SETTINGS&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">applications</span><span class="p">[</span><span class="n">app_short_name</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">return</span> <span class="n">applications</span><span class="p">[</span><span class="n">app_short_name</span><span class="p">][</span><span class="s">&#39;DB_DEFAULT_SETTINGS&#39;</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="ApplicationMain"><a class="viewcode-back" href="../../../igdectk.common.html#igdectk.common.apphelpers.ApplicationMain">[docs]</a><span class="k">class</span> <span class="nc">ApplicationMain</span><span class="p">(</span><span class="n">AppConfig</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Advanced Django AppConfig.</span>
+
+<span class="sd">    It looks for a module appsettings into the application folder.</span>
+
+<span class="sd">    Some globals variables into appsettings are looked for :</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: string</span>
+<span class="sd">        Application short name</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :attr:`igdectk.appsettings.APP_VERBOSE_NAME`</span>
+<span class="sd">        A string containing the tong name of the application.</span>
+<span class="sd">        Application short name is used if not founds.</span>
+<span class="sd">    :attr:`igdectk.appsettings.APP_DB_DEFAULT_SETTINGS`</span>
+<span class="sd">        A dict containing default settings to put into the settings table</span>
+<span class="sd">        of the application. An empty dict if used if not founds.</span>
+<span class="sd">    :attr:`igdectk.appsettings.APP_SETTINGS_MODEL`</span>
+<span class="sd">        Object containing default settings table name.</span>
+<span class="sd">        &#39;&lt;appname&gt;_settings&#39; is used if not founds.</span>
+<span class="sd">    :attr:`igdectk.appsettings.HTTP_TEMPLATE_STRING`</span>
+<span class="sd">        Compoundable string (containing a %s parameters) to build</span>
+<span class="sd">        the path of the HTTP error pages (40x, 50x) template.</span>
+<span class="sd">        &#39;&lt;appname&gt;/%s.html&#39; is used if not founds.</span>
+<span class="sd">    :attr:`igdectk.appsettings.APP_VERSION`</span>
+<span class="sd">        Application version as list.</span>
+<span class="sd">        (0, 1) is defined if not founds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ApplicationMain.ready"><a class="viewcode-back" href="../../../igdectk.common.html#igdectk.common.apphelpers.ApplicationMain.ready">[docs]</a>    <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called by Django application manager when the application is loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># application settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">appsettings</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span>
+            <span class="s">&#39;</span><span class="si">%s</span><span class="s">.appsettings&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">fromlist</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;*&#39;</span><span class="p">])</span>
+
+        <span class="c"># load the application settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">appsettings</span><span class="p">,</span> <span class="s">&#39;APP_VERBOSE_NAME&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">appsettings</span><span class="p">,</span> <span class="s">&#39;APP_VERBOSE_NAME&#39;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_settings</span> <span class="o">=</span> <span class="n">get_app_db_settings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">appsettings</span><span class="p">,</span> <span class="s">&#39;APP_DB_DEFAULT_SETTINGS&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">appsettings</span><span class="p">,</span> <span class="s">&#39;APP_DB_DEFAULT_SETTINGS&#39;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="p">{})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings_model</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">appsettings</span><span class="p">,</span> <span class="s">&#39;APP_SETTINGS_MODEL&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">appsettings</span><span class="p">,</span> <span class="s">&#39;APP_SETTINGS_MODEL&#39;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;.models.Settings&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">http_template_string</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">appsettings</span><span class="p">,</span> <span class="s">&#39;HTTP_TEMPLATE_STRING&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">appsettings</span><span class="p">,</span> <span class="s">&#39;HTTP_TEMPLATE_STRING&#39;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;/</span><span class="si">%s</span><span class="s">.html&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">appsettings</span><span class="p">,</span> <span class="s">&#39;APP_VERSION&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">appsettings</span><span class="p">,</span> <span class="s">&#39;APP_VERSION&#39;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">startup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ApplicationMain.get_setting"><a class="viewcode-back" href="../../../igdectk.common.html#igdectk.common.apphelpers.ApplicationMain.get_setting">[docs]</a>    <span class="k">def</span> <span class="nf">get_setting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a setting value for this application or None if not exists.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        param_name : string</span>
+<span class="sd">            name of the settings parameters key</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        result: any</span>
+<span class="sd">            returns the asked value or None if not founds.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        :func:`igdectk.helpers.get_setting`: to get settings from another application.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># get settings table from the application</span>
+        <span class="n">setting</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings_table</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">param_name</span><span class="o">=</span><span class="n">param_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">setting</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">setting</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">eval_expr</span><span class="p">(</span><span class="n">setting</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Frederic Scherma, Nicolas Guilhot, INRA UMR1095 GDEC.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
