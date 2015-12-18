@@ -12,14 +12,6 @@ igdectk.common.apphelpers module
     :undoc-members:
     :show-inheritance:
 
-igdectk.common.csrf module
---------------------------
-
-.. automodule:: igdectk.common.csrf
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 igdectk.common.evaluator module
 -------------------------------
 
@@ -36,10 +28,10 @@ igdectk.common.helpers module
     :undoc-members:
     :show-inheritance:
 
-igdectk.common.ldap module
---------------------------
+igdectk.common.logging module
+-----------------------------
 
-.. automodule:: igdectk.common.ldap
+.. automodule:: igdectk.common.logging
     :members:
     :undoc-members:
     :show-inheritance:

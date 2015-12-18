@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>igdectk.common package &mdash; igdectk 1.0.1 documentation</title>
+    <title>igdectk.common package &mdash; igdectk 1.4.3 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0.1',
+        VERSION:     '1.4.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,10 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
-    <link rel="top" title="igdectk 1.0.1 documentation" href="index.html" />
+    <link rel="top" title="igdectk 1.4.3 documentation" href="index.html" />
+    <link rel="up" title="Sub-Packages" href="modules.html" />
+    <link rel="next" title="igdectk.jquery package" href="igdectk.jquery.html" />
+    <link rel="prev" title="igdectk.bootstrap.templatetags package" href="igdectk.bootstrap.templatetags.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -72,7 +75,7 @@
 <dt><code class="xref py py-attr docutils literal"><span class="pre">igdectk.appsettings.APP_DB_DEFAULT_SETTINGS</span></code></dt>
 <dd>A dict containing default settings to put into the settings table of the application. An empty dict if used if not founds.</dd>
 <dt><code class="xref py py-attr docutils literal"><span class="pre">igdectk.appsettings.APP_SETTINGS_MODEL</span></code></dt>
-<dd>Object containing default settings table name. &#8216;&lt;appname&gt;_settings&#8217; is used if not founds.</dd>
+<dd>Object containing default settings table name or None. &#8216;&lt;appname&gt;_settings&#8217; is used if not founds.</dd>
 <dt><code class="xref py py-attr docutils literal"><span class="pre">igdectk.appsettings.HTTP_TEMPLATE_STRING</span></code></dt>
 <dd>Compoundable string (containing a %s parameters) to build the path of the HTTP error pages (40x, 50x) template. &#8216;&lt;appname&gt;/%s.html&#8217; is used if not founds.</dd>
 <dt><code class="xref py py-attr docutils literal"><span class="pre">igdectk.appsettings.APP_VERSION</span></code></dt>
@@ -161,32 +164,6 @@ is inserted.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-igdectk.common.csrf">
-<span id="igdectk-common-csrf-module"></span><h2>igdectk.common.csrf module<a class="headerlink" href="#module-igdectk.common.csrf" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="igdectk.common.csrf.CsrfViewMiddleware">
-<em class="property">class </em><code class="descclassname">igdectk.common.csrf.</code><code class="descname">CsrfViewMiddleware</code><a class="reference internal" href="_modules/igdectk/common/csrf.html#CsrfViewMiddleware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.csrf.CsrfViewMiddleware" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Middleware that requires a present and correct csrfmiddlewaretoken
-for POST/PUT/DELETE requests that have a CSRF cookie, and sets an outgoing
-CSRF cookie.
-This middleware should be used in conjunction with the csrf_token template
-tag.
-The CSRF cookie rotate after it was consumed. That mean the client side must
-takes care to always sending the latest value of the cookie.</p>
-<dl class="method">
-<dt id="igdectk.common.csrf.CsrfViewMiddleware.process_response">
-<code class="descname">process_response</code><span class="sig-paren">(</span><em>request</em>, <em>response</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/csrf.html#CsrfViewMiddleware.process_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.csrf.CsrfViewMiddleware.process_response" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="igdectk.common.csrf.CsrfViewMiddleware.process_view">
-<code class="descname">process_view</code><span class="sig-paren">(</span><em>request</em>, <em>callback</em>, <em>callback_args</em>, <em>callback_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/csrf.html#CsrfViewMiddleware.process_view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.csrf.CsrfViewMiddleware.process_view" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
 <div class="section" id="module-igdectk.common.evaluator">
 <span id="igdectk-common-evaluator-module"></span><h2>igdectk.common.evaluator module<a class="headerlink" href="#module-igdectk.common.evaluator" title="Permalink to this headline">¶</a></h2>
 <p>Python expression safe evaluator, supporting basic mathematics and
@@ -227,144 +204,6 @@ contains an error.</p>
 <div class="section" id="module-igdectk.common.helpers">
 <span id="igdectk-common-helpers-module"></span><h2>igdectk.common.helpers module<a class="headerlink" href="#module-igdectk.common.helpers" title="Permalink to this headline">¶</a></h2>
 <p>Usefull common helpers.</p>
-<dl class="function">
-<dt id="igdectk.common.helpers.def_admin_request">
-<code class="descclassname">igdectk.common.helpers.</code><code class="descname">def_admin_request</code><span class="sig-paren">(</span><em>method</em>, <em>format</em>, <em>parameters=()</em>, <em>content=()</em>, <em>fallback=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/helpers.html#def_admin_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.helpers.def_admin_request" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check the method of the request, then is the user is authenticated super-user
-and finaly, the list of parameters.
-If the format is incorrect or a parameter is missing raise a ViewException
-Html or Json depending of the format.</p>
-<dl class="docutils">
-<dt>If it pass the test, the function will contains two news parameters :</dt>
-<dd><ul class="first last simple">
-<li>method : from the decorator</li>
-<li>format : from the decorator</li>
-</ul>
-</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>method: string</strong></p>
-<blockquote>
-<div><p>&#8216;GET&#8217;, &#8216;POST&#8217;, &#8216;PUT&#8217;, &#8216;DELETE&#8217;, &#8216;PATCH&#8217;, &#8216;OPTIONS&#8217;, &#8216;HEAD&#8217;</p>
-</div></blockquote>
-<p><strong>format: string</strong></p>
-<blockquote>
-<div><p>&#8216;JSON&#8217; or &#8216;HTML&#8217;, defines the format of the http response.</p>
-</div></blockquote>
-<p><strong>parameters: list</strong></p>
-<blockquote>
-<div><p>A list of strings or an empty list, containing the names of the
-mandatory parameters requested in the URL.</p>
-</div></blockquote>
-<p><strong>content: list</strong></p>
-<blockquote>
-<div><p>A list of strings or an empty list, containing the names of the
-mandatory parameters requested in the body.</p>
-</div></blockquote>
-<p><strong>fallback: function</strong></p>
-<blockquote class="last">
-<div><p>None or a function object that will be called if the user
-is not authenticated.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="igdectk.common.helpers.def_auth_request">
-<code class="descclassname">igdectk.common.helpers.</code><code class="descname">def_auth_request</code><span class="sig-paren">(</span><em>method</em>, <em>format</em>, <em>parameters=()</em>, <em>content=()</em>, <em>fallback=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/helpers.html#def_auth_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.helpers.def_auth_request" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check the method of the request, then is the user is authenticated and finaly,
-the list of parameters.
-If the format is incorrect or a parameter is missing raise a ViewException
-Html or Json depending of the format.</p>
-<dl class="docutils">
-<dt>If it pass the test, the function will contains two news parameters :</dt>
-<dd><ul class="first last simple">
-<li>method : from the decorator</li>
-<li>format : from the decorator</li>
-</ul>
-</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>method: string</strong></p>
-<blockquote>
-<div><p>&#8216;GET&#8217;, &#8216;POST&#8217;, &#8216;PUT&#8217;, &#8216;DELETE&#8217;, &#8216;PATCH&#8217;, &#8216;OPTIONS&#8217;, &#8216;HEAD&#8217;</p>
-</div></blockquote>
-<p><strong>format: string</strong></p>
-<blockquote>
-<div><p>&#8216;JSON&#8217; or &#8216;HTML&#8217;, defines the format of the http response.</p>
-</div></blockquote>
-<p><strong>parameters: list</strong></p>
-<blockquote>
-<div><p>A list of strings or an empty list, containing the names of the
-mandatory parameters requested in the URL.</p>
-</div></blockquote>
-<p><strong>content: list</strong></p>
-<blockquote>
-<div><p>A list of strings or an empty list, containing the names of the
-mandatory parameters requested in the body.</p>
-</div></blockquote>
-<p><strong>fallback: function</strong></p>
-<blockquote class="last">
-<div><p>None or a function object that will be called if the user
-is not authenticated.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="igdectk.common.helpers.def_request">
-<code class="descclassname">igdectk.common.helpers.</code><code class="descname">def_request</code><span class="sig-paren">(</span><em>method</em>, <em>format</em>, <em>parameters=()</em>, <em>content=()</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/helpers.html#def_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.helpers.def_request" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check the method of the request, and then the list of parameters.
-If the format is incorrect or a parameter is missing raise a ViewException
-Html or Json depending of the format.</p>
-<dl class="docutils">
-<dt>If it pass the test, the function will contains two news parameters :</dt>
-<dd><ul class="first last simple">
-<li>method : from the decorator</li>
-<li>format : from the decorator</li>
-</ul>
-</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>method: string</strong></p>
-<blockquote>
-<div><p>&#8216;GET&#8217;, &#8216;POST&#8217;, &#8216;PUT&#8217;, &#8216;DELETE&#8217;, &#8216;PATCH&#8217;, &#8216;OPTIONS&#8217;, &#8216;HEAD&#8217;</p>
-</div></blockquote>
-<p><strong>format: string</strong></p>
-<blockquote>
-<div><p>&#8216;JSON&#8217; or &#8216;HTML&#8217;, defines the format of the http response.</p>
-</div></blockquote>
-<p><strong>parameters: list</strong></p>
-<blockquote>
-<div><p>A list of strings or an empty list, containing the names of the
-mandatory parameters requested in the URL.</p>
-</div></blockquote>
-<p><strong>content: list</strong></p>
-<blockquote class="last">
-<div><p>A list of strings or an empty list, containing the names of the
-mandatory parameters requested in the body.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 <dl class="function">
 <dt id="igdectk.common.helpers.get_setting">
 <code class="descclassname">igdectk.common.helpers.</code><code class="descname">get_setting</code><span class="sig-paren">(</span><em>app_name</em>, <em>param_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/helpers.html#get_setting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.helpers.get_setting" title="Permalink to this definition">¶</a></dt>
@@ -424,12 +263,6 @@ mandatory parameters requested in the body.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="igdectk.common.helpers.rest_handler">
-<code class="descclassname">igdectk.common.helpers.</code><code class="descname">rest_handler</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/helpers.html#rest_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.helpers.rest_handler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper to define a url handler for differents methods.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="igdectk.common.helpers.rint_arg">
 <code class="descclassname">igdectk.common.helpers.</code><code class="descname">rint_arg</code><span class="sig-paren">(</span><em>v</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/helpers.html#rint_arg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.helpers.rint_arg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if v is an integer into a specific range r.</p>
@@ -458,21 +291,16 @@ mandatory parameters requested in the body.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-igdectk.common.ldap">
-<span id="igdectk-common-ldap-module"></span><h2>igdectk.common.ldap module<a class="headerlink" href="#module-igdectk.common.ldap" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-igdectk.common.logging">
+<span id="igdectk-common-logging-module"></span><h2>igdectk.common.logging module<a class="headerlink" href="#module-igdectk.common.logging" title="Permalink to this headline">¶</a></h2>
+<p>Useful Python logger formatter for VT100 compatibles terminals</p>
 <dl class="class">
-<dt id="igdectk.common.ldap.LdapAuthenticationBackend">
-<em class="property">class </em><code class="descclassname">igdectk.common.ldap.</code><code class="descname">LdapAuthenticationBackend</code><a class="reference internal" href="_modules/igdectk/common/ldap.html#LdapAuthenticationBackend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.ldap.LdapAuthenticationBackend" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.contrib.auth.backends.ModelBackend</span></code></p>
-<p>Authenticates against settings.AUTH_USER_MODEL and LDAP.</p>
+<dt id="igdectk.common.logging.ColoredFormatter">
+<em class="property">class </em><code class="descclassname">igdectk.common.logging.</code><code class="descname">ColoredFormatter</code><span class="sig-paren">(</span><em>fmt=None</em>, <em>datefmt=None</em>, <em>style='%'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/logging.html#ColoredFormatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.logging.ColoredFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">logging.Formatter</span></code></p>
 <dl class="method">
-<dt id="igdectk.common.ldap.LdapAuthenticationBackend.authenticate">
-<code class="descname">authenticate</code><span class="sig-paren">(</span><em>username=None</em>, <em>password=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/ldap.html#LdapAuthenticationBackend.authenticate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.ldap.LdapAuthenticationBackend.authenticate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="igdectk.common.ldap.LdapAuthenticationBackend.get_user">
-<code class="descname">get_user</code><span class="sig-paren">(</span><em>user_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/ldap.html#LdapAuthenticationBackend.get_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.ldap.LdapAuthenticationBackend.get_user" title="Permalink to this definition">¶</a></dt>
+<dt id="igdectk.common.logging.ColoredFormatter.format">
+<code class="descname">format</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/igdectk/common/logging.html#ColoredFormatter.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.common.logging.ColoredFormatter.format" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -480,6 +308,7 @@ mandatory parameters requested in the body.</p>
 </div>
 <div class="section" id="module-igdectk.common">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-igdectk.common" title="Permalink to this headline">¶</a></h2>
+<p>common sub-package init.</p>
 </div>
 </div>
 
@@ -494,10 +323,9 @@ mandatory parameters requested in the body.</p>
 <li><a class="reference internal" href="#">igdectk.common package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-igdectk.common.apphelpers">igdectk.common.apphelpers module</a></li>
-<li><a class="reference internal" href="#module-igdectk.common.csrf">igdectk.common.csrf module</a></li>
 <li><a class="reference internal" href="#module-igdectk.common.evaluator">igdectk.common.evaluator module</a></li>
 <li><a class="reference internal" href="#module-igdectk.common.helpers">igdectk.common.helpers module</a></li>
-<li><a class="reference internal" href="#module-igdectk.common.ldap">igdectk.common.ldap module</a></li>
+<li><a class="reference internal" href="#module-igdectk.common.logging">igdectk.common.logging module</a></li>
 <li><a class="reference internal" href="#module-igdectk.common">Module contents</a></li>
 </ul>
 </li>
@@ -506,6 +334,10 @@ mandatory parameters requested in the body.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">Sub-Packages</a><ul>
+      <li>Previous: <a href="igdectk.bootstrap.templatetags.html" title="previous chapter">igdectk.bootstrap.templatetags package</a></li>
+      <li>Next: <a href="igdectk.jquery.html" title="next chapter">igdectk.jquery package</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>

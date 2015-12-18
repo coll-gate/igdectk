@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>igdectk.rest.restmiddleware &mdash; igdectk 1.0.1 documentation</title>
+    <title>igdectk.rest.restmiddleware &mdash; igdectk 1.4.3 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.0.1',
+        VERSION:     '1.4.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
-    <link rel="top" title="igdectk 1.0.1 documentation" href="../../../index.html" />
-    <link rel="up" title="Module code" href="../../index.html" />
+    <link rel="top" title="igdectk 1.4.3 documentation" href="../../../index.html" />
+    <link rel="up" title="igdectk.rest" href="../rest.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -44,22 +44,28 @@
 <span class="c"># Copyright (c) 2015 INRA UMR1095 GDEC</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Middleware thats manage common view errors.</span>
-<span class="sd">    The middleware decorate the request with a format (HTML by default),</span>
-<span class="sd">    and by a list of URL parameters.</span>
-<span class="sd">    When a view is decorated by def_request or def_auth_request,</span>
-<span class="sd">    this modify the data attached to the request and the format.</span>
+<span class="sd">Middleware thats manage common view errors.</span>
+<span class="sd">The middleware decorate the request with a format (HTML by default),</span>
+<span class="sd">and by a list of URL parameters.</span>
+<span class="sd">When a view is decorated by def_request or def_auth_request,</span>
+<span class="sd">this modify the data attached to the request and the format.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">http</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">django.template</span> <span class="kn">import</span> <span class="n">RequestContext</span>
 <span class="kn">from</span> <span class="nn">django.template.loader</span> <span class="kn">import</span> <span class="n">render_to_string</span>
 <span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">messages</span>
 <span class="kn">from</span> <span class="nn">django.core.urlresolvers</span> <span class="kn">import</span> <span class="n">resolve</span>
 <span class="kn">from</span> <span class="nn">django.apps</span> <span class="kn">import</span> <span class="n">apps</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation.trans_real</span> <span class="kn">import</span> <span class="n">parse_accept_lang_header</span>
+
+<span class="kn">import</span> <span class="nn">igdectk.xml</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">Format</span>
 
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2015-04-13&quot;</span>
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Frédéric Scherma&quot;</span>
@@ -91,29 +97,293 @@
     <span class="n">status_code</span> <span class="o">=</span> <span class="mi">401</span>
 
 </div>
+<div class="viewcode-block" id="parse_content_type"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.restmiddleware.parse_content_type">[docs]</a><span class="k">def</span> <span class="nf">parse_content_type</span><span class="p">(</span><span class="n">content_type</span><span class="p">):</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">content_type</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">)</span>
+    <span class="n">media_type</span> <span class="o">=</span> <span class="n">parts</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">media_params</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">media_params</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">media_type</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">media_params</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="parse_accept_header"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.restmiddleware.parse_accept_header">[docs]</a><span class="k">def</span> <span class="nf">parse_accept_header</span><span class="p">(</span><span class="n">accept</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse the Accept header.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    accept: string</span>
+<span class="sd">        Accept string from HTTP header.</span>
+
+<span class="sd">    Results</span>
+<span class="sd">    -------</span>
+<span class="sd">    : list(tuple)</span>
+<span class="sd">        A list with pairs of (media_type, q_value), ordered by q values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">media_range</span> <span class="ow">in</span> <span class="n">accept</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">):</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">media_range</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">)</span>
+        <span class="n">media_type</span> <span class="o">=</span> <span class="n">parts</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">media_params</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&quot;q&quot;</span><span class="p">:</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">media_params</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">media_type</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">media_params</span><span class="p">),</span> <span class="n">q</span><span class="p">))</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+</div>
+<div class="viewcode-block" id="HttpHeader"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.restmiddleware.HttpHeader">[docs]</a><span class="k">class</span> <span class="nc">HttpHeader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    HTTP header parser with cache.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
+
+        <span class="c"># HTTP_ACCEPT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accept</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_types</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c"># HTTP_ACCEPT_LANGUAGE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accept_languages</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_laguages_codes</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c"># CONTENT_TYPE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_content_type</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_content_format</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">_cache_http_accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">accept</span> <span class="o">=</span> <span class="n">parse_accept_header</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;HTTP_ACCEPT&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accept</span> <span class="o">=</span> <span class="n">accept</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">accept</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the HTTP_ACCEPT list of pairs (media_type, q_value).</span>
+<span class="sd">        This list is cached the first time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># not cached</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accept</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache_http_accept</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accept</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">accepted_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sames as ::ref::`accept` but returns only the media_type.</span>
+<span class="sd">        This list is cached the first time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># not cached</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_types</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache_http_accept</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_types</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">prefered_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the prefered media_type as Format enum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># not cached</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_types</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache_http_accept</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_types</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Format</span><span class="o">.</span><span class="n">HTML</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span><span class="o">.</span><span class="n">content_type</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">XML</span><span class="o">.</span><span class="n">content_type</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Format</span><span class="o">.</span><span class="n">XML</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">HTML</span><span class="o">.</span><span class="n">content_type</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Format</span><span class="o">.</span><span class="n">HTML</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">MULTIPART</span><span class="o">.</span><span class="n">content_type</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Format</span><span class="o">.</span><span class="n">MULTIPART</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">TEXT</span><span class="o">.</span><span class="n">content_type</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Format</span><span class="o">.</span><span class="n">TEXT</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Format</span><span class="o">.</span><span class="n">TEXT</span>
+
+    <span class="k">def</span> <span class="nf">_cache_http_accept_language</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">accept_language</span> <span class="o">=</span> <span class="n">parse_accept_lang_header</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;HTTP_ACCEPT_LANGUAGE&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accept_language</span> <span class="o">=</span> <span class="n">accept_language</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_language_codes</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">accept_language</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">accept_language</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the HTTP_ACCEPT_LANGUAGE as a list of pairs.</span>
+<span class="sd">        This list is cached the first time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># not cached</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accept_language</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache_http_accept_language</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accept_language</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">accepted_language_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sames as ::ref::`accept_language` but returns only the languages codes.</span>
+<span class="sd">        This list is cached the first time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># not cached</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_language_codes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache_http_accept_language</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_language_codes</span>
+
+    <span class="k">def</span> <span class="nf">_cache_content_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_content_type</span> <span class="o">=</span> <span class="n">parse_content_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;CONTENT_TYPE&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span><span class="o">.</span><span class="n">content_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_content_format</span> <span class="o">=</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">XML</span><span class="o">.</span><span class="n">content_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_content_format</span> <span class="o">=</span> <span class="n">Format</span><span class="o">.</span><span class="n">XML</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">HTML</span><span class="o">.</span><span class="n">content_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_content_format</span> <span class="o">=</span> <span class="n">Format</span><span class="o">.</span><span class="n">HTML</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">MULTIPART</span><span class="o">.</span><span class="n">content_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_content_format</span> <span class="o">=</span> <span class="n">Format</span><span class="o">.</span><span class="n">MULTIPART</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">TEXT</span><span class="o">.</span><span class="n">content_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_content_format</span> <span class="o">=</span> <span class="n">Format</span><span class="o">.</span><span class="n">TEXT</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_content_format</span> <span class="o">=</span> <span class="n">Format</span><span class="o">.</span><span class="n">ANY</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">content_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a pair with content type and a tuples of content settings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache_content_type</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content_type</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">content_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a Format for the content type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content_format</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache_content_type</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content_format</span>
+
+</div>
 <div class="viewcode-block" id="IGdecTkRestMiddleware"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.restmiddleware.IGdecTkRestMiddleware">[docs]</a><span class="k">class</span> <span class="nc">IGdecTkRestMiddleware</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Middleware that manages request format and catch views exceptions.</span>
-<span class="sd">        It also manage the customized view errors (page if HTML else JSON).</span>
+<span class="sd">    Middleware that manages request format and catch views exceptions.</span>
+<span class="sd">    It also manage the customized view errors (page if HTML else JSON).</span>
 
-<span class="sd">        The middleware decorate the request with a format (HTML by default),</span>
-<span class="sd">        and by a list of URL parameters.</span>
+<span class="sd">    The middleware decorate the request with a format (HTML by default),</span>
+<span class="sd">    and by a list of URL parameters.</span>
 
-<span class="sd">        When a view is decorated by :class:`igdectk.helpers.def_request`,</span>
-<span class="sd">        :class:`igdectk.helpers.def_auth_request` or by</span>
-<span class="sd">        :class:`igdectk.helpers.def_admin_request`,</span>
-<span class="sd">        the decorator can attach a data dict to the request object.</span>
+<span class="sd">    When a view is decorated by :class:`igdectk.helpers.def_request`,</span>
+<span class="sd">    :class:`igdectk.helpers.def_auth_request` or by</span>
+<span class="sd">    :class:`igdectk.helpers.def_admin_request`,</span>
+<span class="sd">    the decorator can attach a data dict to the request object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">TYPES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">400</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponseBadRequest</span><span class="p">,</span>
+        <span class="mi">401</span><span class="p">:</span> <span class="n">HttpResponseUnauthorized</span><span class="p">,</span>
+        <span class="mi">404</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponseNotFound</span><span class="p">,</span>
+        <span class="mi">500</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponseServerError</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="IGdecTkRestMiddleware.format_response"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.restmiddleware.IGdecTkRestMiddleware.format_response">[docs]</a>    <span class="k">def</span> <span class="nf">format_response</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper to format a response related to the format and parameters</span>
+<span class="sd">        defined into the request, a message, and an HTTP code.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        request : RequestContext</span>
+<span class="sd">            Django request object.</span>
+
+<span class="sd">        message : str</span>
+<span class="sd">            Message contant string.</span>
+
+<span class="sd">        code : integer</span>
+<span class="sd">            HTTP code.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">         : HttpResponse</span>
+<span class="sd">            An HTTP response object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response_type</span> <span class="o">=</span> <span class="n">IGdecTkRestMiddleware</span><span class="o">.</span><span class="n">TYPES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponse</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;result&quot;</span><span class="p">:</span> <span class="s">&quot;failed&quot;</span><span class="p">,</span>
+            <span class="s">&quot;cause&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span>
+            <span class="s">&quot;code&quot;</span><span class="p">:</span> <span class="n">code</span>
+        <span class="p">}</span>
+
+        <span class="c"># JSON format</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="c"># HTML format</span>
+        <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">HTML</span><span class="p">:</span>
+            <span class="c"># append a Boostrap message error</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;Http </span><span class="si">%i</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span>
+
+            <span class="c"># render a default error page if it excepts</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c"># get HTTP_TEMPLATE_STRING from the app of the request</span>
+                <span class="n">app_name</span> <span class="o">=</span> <span class="n">resolve</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">app_name</span>
+                <span class="n">current_app</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_app_config</span><span class="p">(</span><span class="n">app_name</span><span class="p">)</span>
+                <span class="n">http_template_string</span> <span class="o">=</span> <span class="n">current_app</span><span class="o">.</span><span class="n">http_template_string</span>
+
+                <span class="n">data</span> <span class="o">=</span> <span class="n">render_to_string</span><span class="p">(</span>
+                    <span class="n">http_template_string</span> <span class="o">%</span> <span class="p">(</span><span class="n">code</span><span class="p">,),</span>
+                    <span class="n">result</span><span class="p">,</span>
+                    <span class="n">context_instance</span><span class="o">=</span><span class="n">RequestContext</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">response_type</span><span class="p">(</span><span class="s">&#39;Http </span><span class="si">%i</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">message</span><span class="p">),</span> <span class="n">RequestContext</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
+
+            <span class="k">return</span> <span class="n">response_type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="c"># XML format</span>
+        <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">XML</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">igdectk</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="c"># TEXT format</span>
+        <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">TEXT</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="s">&quot;result: </span><span class="si">%(result)s</span><span class="se">\n</span><span class="s">cause: </span><span class="si">%(cause)s</span><span class="se">\n</span><span class="s">code: </span><span class="si">%(code)i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">result</span>
+
+        <span class="c"># ANY others formats</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="s">&quot;result: </span><span class="si">%(result)s</span><span class="se">\n</span><span class="s">cause: </span><span class="si">%(cause)s</span><span class="se">\n</span><span class="s">code: </span><span class="si">%(code)i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">result</span>
+
+        <span class="k">return</span> <span class="n">response_type</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">content_type</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="IGdecTkRestMiddleware.process_request"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.restmiddleware.IGdecTkRestMiddleware.process_request">[docs]</a>    <span class="k">def</span> <span class="nf">process_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
-        <span class="c"># defines a default request format to HTML</span>
-        <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s">&#39;HTML&#39;</span>
+        <span class="c"># default request data format to HTML</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">Format</span><span class="o">.</span><span class="n">HTML</span>
+
+        <span class="c"># an empty list of url parameters</span>
         <span class="n">request</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="p">()</span>
+
+        <span class="n">request</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">HttpHeader</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="IGdecTkRestMiddleware.process_exception"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.restmiddleware.IGdecTkRestMiddleware.process_exception">[docs]</a>    <span class="k">def</span> <span class="nf">process_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exception</span><span class="p">,</span> <span class="n">ViewExceptionRest</span><span class="p">):</span>
             <span class="n">message</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="n">exception</span><span class="o">.</span><span class="n">args</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exception</span><span class="p">,</span> <span class="n">SuspiciousOperation</span><span class="p">):</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">exception</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="mi">400</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exception</span><span class="p">,</span> <span class="n">PermissionDenied</span><span class="p">):</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">exception</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="mi">403</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exception</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">Http404</span><span class="p">):</span>
             <span class="n">message</span> <span class="o">=</span> <span class="n">exception</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">code</span> <span class="o">=</span> <span class="mi">404</span>
@@ -125,52 +395,7 @@
             <span class="c"># write the traceback to the logger (should be redirected to console)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
 
-        <span class="c"># JSON format</span>
-        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="s">&#39;JSON&#39;</span><span class="p">:</span>
-            <span class="n">jsondata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
-                <span class="s">&quot;result&quot;</span><span class="p">:</span> <span class="s">&quot;failed&quot;</span><span class="p">,</span>
-                <span class="s">&quot;cause&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span>
-                <span class="s">&quot;code&quot;</span><span class="p">:</span> <span class="n">code</span><span class="p">})</span>
-
-            <span class="n">types</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="mi">400</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponseBadRequest</span><span class="p">,</span>
-                <span class="mi">401</span><span class="p">:</span> <span class="n">HttpResponseUnauthorized</span><span class="p">,</span>
-                <span class="mi">404</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponseNotFound</span><span class="p">,</span>
-                <span class="mi">500</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponseServerError</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="n">response_type</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponse</span><span class="p">)</span>
-
-            <span class="k">return</span> <span class="n">response_type</span><span class="p">(</span><span class="n">jsondata</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s">&quot;application/json&quot;</span><span class="p">)</span>
-
-        <span class="c"># HTML format</span>
-        <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="s">&#39;HTML&#39;</span><span class="p">:</span>
-            <span class="n">types</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="mi">400</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponseBadRequest</span><span class="p">,</span>
-                <span class="mi">401</span><span class="p">:</span> <span class="n">HttpResponseUnauthorized</span><span class="p">,</span>
-                <span class="mi">404</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponseNotFound</span><span class="p">,</span>
-                <span class="mi">500</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponseServerError</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="n">response_type</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponse</span><span class="p">)</span>
-
-            <span class="c"># append a Boostrap message error</span>
-            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;Http </span><span class="si">%i</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span>
-
-            <span class="c"># render a default error page if it excepts</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="c"># get HTTP_TEMPLATE_STRING from the app of the request</span>
-                <span class="n">app_name</span> <span class="o">=</span> <span class="n">resolve</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">app_name</span>
-                <span class="n">current_app</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_app_config</span><span class="p">(</span><span class="n">app_name</span><span class="p">)</span>
-                <span class="n">http_template_string</span> <span class="o">=</span> <span class="n">current_app</span><span class="o">.</span><span class="n">http_template_string</span>
-
-                <span class="n">t</span> <span class="o">=</span> <span class="n">render_to_string</span><span class="p">(</span>
-                    <span class="n">http_template_string</span> <span class="o">%</span> <span class="p">(</span><span class="n">code</span><span class="p">,),</span>
-                    <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="n">message</span><span class="p">},</span>
-                    <span class="n">context_instance</span><span class="o">=</span><span class="n">RequestContext</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">response_type</span><span class="p">(</span><span class="s">&#39;Http </span><span class="si">%i</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">message</span><span class="p">),</span>
-                                     <span class="n">RequestContext</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
-
-            <span class="k">return</span> <span class="n">response_type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">IGdecTkRestMiddleware</span><span class="o">.</span><span class="n">format_response</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -182,6 +407,8 @@
 <ul>
   <li><a href="../../../index.html">Documentation overview</a><ul>
   <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../rest.html">igdectk.rest</a><ul>
+  </ul></li>
   </ul></li>
   </ul></li>
 </ul>

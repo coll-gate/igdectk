@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>igdectk.rest.handler &mdash; igdectk 1.0.1 documentation</title>
+    <title>igdectk.rest.handler &mdash; igdectk 1.4.3 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.0.1',
+        VERSION:     '1.4.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
-    <link rel="top" title="igdectk 1.0.1 documentation" href="../../../index.html" />
-    <link rel="up" title="Module code" href="../../index.html" />
+    <link rel="top" title="igdectk 1.4.3 documentation" href="../../../index.html" />
+    <link rel="up" title="igdectk.rest" href="../rest.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -44,8 +44,8 @@
 <span class="c"># Copyright (c) 2015 INRA UMR1095 GDEC</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Easy manage RESTfull urls and views according</span>
-<span class="sd">    to the HTTP method and content format.</span>
+<span class="sd">Easy manage RESTfull urls and views according</span>
+<span class="sd">to the HTTP method and content format.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">json</span>
@@ -55,8 +55,14 @@
 
 <span class="kn">from</span> <span class="nn">django.apps</span> <span class="kn">import</span> <span class="n">apps</span>
 <span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="kn">import</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span>
+
+<span class="kn">import</span> <span class="nn">igdectk.xml</span>
 
 <span class="kn">from</span> <span class="nn">.restmiddleware</span> <span class="kn">import</span> <span class="n">ViewExceptionRest</span>
+
+<span class="kn">from</span> <span class="nn">igdectk.rest</span> <span class="kn">import</span> <span class="n">Format</span><span class="p">,</span> <span class="n">Method</span>
+<span class="kn">from</span> <span class="nn">igdectk.common.helpers</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2015-10-15&quot;</span>
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Frédéric Scherma&quot;</span>
@@ -74,48 +80,224 @@
     <span class="k">pass</span>
 
 </div>
+<div class="viewcode-block" id="RestForm"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.handler.RestForm">[docs]</a><span class="k">class</span> <span class="nc">RestForm</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rest handler to register a form with GET and POST method and HTML format.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    form_class: django.forms.Form</span>
+<span class="sd">        Django formular class.</span>
+
+<span class="sd">    form_template: string</span>
+<span class="sd">        Complete name of the template used to render the formular.</span>
+
+<span class="sd">    form_template_name: string</span>
+<span class="sd">        Name of the template form variable. Default is &#39;form&#39;.</span>
+
+<span class="sd">    auth : boolean</span>
+<span class="sd">        True if the user must be authenticated. Default False.</span>
+
+<span class="sd">    admin : boolean</span>
+<span class="sd">        True if the user must be a super-user. Default False.</span>
+
+<span class="sd">    redirect: boolean</span>
+<span class="sd">        If True, when form POST success the client is redirected to attr:`success`</span>
+<span class="sd">        location.</span>
+
+<span class="sd">    success: string</span>
+<span class="sd">        If attr:`redirect` is True success defines the location URL to the redirection</span>
+<span class="sd">        when form POST success.</span>
+<span class="sd">        If False, success defines the template name to render.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">form_class</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">form_template</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="n">form_template_name</span> <span class="o">=</span> <span class="s">&#39;form&#39;</span>
+
+    <span class="n">auth</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">admin</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="n">redirect</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">success</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="RestForm.get"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.handler.RestForm.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to override when it is necessary to perform initialization</span>
+<span class="sd">        on the form before sending it to the client.</span>
+
+<span class="sd">        It is permit to raise an exception here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="RestForm.valid_form"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.handler.RestForm.valid_form">[docs]</a>    <span class="k">def</span> <span class="nf">valid_form</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to override to use the result of the form, when it pass</span>
+<span class="sd">        the django form validation tests. For example updating a model.</span>
+
+<span class="sd">        If False is returned the form page is returned to the client.</span>
+
+<span class="sd">        It is permit to raise an exception here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="RestForm.invalid_form"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.handler.RestForm.invalid_form">[docs]</a>    <span class="k">def</span> <span class="nf">invalid_form</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to override to use the result of the form, when it failed</span>
+<span class="sd">        to pass the django form validation tests. For example highlight</span>
+<span class="sd">        some fields, display an error message..</span>
+
+<span class="sd">        It is permit to raise an exception here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_register_form</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
+        <span class="c"># target conditions</span>
+        <span class="n">conditions</span> <span class="o">=</span> <span class="n">RestHandler</span><span class="o">.</span><span class="n">_make_conditions</span><span class="p">(</span><span class="n">Format</span><span class="o">.</span><span class="n">HTML</span><span class="p">,</span> <span class="p">(),</span> <span class="p">{})</span>
+
+        <span class="c"># register the &#39;get&#39; wrapper</span>
+        <span class="k">def</span> <span class="nf">wrapper_get</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">request</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c"># check for user authentication</span>
+            <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">auth</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Unauthorized&quot;</span><span class="p">,</span> <span class="mi">401</span><span class="p">)</span>
+
+            <span class="c"># check for super-user authentication</span>
+            <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">admin</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_superuser</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Forbidden&quot;</span><span class="p">,</span> <span class="mi">403</span><span class="p">)</span>
+
+            <span class="n">form</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">form_class</span><span class="p">()</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">form_template</span><span class="p">,</span> <span class="p">{</span><span class="n">cls</span><span class="o">.</span><span class="n">form_template_name</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span>
+
+        <span class="n">wrapper_get</span><span class="o">.</span><span class="n">target_name</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">__module__</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">handler</span><span class="o">.</span><span class="n">__qualname__</span>
+        <span class="n">handler</span><span class="o">.</span><span class="n">_register_wrapper</span><span class="p">(</span><span class="n">wrapper_get</span><span class="p">,</span> <span class="n">Method</span><span class="o">.</span><span class="n">GET</span><span class="p">,</span> <span class="n">Format</span><span class="o">.</span><span class="n">HTML</span><span class="p">,</span> <span class="p">(),</span> <span class="p">(),</span> <span class="n">conditions</span><span class="p">)</span>
+
+        <span class="c"># register the &#39;post&#39; wrapper</span>
+        <span class="k">def</span> <span class="nf">wrapper_post</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">request</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">form_class</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">valid_form</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">)</span>
+
+                <span class="c"># valid form returns False meaning an invalid form processing</span>
+                <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">result</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+                    <span class="n">cls</span><span class="o">.</span><span class="n">invalid_form</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">form_template</span><span class="p">,</span> <span class="p">{</span><span class="n">cls</span><span class="o">.</span><span class="n">form_template_name</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span>
+
+                <span class="c"># success redirect to a dynamic location</span>
+                <span class="k">elif</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+                <span class="c"># success redirect to the default static location</span>
+                <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">redirect</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">success</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">redirect</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># invalid form</span>
+                <span class="n">cls</span><span class="o">.</span><span class="n">invalid_form</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">form_template</span><span class="p">,</span> <span class="p">{</span><span class="n">cls</span><span class="o">.</span><span class="n">form_template_name</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span>
+
+        <span class="n">wrapper_post</span><span class="o">.</span><span class="n">target_name</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">__module__</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">handler</span><span class="o">.</span><span class="n">__qualname__</span>
+        <span class="n">handler</span><span class="o">.</span><span class="n">_register_wrapper</span><span class="p">(</span><span class="n">wrapper_post</span><span class="p">,</span> <span class="n">Method</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">Format</span><span class="o">.</span><span class="n">HTML</span><span class="p">,</span> <span class="p">(),</span> <span class="p">(),</span> <span class="n">conditions</span><span class="p">)</span>
+
+</div>
 <div class="viewcode-block" id="RestHandlerMeta"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.handler.RestHandlerMeta">[docs]</a><span class="k">class</span> <span class="nc">RestHandlerMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Metaclass for :class:`RestHandler` used to automatize the registration of</span>
+<span class="sd">    the handler.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="nb">type</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
 
         <span class="c"># register only when inheritance (not base)</span>
         <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">__name__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s">&#39;RestHandler&#39;</span><span class="p">:</span>
-            <span class="n">cls</span><span class="o">.</span><span class="n">_register</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">regex</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">application</span><span class="p">,</span> <span class="n">urls</span><span class="o">=</span><span class="s">&#39;urls&#39;</span><span class="p">)</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">_register</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">regex</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">app_name</span><span class="p">,</span> <span class="n">urls</span><span class="o">=</span><span class="s">&#39;urls&#39;</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="RestHandler"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.handler.RestHandler">[docs]</a><span class="k">class</span> <span class="nc">RestHandler</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">RestHandlerMeta</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manage RESTfull API with autogenenation and registration of urls.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    regex: string</span>
+<span class="sd">        Python regular expression of the URL. It is combined with its parent</span>
+<span class="sd">        handler regex when using inheritance of handlers.</span>
+
+<span class="sd">    name: string</span>
+<span class="sd">        Qualified name of the URL to be used into reverse URL and templates.</span>
+<span class="sd">        It is possible to omit it and use :attr:`suffix` when using inheritance.</span>
+
+<span class="sd">    suffix: string</span>
+<span class="sd">        When inherit of a parent handler (excepted RestHandler base class),</span>
+<span class="sd">        and if :attr:`name` is empty or None, suffix is added to the URL name</span>
+<span class="sd">        of its parent. It is useful to avoid the rewriting of the complete path name.</span>
+<span class="sd">        There is no need to add a separator before.</span>
+
+<span class="sd">    name_separator: string</span>
+<span class="sd">        Separator used between each word into the URL name. Default is &#39;-&#39;.</span>
+
+<span class="sd">    app_name: string</span>
+<span class="sd">        Application name. If None it is detect from the module where the</span>
+<span class="sd">        class is defined.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">regex</span> <span class="o">=</span> <span class="s">r&quot;^$&quot;</span>
+    <span class="n">regex</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="n">name_separator</span> <span class="o">=</span> <span class="s">&#39;-&#39;</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="n">app_name</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="n">application</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">methods</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c"># classname_prefix = &#39;Rest&#39;</span>
+    <span class="n">methods</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="n">unprocessed_handlers</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c"># intermediary list of handles to register</span>
-    <span class="n">handlers</span> <span class="o">=</span> <span class="p">[]</span>              <span class="c"># list of registered handlers (by register_urls)</span>
+    <span class="n">handlers</span> <span class="o">=</span> <span class="p">{}</span>              <span class="c"># list of registered handlers (by register_urls)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_register</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">urls</span><span class="o">=</span><span class="s">&#39;urls&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_register</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">app_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">urls</span><span class="o">=</span><span class="s">&#39;urls&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Internaly called by RestHandlerMeta on class definition</span>
 <span class="sd">        in way to create a new entry into the list of managed handlers.</span>
 <span class="sd">        This list is finally manually inserted into each application urlpatterns</span>
 <span class="sd">        classing register_urls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">cls</span><span class="o">.</span><span class="n">regex</span> <span class="o">=</span> <span class="n">regex</span>
-        <span class="n">cls</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="c"># inheritance of the class name prefix</span>
+        <span class="c"># cls.classname_prefix = base[-1].classname_prefix if base[-1].classname_prefix else &#39;Rest&#39;</span>
+        <span class="c"># last_name = cls.__name__.lstrip(base[-1].__name__).lower()</span>
+
+        <span class="c"># regex is compound of its parent regex + himself OR only himself if no parent</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">regex</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">regex</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;$&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">regex</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&#39;^&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">base</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">regex</span> <span class="k">else</span> <span class="n">regex</span>
+
+        <span class="c"># name is compound of its parent name + suffix OR only name</span>
+        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">suffix</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">base</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="n">RestHandler</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">RestRegistrationException</span><span class="p">(</span><span class="s">&#39;Suffix can only be defined on inherited rest handlers&#39;</span><span class="p">)</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="n">cls</span><span class="o">.</span><span class="n">name_separator</span> <span class="o">+</span> <span class="n">cls</span><span class="o">.</span><span class="n">suffix</span>
+
         <span class="n">cls</span><span class="o">.</span><span class="n">methods</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="k">if</span> <span class="n">application</span><span class="p">:</span>
-            <span class="n">cls</span><span class="o">.</span><span class="n">appname</span> <span class="o">=</span> <span class="n">application</span>
+        <span class="k">if</span> <span class="n">app_name</span><span class="p">:</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">app_name</span> <span class="o">=</span> <span class="n">app_name</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">cls</span><span class="o">.</span><span class="n">appname</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">__module__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">app_name</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">__module__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">cls</span><span class="o">.</span><span class="n">application</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_app_config</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">appname</span><span class="p">)</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">application</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">get_app_config</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">app_name</span><span class="p">)</span>
 
         <span class="c"># application urls</span>
         <span class="n">cls</span><span class="o">.</span><span class="n">urlsname</span> <span class="o">=</span> <span class="n">urls</span> <span class="k">if</span> <span class="n">urls</span> <span class="k">else</span> <span class="s">&#39;urls&#39;</span>
@@ -127,6 +309,9 @@
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
             <span class="k">raise</span>
 
+        <span class="k">if</span> <span class="n">RestForm</span> <span class="ow">in</span> <span class="n">base</span><span class="p">:</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">_register_form</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+
         <span class="n">RestHandler</span><span class="o">.</span><span class="n">unprocessed_handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
@@ -134,54 +319,72 @@
         <span class="n">methods</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">methods</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="p">[</span><span class="s">&#39;CONTENT_TYPE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;application/json&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>
+            <span class="c"># decode the incoming data (json, xml, form-data, multipart/form-data)</span>
+            <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">content_format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">content_format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">XML</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">igdectk</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">content_format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">MULTIPART</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span>  <span class="c"># Form POST encoded</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span>
-
-            <span class="c"># check for the existence of the parameters into the encoded URL</span>
-            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Missing parameter &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span>  <span class="c"># Form POST encoded</span>
 
             <span class="n">request</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
 
-            <span class="c"># constrained by GET parameters method</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">sub</span> <span class="o">=</span> <span class="bp">None</span>
-                <span class="n">fallback</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="c"># conditionned selection of the handler</span>
+            <span class="n">sub</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">fallback</span> <span class="o">=</span> <span class="bp">None</span>
 
-                <span class="k">for</span> <span class="n">submethod</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
-                    <span class="n">sub</span> <span class="o">=</span> <span class="n">submethod</span>
+            <span class="k">for</span> <span class="n">submethod</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+                <span class="n">sub</span> <span class="o">=</span> <span class="n">submethod</span>
 
-                    <span class="c"># fallback method is the one having no conditions</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">submethod</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
-                        <span class="n">fallback</span> <span class="o">=</span> <span class="n">sub</span>
-                        <span class="k">continue</span>
+                <span class="c"># fallback method is the one having only the accept condition</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">submethod</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">submethod</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="s">&#39;accept&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">accepted_types</span> <span class="o">!=</span> <span class="p">[</span><span class="s">&#39;*/*&#39;</span><span class="p">]:</span>
+                        <span class="c"># compare accept</span>
+                        <span class="k">if</span> <span class="n">submethod</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">accepted_types</span><span class="p">:</span>
+                            <span class="n">fallback</span> <span class="o">=</span> <span class="n">sub</span>
+                            <span class="k">continue</span>
 
-                    <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">submethod</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">submethod</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+                    <span class="c"># key/value URL parameters (must be equal)</span>
+                    <span class="k">if</span> <span class="n">condition</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;eq&#39;</span><span class="p">:</span>
                         <span class="c"># compare key</span>
                         <span class="k">if</span> <span class="n">condition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">:</span>
                             <span class="n">sub</span> <span class="o">=</span> <span class="bp">None</span>
                             <span class="k">break</span>
 
-                        <span class="c"># compare value</span>
+                        <span class="c"># and value</span>
                         <span class="k">if</span> <span class="n">condition</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="n">condition</span><span class="p">[</span><span class="mi">0</span><span class="p">]]:</span>
                             <span class="n">sub</span> <span class="o">=</span> <span class="bp">None</span>
                             <span class="k">break</span>
+                    <span class="c"># key in URL (just contains)</span>
+                    <span class="k">elif</span> <span class="n">condition</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;has&#39;</span><span class="p">:</span>
+                        <span class="c"># compare key</span>
+                        <span class="k">if</span> <span class="n">condition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">:</span>
+                            <span class="n">sub</span> <span class="o">=</span> <span class="bp">None</span>
+                            <span class="k">break</span>
+                    <span class="c"># or HTTP_ACCEPT (must be equal)</span>
+                    <span class="k">elif</span> <span class="n">condition</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;accept&#39;</span><span class="p">:</span>
+                        <span class="c"># accept any</span>
+                        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">accepted_types</span> <span class="o">!=</span> <span class="p">[</span><span class="s">&#39;*/*&#39;</span><span class="p">]:</span>
+                            <span class="c"># compare accept</span>
+                            <span class="k">if</span> <span class="n">condition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">accepted_types</span><span class="p">:</span>
+                                <span class="n">sub</span> <span class="o">=</span> <span class="bp">None</span>
+                                <span class="k">break</span>
 
-                    <span class="c"># we have our method</span>
-                    <span class="k">if</span> <span class="n">sub</span><span class="p">:</span>
-                        <span class="k">break</span>
-
+                <span class="c"># we have our candidat</span>
                 <span class="k">if</span> <span class="n">sub</span><span class="p">:</span>
-                    <span class="n">method</span> <span class="o">=</span> <span class="n">sub</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">method</span> <span class="o">=</span> <span class="n">fallback</span>
+                    <span class="k">break</span>
+
+            <span class="c"># if no candidat, try to use fallback</span>
+            <span class="k">if</span> <span class="n">sub</span><span class="p">:</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="n">sub</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">method</span> <span class="o">=</span> <span class="n">methods</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="n">fallback</span>
 
             <span class="k">if</span> <span class="n">method</span><span class="p">:</span>
+                <span class="c"># call the request function by calling its decorator wrapper</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">method</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
@@ -192,12 +395,7 @@
 
         <span class="c"># when no view is defined for the method, there is no decorator</span>
         <span class="c"># to apply the format, so we have to look what client ask for</span>
-        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="p">[</span><span class="s">&#39;CONTENT_TYPE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;application/json&#39;</span><span class="p">):</span>
-            <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s">&#39;JSON&#39;</span>
-        <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="p">[</span><span class="s">&#39;CONTENT_TYPE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;application/xml&#39;</span><span class="p">):</span>
-            <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s">&#39;HTML&#39;</span>  <span class="c"># &#39;XML&#39; TODO HTML for the moment</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s">&#39;HTML&#39;</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">prefered_type</span>
 
         <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span>
             <span class="s">&#39;Undefined view for </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">),</span> <span class="mi">404</span><span class="p">)</span>
@@ -208,38 +406,67 @@
 <span class="sd">        This method must be called once time in the urls.py</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">RestHandler</span><span class="o">.</span><span class="n">unprocessed_handlers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">regex</span> <span class="ow">in</span> <span class="n">RestHandler</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">RestRegistrationException</span><span class="p">(</span>
+                    <span class="s">&quot;Duplicate entry for </span><span class="si">%s</span><span class="s">(&#39;</span><span class="si">%s</span><span class="s">&#39;) with &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">handler</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">handler</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">handler</span><span class="o">.</span><span class="n">regex</span><span class="p">))</span>
+
             <span class="n">handler</span><span class="o">.</span><span class="n">urls</span><span class="o">.</span><span class="n">urlpatterns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">url</span><span class="p">(</span><span class="n">handler</span><span class="o">.</span><span class="n">regex</span><span class="p">,</span> <span class="n">handler</span><span class="o">.</span><span class="n">_interceptor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">handler</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
-            <span class="c"># append to registered handlers</span>
-            <span class="n">handler</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+            <span class="c"># append to registered handlers dict</span>
+            <span class="n">RestHandler</span><span class="o">.</span><span class="n">handlers</span><span class="p">[</span><span class="n">handler</span><span class="o">.</span><span class="n">regex</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler</span>
 
         <span class="c"># Empty list of unprocessed handlers</span>
         <span class="n">RestHandler</span><span class="o">.</span><span class="n">unprocessed_handlers</span> <span class="o">=</span> <span class="p">[]</span>
 </div>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_register_wrapper</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">wrapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">conditions</span><span class="p">):</span>
-        <span class="c"># register the wrapper</span>
-        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
-            <span class="c"># look for an existing empty conditions wrapper for this method</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">conditions</span><span class="p">:</span>
-                <span class="n">methods</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internaly register a wrapper for a specific method and conditions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># look for an existing similar entry</span>
+        <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="p">:</span>
+            <span class="n">methods</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
 
-                <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="o">.</span><span class="n">conditions</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">conditions</span><span class="p">):</span>
+                    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+                    <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">conditions</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">m</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+                            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">conditions</span><span class="p">):</span>
                         <span class="k">raise</span> <span class="n">RestRegistrationException</span><span class="p">(</span>
-                            <span class="s">&quot;Only one empty conditions wrapper is allowed per method of a REST handler&quot;</span><span class="p">)</span>
+                            <span class="s">&quot;Duplicate entry for </span><span class="si">%s</span><span class="s"> with </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">target_name</span><span class="p">))</span>
 
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">conditions</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="p">],</span>
-                    <span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">conditions</span><span class="p">)</span>
-                <span class="p">]</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">conditions</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">conditions</span><span class="p">)</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">conditions</span><span class="p">)]</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_make_conditions</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For requests decorator submethod creating the conditions</span>
+<span class="sd">        for a specific method, using optionals arguments dictionnary.</span>
+<span class="sd">        This conditions list is a parameter for :meth:`_register_wrapper`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># parse the url__ conditions</span>
+        <span class="n">conditions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">argn</span><span class="p">,</span> <span class="n">argv</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c"># url constraint for a key having value equality</span>
+            <span class="k">if</span> <span class="n">argn</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;url__&#39;</span><span class="p">):</span>
+                <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">argn</span><span class="p">[</span><span class="mi">5</span><span class="p">:],</span> <span class="n">argv</span><span class="p">,</span> <span class="s">&#39;eq&#39;</span><span class="p">))</span>
+
+        <span class="c"># url constraint presence of a parameter</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">param</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;has&#39;</span><span class="p">))</span>
+
+        <span class="c"># HTTP_ACCEPT must respect the format value</span>
+        <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">format</span><span class="o">.</span><span class="n">accept</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;accept&#39;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">conditions</span>
 
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="RestHandler.def_request"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.handler.RestHandler.def_request">[docs]</a>    <span class="k">def</span> <span class="nf">def_request</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">(),</span> <span class="n">content</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -260,11 +487,12 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        method: string</span>
-<span class="sd">            &#39;GET&#39;, &#39;POST&#39;, &#39;PUT&#39;, &#39;DELETE&#39;, &#39;PATCH&#39;, &#39;OPTIONS&#39;, &#39;HEAD&#39;</span>
+<span class="sd">        method: igdectk.rest.Method</span>
+<span class="sd">            One of the Method value (GET, POST...) define the accepted method.</span>
 
-<span class="sd">        format: string</span>
-<span class="sd">            &#39;JSON&#39; or &#39;HTML&#39;, defines the format of the http response.</span>
+<span class="sd">        format: igdectk.rest.Format</span>
+<span class="sd">            One of the Format value (JSON, HTML...) defines the format of the http response,</span>
+<span class="sd">            and the accepted value from HTTP_ACCEPT.</span>
 
 <span class="sd">        parameters: list</span>
 <span class="sd">            A list of strings or an empty list, containing the names of the</span>
@@ -299,11 +527,6 @@
                 <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">format</span>
                 <span class="n">request</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span>
 
-                <span class="c"># check for the existence of the parameters into the encoded URL</span>
-                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Missing parameter &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
-
                 <span class="c"># check for the existence of the values into the encoded body</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span>
 
@@ -311,21 +534,18 @@
                     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
                             <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Missing parameter &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;JSON&quot;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">content_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span><span class="o">.</span><span class="n">content_type</span><span class="p">:</span>
                     <span class="c"># or do a data validation</span>
                     <span class="n">validictory</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
 
                 <span class="c"># call the function</span>
                 <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-            <span class="c"># parse the url__ conditions</span>
-            <span class="n">conditions</span> <span class="o">=</span> <span class="p">[]</span>
-
-            <span class="k">for</span> <span class="n">argn</span><span class="p">,</span> <span class="n">argv</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">argn</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;url__&#39;</span><span class="p">):</span>
-                    <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">argn</span><span class="p">[</span><span class="mi">5</span><span class="p">:],</span> <span class="n">argv</span><span class="p">))</span>
+            <span class="c"># target conditions</span>
+            <span class="n">conditions</span> <span class="o">=</span> <span class="n">RestHandler</span><span class="o">.</span><span class="n">_make_conditions</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
 
             <span class="c"># register the wrapper</span>
+            <span class="n">wrapper</span><span class="o">.</span><span class="n">target_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__module__</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">func</span><span class="o">.</span><span class="n">__qualname__</span>
             <span class="n">cls</span><span class="o">.</span><span class="n">_register_wrapper</span><span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">conditions</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">wrapper</span>
@@ -355,36 +575,29 @@
                 <span class="c"># check for user authentication</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">fallback</span><span class="p">:</span>
-                        <span class="n">fallback</span><span class="p">()</span>
+                        <span class="k">return</span> <span class="n">fallback</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
                     <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Unauthorized&quot;</span><span class="p">,</span> <span class="mi">401</span><span class="p">)</span>
-
-                <span class="c"># check for the existence of the parameters into the encoded URL</span>
-                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Missing parameter &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
 
                 <span class="c"># check for the existence of the values into the encoded body</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span>
 
                 <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+                    <span class="c"># simple existence of a parameter into the body (dict and flat model)</span>
                     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
                             <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Missing parameter &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;JSON&quot;</span><span class="p">:</span>
-                    <span class="c"># or do a data validation</span>
+                <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">content_format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span><span class="p">:</span>
+                    <span class="c"># or do a data validation for JSON content (dict and tree model)</span>
                     <span class="n">validictory</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
 
                 <span class="c"># call the function</span>
                 <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-            <span class="c"># parse the url__ conditions</span>
-            <span class="n">conditions</span> <span class="o">=</span> <span class="p">[]</span>
-
-            <span class="k">for</span> <span class="n">argn</span><span class="p">,</span> <span class="n">argv</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">argn</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;url__&#39;</span><span class="p">):</span>
-                    <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">argn</span><span class="p">[</span><span class="mi">5</span><span class="p">:],</span> <span class="n">argv</span><span class="p">))</span>
+            <span class="c"># target conditions</span>
+            <span class="n">conditions</span> <span class="o">=</span> <span class="n">RestHandler</span><span class="o">.</span><span class="n">_make_conditions</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
 
             <span class="c"># register the wrapper</span>
+            <span class="n">wrapper</span><span class="o">.</span><span class="n">target_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__module__</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">func</span><span class="o">.</span><span class="n">__qualname__</span>
             <span class="n">cls</span><span class="o">.</span><span class="n">_register_wrapper</span><span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">conditions</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">wrapper</span>
@@ -415,42 +628,35 @@
                 <span class="c"># check for user authentication</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">fallback</span><span class="p">:</span>
-                        <span class="n">fallback</span><span class="p">()</span>
+                        <span class="k">return</span> <span class="n">fallback</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
                     <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Unauthorized&quot;</span><span class="p">,</span> <span class="mi">401</span><span class="p">)</span>
 
                 <span class="c"># check for super-user authentication</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_superuser</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">fallback</span><span class="p">:</span>
-                        <span class="n">fallback</span><span class="p">()</span>
+                        <span class="k">return</span> <span class="n">fallback</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
                     <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Forbidden&quot;</span><span class="p">,</span> <span class="mi">403</span><span class="p">)</span>
-
-                <span class="c"># check for the existence of the parameters into the encoded URL</span>
-                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Missing parameter &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
 
                 <span class="c"># check for the existence of the values into the encoded body</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span>
 
                 <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+                    <span class="c"># simple existence of a parameter into the body (dict and flat model)</span>
                     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
                             <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Missing parameter &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;JSON&quot;</span><span class="p">:</span>
-                    <span class="c"># or do a data validation</span>
+                <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">content_format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span><span class="p">:</span>
+                    <span class="c"># or do a data validation for JSON content (dict and tree model)</span>
                     <span class="n">validictory</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
 
                 <span class="c"># call the function</span>
                 <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-            <span class="c"># parse the url__ conditions</span>
-            <span class="n">conditions</span> <span class="o">=</span> <span class="p">[]</span>
-
-            <span class="k">for</span> <span class="n">argn</span><span class="p">,</span> <span class="n">argv</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">argn</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;url__&#39;</span><span class="p">):</span>
-                    <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">argn</span><span class="p">[</span><span class="mi">5</span><span class="p">:],</span> <span class="n">argv</span><span class="p">))</span>
+            <span class="c"># target conditions</span>
+            <span class="n">conditions</span> <span class="o">=</span> <span class="n">RestHandler</span><span class="o">.</span><span class="n">_make_conditions</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
 
             <span class="c"># register the wrapper</span>
+            <span class="n">wrapper</span><span class="o">.</span><span class="n">target_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__module__</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">func</span><span class="o">.</span><span class="n">__qualname__</span>
             <span class="n">cls</span><span class="o">.</span><span class="n">_register_wrapper</span><span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">conditions</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">wrapper</span>
@@ -458,14 +664,241 @@
         <span class="k">return</span> <span class="n">decorator</span>
 
 </div></div>
-<div class="viewcode-block" id="inline_rest_handler"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.handler.inline_rest_handler">[docs]</a><span class="k">def</span> <span class="nf">inline_rest_handler</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&#39;1.0&#39;</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">InlineRestHandler</span><span class="p">(</span><span class="n">RestHandler</span><span class="p">):</span>
-        <span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
-        <span class="n">regex</span> <span class="o">=</span> <span class="n">regex</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="n">application</span> <span class="o">=</span> <span class="n">application</span>
+<div class="viewcode-block" id="InlineRestHandler"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.handler.InlineRestHandler">[docs]</a><span class="k">class</span> <span class="nc">InlineRestHandler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="k">return</span> <span class="n">InlineRestHandler</span></div>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">app_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s">&#39;1.0&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regex</span> <span class="o">=</span> <span class="n">regex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_name</span> <span class="o">=</span> <span class="n">app_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+
+</div>
+<div class="viewcode-block" id="def_inline_request"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.handler.def_inline_request">[docs]</a><span class="k">def</span> <span class="nf">def_inline_request</span><span class="p">(</span><span class="n">inline_handler</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">(),</span> <span class="n">content</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Request function register and wrapper for non auth requests.</span>
+
+<span class="sd">    Check the list of mandatory URL parameters.</span>
+
+<span class="sd">    Check the list of mandatory content Form/JSON parameters, or validate the</span>
+<span class="sd">    content using validictory format.</span>
+
+<span class="sd">    If the format is incorrect or a parameter is missing raise a ViewException</span>
+<span class="sd">    HTML or JSON depending of the format.</span>
+
+<span class="sd">    If it pass the test, the function will contains two news parameters :</span>
+<span class="sd">        - method : from the decorator</span>
+<span class="sd">        - format : from the decorator</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    method: igdectk.rest.Method</span>
+<span class="sd">        One of the Method value (GET, POST...) define the accepted method.</span>
+
+<span class="sd">    format: igdectk.rest.Format</span>
+<span class="sd">        One of the Format value (JSON, HTML...) defines the format of the http response,</span>
+<span class="sd">        and the accepted value from HTTP_ACCEPT.</span>
+
+<span class="sd">    parameters: list</span>
+<span class="sd">        A list of strings or an empty list, containing the names of the</span>
+<span class="sd">        mandatory parameters requested in the URL.</span>
+
+<span class="sd">    content: list</span>
+<span class="sd">        A list of strings or an empty list, containing the names of the</span>
+<span class="sd">        mandatory parameters requested in the body.</span>
+
+<span class="sd">    conditions: string</span>
+<span class="sd">        The next parameters if theirs names starts with a &#39;url__&#39; will</span>
+<span class="sd">        be used as condition expression for the url parameters.</span>
+
+<span class="sd">        For example, having url__action=&#39;save&#39; mean that the url must</span>
+<span class="sd">        contains the parameter action with the value &#39;save&#39;.</span>
+
+<span class="sd">        This is useful to have many action for a same HTTP method.</span>
+<span class="sd">        It is possible to have many &#39;url__&#39; conditions.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+
+<span class="sd">        Only once free of conditions method per handler can be registered.</span>
+<span class="sd">        Otherwise a :any:`RestRegistrationException` exception is raised.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">request</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c"># add the parameters to the request</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">format</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span>
+
+            <span class="c"># check for the existence of the values into the encoded body</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span>
+
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+                <span class="c"># simple existence of a parameter into the body (dict and flat model)</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Missing parameter &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">content_format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span><span class="p">:</span>
+                <span class="c"># or do a data validation for JSON content (dict and tree model)</span>
+                <span class="n">validictory</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+
+            <span class="c"># call the function</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c"># get the default application name from decorated function</span>
+        <span class="k">if</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">app_name</span><span class="p">:</span>
+            <span class="n">_app_name</span> <span class="o">=</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">app_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_app_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__module__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">class</span> <span class="nc">InlineRestHandler</span><span class="p">(</span><span class="n">RestHandler</span><span class="p">):</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">version</span>
+            <span class="n">regex</span> <span class="o">=</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">regex</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">app_name</span> <span class="o">=</span> <span class="n">_app_name</span>
+
+        <span class="c"># target conditions</span>
+        <span class="n">conditions</span> <span class="o">=</span> <span class="n">RestHandler</span><span class="o">.</span><span class="n">_make_conditions</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c"># register the wrapper</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">target_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__module__</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">func</span><span class="o">.</span><span class="n">__qualname__</span>
+        <span class="n">InlineRestHandler</span><span class="o">.</span><span class="n">_register_wrapper</span><span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">conditions</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">decorator</span>
+
+</div>
+<div class="viewcode-block" id="def_inline_auth_request"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.handler.def_inline_auth_request">[docs]</a><span class="k">def</span> <span class="nf">def_inline_auth_request</span><span class="p">(</span><span class="n">inline_handler</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">(),</span> <span class="n">content</span><span class="o">=</span><span class="p">(),</span> <span class="n">fallback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Same as :func:`def_inline_request` but in addition the user must be authenticated.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    fallback: func</span>
+<span class="sd">        Optional callback function called in case the user is not authenticated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">request</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c"># add the parameters to the request</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">format</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span>
+
+            <span class="c"># check for user authentication</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">fallback</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">fallback</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Unauthorized&quot;</span><span class="p">,</span> <span class="mi">401</span><span class="p">)</span>
+
+            <span class="c"># check for the existence of the values into the encoded body</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span>
+
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+                <span class="c"># simple existence of a parameter into the body (dict and flat model)</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Missing parameter &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">content_format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span><span class="p">:</span>
+                <span class="c"># or do a data validation for JSON content (dict and tree model)</span>
+                <span class="n">validictory</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+
+            <span class="c"># call the function</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c"># get the default application name from decorated function</span>
+        <span class="k">if</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">app_name</span><span class="p">:</span>
+            <span class="n">_app_name</span> <span class="o">=</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">app_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_app_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__module__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">class</span> <span class="nc">InlineRestHandler</span><span class="p">(</span><span class="n">RestHandler</span><span class="p">):</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">version</span>
+            <span class="n">regex</span> <span class="o">=</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">regex</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">app_name</span> <span class="o">=</span> <span class="n">_app_name</span>
+
+        <span class="c"># target conditions</span>
+        <span class="n">conditions</span> <span class="o">=</span> <span class="n">RestHandler</span><span class="o">.</span><span class="n">_make_conditions</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c"># register the wrapper</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">target_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__module__</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">func</span><span class="o">.</span><span class="n">__qualname__</span>
+        <span class="n">InlineRestHandler</span><span class="o">.</span><span class="n">_register_wrapper</span><span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">conditions</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">decorator</span>
+
+</div>
+<div class="viewcode-block" id="def_inline_admin_request"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.handler.def_inline_admin_request">[docs]</a><span class="k">def</span> <span class="nf">def_inline_admin_request</span><span class="p">(</span><span class="n">inline_handler</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">(),</span> <span class="n">content</span><span class="o">=</span><span class="p">(),</span> <span class="n">fallback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Same as :meth:`def_inline_request` but in addition the user must be authenticated.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    fallback: func</span>
+<span class="sd">        Optional callback function called in case the user is not authenticated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">request</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c"># add the parameters to the request</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">format</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span>
+
+            <span class="c"># check for user authentication</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">fallback</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">fallback</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Unauthorized&quot;</span><span class="p">,</span> <span class="mi">401</span><span class="p">)</span>
+
+            <span class="c"># check for super-user authentication</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_superuser</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">fallback</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">fallback</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Forbidden&quot;</span><span class="p">,</span> <span class="mi">403</span><span class="p">)</span>
+
+            <span class="c"># check for the existence of the values into the encoded body</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span>
+
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+                <span class="c"># simple existence of a parameter into the body (dict and flat model)</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">ViewExceptionRest</span><span class="p">(</span><span class="s">&quot;Missing parameter &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">content_format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span><span class="p">:</span>
+                <span class="c"># or do a data validation for JSON content (dict and tree model)</span>
+                <span class="n">validictory</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+
+            <span class="c"># call the function</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c"># get the default application name from decorated function</span>
+        <span class="k">if</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">app_name</span><span class="p">:</span>
+            <span class="n">_app_name</span> <span class="o">=</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">app_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_app_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__module__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">class</span> <span class="nc">InlineRestHandler</span><span class="p">(</span><span class="n">RestHandler</span><span class="p">):</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">version</span>
+            <span class="n">regex</span> <span class="o">=</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">regex</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">inline_handler</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">app_name</span> <span class="o">=</span> <span class="n">_app_name</span>
+
+        <span class="c"># target conditions</span>
+        <span class="n">conditions</span> <span class="o">=</span> <span class="n">RestHandler</span><span class="o">.</span><span class="n">_make_conditions</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c"># register the wrapper</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">target_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__module__</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">func</span><span class="o">.</span><span class="n">__qualname__</span>
+        <span class="n">InlineRestHandler</span><span class="o">.</span><span class="n">_register_wrapper</span><span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">conditions</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">decorator</span></div>
 </pre></div>
 
           </div>
@@ -477,6 +910,8 @@
 <ul>
   <li><a href="../../../index.html">Documentation overview</a><ul>
   <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../rest.html">igdectk.rest</a><ul>
+  </ul></li>
   </ul></li>
   </ul></li>
 </ul>

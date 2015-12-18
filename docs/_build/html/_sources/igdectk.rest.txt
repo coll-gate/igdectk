@@ -4,6 +4,14 @@ igdectk.rest package
 Submodules
 ----------
 
+igdectk.rest.csrf module
+------------------------
+
+.. automodule:: igdectk.rest.csrf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 igdectk.rest.handler module
 ---------------------------
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>igdectk.rest.response &mdash; igdectk 1.0.1 documentation</title>
+    <title>igdectk.rest.response &mdash; igdectk 1.4.3 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.0.1',
+        VERSION:     '1.4.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
-    <link rel="top" title="igdectk 1.0.1 documentation" href="../../../index.html" />
-    <link rel="up" title="Module code" href="../../index.html" />
+    <link rel="top" title="igdectk 1.4.3 documentation" href="../../../index.html" />
+    <link rel="up" title="igdectk.rest" href="../rest.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -44,7 +44,7 @@
 <span class="c"># Copyright (c) 2015 INRA UMR1095 GDEC</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Usefull common responses.</span>
+<span class="sd">Usefull common responses.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">json</span>
@@ -54,7 +54,12 @@
 <span class="kn">from</span> <span class="nn">django.core</span> <span class="kn">import</span> <span class="n">serializers</span>
 <span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">HttpResponse</span>
 <span class="kn">from</span> <span class="nn">django.db.models.query</span> <span class="kn">import</span> <span class="n">QuerySet</span>
-<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="kn">import</span> <span class="nn">decimal</span>
+<span class="kn">import</span> <span class="nn">igdectk.xml</span>
+
+<span class="kn">from</span> <span class="nn">igdectk.rest</span> <span class="kn">import</span> <span class="n">Format</span>
 
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2015-04-13&quot;</span>
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Frédéric Scherma&quot;</span>
@@ -70,12 +75,14 @@
 <div class="viewcode-block" id="ComplexEncoder.default"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.response.ComplexEncoder.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">QuerySet</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">serializers</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="s">&quot;python&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">serializers</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="s">&#39;python&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">obj</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">decimal</span><span class="o">.</span><span class="n">Decimal</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>  <span class="c"># TODO as str or as float because of the double precision ?</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># Let the base class default method raise the TypeError</span>
             <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
@@ -83,17 +90,24 @@
 </div></div>
 <div class="viewcode-block" id="HttpResponseRest"><a class="viewcode-back" href="../../../igdectk.rest.html#igdectk.rest.response.HttpResponseRest">[docs]</a><span class="k">def</span> <span class="nf">HttpResponseRest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return an Http response into the correct output format (JSON or HTML),</span>
+<span class="sd">    Return an Http response into the correct output format (JSON, XML or HTML),</span>
 <span class="sd">    according of the request.format parameters.</span>
 
 <span class="sd">    Format is automaticaly added when using the</span>
 <span class="sd">    :class:`igdectk.rest.restmiddleware.IGdecTkRestMiddleware` and views decorators.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="s">&#39;JSON&#39;</span><span class="p">:</span>
-        <span class="n">jsondata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cls</span><span class="o">=</span><span class="n">ComplexEncoder</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">jsondata</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s">&quot;application/json&quot;</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="s">&#39;HTML&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">JSON</span><span class="p">:</span>
+        <span class="n">encoded</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cls</span><span class="o">=</span><span class="n">ComplexEncoder</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">encoded</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="n">Format</span><span class="o">.</span><span class="n">JSON</span><span class="o">.</span><span class="n">content_type</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">HTML</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">XML</span><span class="p">:</span>
+        <span class="n">encoded</span> <span class="o">=</span> <span class="n">igdectk</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">encoded</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="n">Format</span><span class="o">.</span><span class="n">XML</span><span class="o">.</span><span class="n">content_type</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">TEXT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="n">Format</span><span class="o">.</span><span class="n">TEXT</span><span class="o">.</span><span class="n">content_type</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span></div>
 </pre></div>
 
           </div>
@@ -105,6 +119,8 @@
 <ul>
   <li><a href="../../../index.html">Documentation overview</a><ul>
   <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../rest.html">igdectk.rest</a><ul>
+  </ul></li>
   </ul></li>
   </ul></li>
 </ul>
