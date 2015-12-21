@@ -12,16 +12,12 @@ from collections import OrderedDict
 from django.apps import apps
 from django.conf import settings
 from django.contrib.staticfiles import utils
-from django.core.exceptions import ImproperlyConfigured
-from django.core.files.storage import (
-    FileSystemStorage, Storage, default_storage,
-)
-from django.utils import lru_cache, six
-from django.utils._os import safe_join
-from django.utils.functional import LazyObject, empty
-from django.utils.module_loading import import_string
+from django.core.files.storage import FileSystemStorage
+from django.utils import six
 
 from django.contrib.staticfiles.finders import *
+
+from igdectk.packager.templates_parser import get_installed_packages
 
 
 class AppDirectoriesFinder(BaseFinder):
@@ -50,8 +46,17 @@ class AppDirectoriesFinder(BaseFinder):
                 if app_config.name not in self.apps:
                     self.apps.append(app_config.name)
 
+        # get the list of installed packagers applications
+        installed_apps = getattr(settings, 'INSTALLED_APPS', ())
+        self.installed_packagers = []
+
+        for app in installed_apps:
+            module = __import__(app, fromlist=['*'])
+            if hasattr(module, 'PACKAGER'):
+                self.installed_packagers.append(getattr(module, 'PACKAGER'))
+
         # list of white listed packagers and versions
-        self.packagers = getattr(settings, 'INSTALLED_PACKAGES', {'__%PACKAGERS%__': ()})
+        self.packagers = getattr(settings, 'INSTALLED_PACKAGES', get_installed_packages())
 
         super(AppDirectoriesFinder, self).__init__(*args, **kwargs)
 
@@ -68,9 +73,9 @@ class AppDirectoriesFinder(BaseFinder):
                     packager = self.packagers.get(splitted_path[0], None)
                     found = False
 
-                    # others prefix that are not specifiec into '_*_PACKAGERS_*_' are
+                    # others prefix that are not specified into installed_packagers are
                     # probably normal django applications
-                    if splitted_path[0] in self.packagers['__%PACKAGERS%__']:
+                    if splitted_path[0] in self.installed_packagers:
                         if packager:
                             for library in packager:
                                 if splitted_path[2] == library[0]:

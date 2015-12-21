@@ -7,6 +7,7 @@ Version head
 | 20151218 :
 
     - Update csrf middleware to support django 1.9 (same_origin removed)
+    - Add a sub-packages packager with an application static data finder with a filter
 
 Version 1.4.2
 -------------

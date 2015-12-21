@@ -6,12 +6,12 @@
 Boostrap Django integrator with template tag.
 """
 
-import re
-
-from django.template import TemplateSyntaxError, Variable, Node, Library
+from django.core.exceptions import ImproperlyConfigured
+from django.template import TemplateSyntaxError, Variable, Library
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
 from igdectk.common import evaluator
+from igdectk.packager.template import Node
 
 from .. import appsettings
 
@@ -48,14 +48,45 @@ def bootstrap(parser, token):
 
 class TemplateAppValue(Node):
 
-    VALIDATOR = re.compile(r'^([a-zA-Z0-9-]+)(\.[a-zA-Z0-9-]+){0,1}_([a-zA-Z0-9-]+)(\|[a-zA-Z0-9\-]+){0,1}(#[a-zA-Z0-9-_\.]+){0,1}$')
-
     PROPERTIES = {
         'bootstrap': {'js': 'bootstrap.min.js', 'css': ('bootstrap.min.css', 'bootstrap-theme.min.css'), 'default_version': '3.3.6', 'versions': ('3.3.6',)},
         'contextmenu': {'js': 'bootstrap-contextmenu.js', 'css': '', 'default_version': '0.2.0', 'versions': ('0.2.0',)},
     }
 
     CACHE = {}
+
+    def get_default_version(self, libname, sublibname=None):
+        library = TemplateAppValue.PROPERTIES.get(libname)
+        if not library:
+            raise ImproperlyConfigured('Missing library')
+
+        # sublib
+        if sublibname:
+            library = library.get(sublibname)
+
+        if not library:
+            raise ImproperlyConfigured('Missing sub-library')
+
+        default = library.get('default_version')
+
+        if default:
+            return default
+
+        raise ImproperlyConfigured('Missing default_version')
+
+    def get_default_theme(self, libname, sublibname=None):
+        library = TemplateAppValue.PROPERTIES.get(libname)
+        if not library:
+            raise ImproperlyConfigured('Missing library')
+
+        # sublib
+        if sublibname:
+            library = library.get(sublibname)
+
+        if not library:
+            raise ImproperlyConfigured('Missing sub-library')
+
+        return library.get('default_theme', None)
 
     def wrap(self, module, content):
         if module == 'js':

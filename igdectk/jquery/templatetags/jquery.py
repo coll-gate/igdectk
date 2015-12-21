@@ -6,12 +6,12 @@
 JQuery Django integrator with template tag.
 """
 
-import re
-
-from django.template import TemplateSyntaxError, Variable, Node, Library
+from django.core.exceptions import ImproperlyConfigured
+from django.template import TemplateSyntaxError, Variable, Library
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
 from igdectk.common import evaluator
+from igdectk.packager.template import Node
 
 from .. import appsettings
 
@@ -55,8 +55,6 @@ class TemplateAppValue(Node):
     DEFAULT_COLPICK_VERSION = '1.0.0'
     DEFAULT_NUMERIC_VERSION = '1.4.1'
 
-    VALIDATOR = re.compile(r'^([a-zA-Z0-9-]+)(\.[a-zA-Z0-9-]+){0,1}_([a-zA-Z0-9-]+)(\|[a-zA-Z0-9\-]+){0,1}(#[a-zA-Z0-9-_\.]+){0,1}$')
-
     PROPERTIES = {
         'jquery': {'js': 'jquery.min.js', 'css': '', 'default_version': '2.1.4', 'versions': ('2.1.4',)},
         'ui': {'js': 'jquery-ui.min.js', 'css': 'ui-%(theme)s/jquery-ui.min.css', 'img': '%(filename)s', 'default_version': '1.10.4', 'versions': ('1.10.4',), 'default_theme': 'lightness', 'themes': ('lightness',)},
@@ -70,6 +68,39 @@ class TemplateAppValue(Node):
     }
 
     CACHE = {}
+
+    def get_default_version(self, libname, sublibname=None):
+        library = TemplateAppValue.PROPERTIES.get(libname)
+        if not library:
+            raise ImproperlyConfigured('Missing library')
+
+        # sublib
+        if sublibname:
+            library = library.get(sublibname)
+
+        if not library:
+            raise ImproperlyConfigured('Missing sub-library')
+
+        default = library.get('default_version')
+
+        if default:
+            return default
+
+        raise ImproperlyConfigured('Missing default_version')
+
+    def get_default_theme(self, libname, sublibname=None):
+        library = TemplateAppValue.PROPERTIES.get(libname)
+        if not library:
+            raise ImproperlyConfigured('Missing library')
+
+        # sublib
+        if sublibname:
+            library = library.get(sublibname)
+
+        if not library:
+            raise ImproperlyConfigured('Missing sub-library')
+
+        return library.get('default_theme', None)
 
     def wrap(self, module, content):
         if module == 'js':
