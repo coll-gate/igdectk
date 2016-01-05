@@ -55,6 +55,20 @@ class TemplateAppValue(Node):
 
     CACHE = {}
 
+    def has_version(self, libname, sublibname, version):
+        library = TemplateAppValue.PROPERTIES.get(libname)
+        if not library:
+            raise ImproperlyConfigured('Missing library')
+
+        # sublib
+        if sublibname:
+            library = library.get(sublibname)
+
+        if not library:
+            raise ImproperlyConfigured('Missing sub-library')
+
+        return version in library.get('versions', ())
+
     def get_default_version(self, libname, sublibname=None):
         library = TemplateAppValue.PROPERTIES.get(libname)
         if not library:
@@ -73,6 +87,20 @@ class TemplateAppValue(Node):
             return default
 
         raise ImproperlyConfigured('Missing default_version')
+
+    def has_theme(self, libname, sublibname, theme):
+        library = TemplateAppValue.PROPERTIES.get(libname)
+        if not library:
+            raise ImproperlyConfigured('Missing library')
+
+        # sublib
+        if sublibname:
+            library = library.get(sublibname)
+
+        if not library:
+            raise ImproperlyConfigured('Missing sub-library')
+
+        return theme in library.get('themes', ())
 
     def get_default_theme(self, libname, sublibname=None):
         library = TemplateAppValue.PROPERTIES.get(libname)

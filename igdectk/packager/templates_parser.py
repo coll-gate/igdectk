@@ -16,6 +16,8 @@ from django.template.base import Lexer, Parser
 
 import igdectk.packager.template
 
+from exception import *
+
 
 VALIDATOR = re.compile(r'^([a-zA-Z0-9-]+)(\.[a-zA-Z0-9-]+){0,1}_([a-zA-Z0-9-]+)(\|[a-zA-Z0-9\-]+){0,1}(#[a-zA-Z0-9-_\.]+){0,1}$')
 
@@ -91,15 +93,20 @@ def introspect_node(node, results):
         # specific version in param
         if node.param:
             version_v = node.param
-            # TODO check if exists
+
+            if not node.has_version(libname, sublibname, version_v):
+                raise UnsupportedPackagerConfiguration("Unsupported specific version {} for {}" % (version_v, fq_libname))
         else:
             version_v = node.get_default_version(libname, sublibname)
 
-        if not theme:
-            theme_v = node.get_default_theme(libname, sublibname)
-        else:
-            # TODO check if exists
+        # specific theme
+        if theme:
             theme_v = theme.lstrip('|')
+
+            if not node.has_version(libname, sublibname, theme_v):
+                raise UnsupportedPackagerConfiguration("Unsupported specific theme {} for {}" % (theme_v, fq_libname))
+        else:
+            theme_v = node.get_default_theme(libname, sublibname)
 
         if not lib:
             lib = [fq_libname, [], []]
@@ -115,6 +122,8 @@ def introspect_node(node, results):
 
 def get_installed_packages():
     """
+    Automatically create the list of installed packages, library and sub-library used
+    for default or specific versions and themes.
     """
     apps = get_apps_list()
     templates = []
