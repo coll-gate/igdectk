@@ -10,4 +10,4 @@ APP_VERBOSE_NAME = "igdectk.bootstrap"
 
 APP_SETTINGS_MODEL = None
 
-APP_VERSION = (1, 0, 1)
+APP_VERSION = (1, 0, 2)

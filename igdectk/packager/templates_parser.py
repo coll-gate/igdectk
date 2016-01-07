@@ -16,7 +16,7 @@ from django.template.base import Lexer, Parser
 
 import igdectk.packager.template
 
-from exception import *
+from .exception import UnsupportedPackagerConfiguration
 
 
 VALIDATOR = re.compile(r'^([a-zA-Z0-9-]+)(\.[a-zA-Z0-9-]+){0,1}_([a-zA-Z0-9-]+)(\|[a-zA-Z0-9\-]+){0,1}(#[a-zA-Z0-9-_\.]+){0,1}$')
@@ -95,7 +95,7 @@ def introspect_node(node, results):
             version_v = node.param
 
             if not node.has_version(libname, sublibname, version_v):
-                raise UnsupportedPackagerConfiguration("Unsupported specific version {} for {}" % (version_v, fq_libname))
+                raise UnsupportedPackagerConfiguration("Unsupported specific version %s for %s" % (version_v, fq_libname))
         else:
             version_v = node.get_default_version(libname, sublibname)
 
@@ -103,8 +103,8 @@ def introspect_node(node, results):
         if theme:
             theme_v = theme.lstrip('|')
 
-            if not node.has_version(libname, sublibname, theme_v):
-                raise UnsupportedPackagerConfiguration("Unsupported specific theme {} for {}" % (theme_v, fq_libname))
+            if not node.has_theme(libname, sublibname, theme_v):
+                raise UnsupportedPackagerConfiguration("Unsupported specific theme %s for %s" % (theme_v, fq_libname))
         else:
             theme_v = node.get_default_theme(libname, sublibname)
 

@@ -10,7 +10,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.template import TemplateSyntaxError, Variable, Library
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
-from igdectk.common import evaluator
+from igdectk.common import evaluator, helpers
 from igdectk.packager.template import Node
 
 from .. import appsettings
@@ -48,29 +48,10 @@ def jquery(parser, token):
 
 class TemplateAppValue(Node):
 
-    DEFAULT_JQUERY_VERSION = '2.1.4'
-    DEFAULT_JQUERY_UI_VERSION = '1.10.4'
-    DEFAULT_FANCYTREE_VERSION = '2.12.0'  # ISSUE with 2.13.0 and glyph+bootstrap theme
-    DEFAULT_SELECT2_VERSION = '3.5.1'
-    DEFAULT_COLPICK_VERSION = '1.0.0'
-    DEFAULT_NUMERIC_VERSION = '1.4.1'
-
-    PROPERTIES = {
-        'jquery': {'js': 'jquery.min.js', 'css': '', 'default_version': '2.1.4', 'versions': ('2.1.4',)},
-        'ui': {'js': 'jquery-ui.min.js', 'css': 'ui-%(theme)s/jquery-ui.min.css', 'img': '%(filename)s', 'default_version': '1.10.4', 'versions': ('1.10.4',), 'default_theme': 'lightness', 'themes': ('lightness',)},
-        'fancytree': {
-            'js': 'jquery.fancytree.min.js', 'css': 'skin-%(theme)s/ui.fancytree.min.css', 'default_version': '2.12.0', 'versions': ('2.12.0',), 'default_theme': 'bootstrap', 'themes': ('bootstrap',),
-            '.glyph': {'js': 'jquery.fancytree.glyph.min.js', 'css': '', 'default_version': '2.12.0', 'versions': ('2.12.0',), 'default_theme': ''}
-        },
-        'select2': {'js': 'select2.min.js', 'css': 'select2.css', 'default_version': '3.5.1', 'versions': ('3.5.1',)},
-        'colpick': {'js': 'colpick.js', 'css': 'colpick.css', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
-        'numeric': {'js': 'jquery.numeric.js', 'css': '', 'default_version': '1.4.1', 'versions': ('1.4.1',)}
-    }
-
     CACHE = {}
 
     def has_version(self, libname, sublibname, version):
-        library = TemplateAppValue.PROPERTIES.get(libname)
+        library = appsettings.PROPERTIES.get(libname)
         if not library:
             raise ImproperlyConfigured('Missing library')
 
@@ -84,7 +65,7 @@ class TemplateAppValue(Node):
         return version in library.get('versions', ())
 
     def get_default_version(self, libname, sublibname=None):
-        library = TemplateAppValue.PROPERTIES.get(libname)
+        library = appsettings.PROPERTIES.get(libname)
         if not library:
             raise ImproperlyConfigured('Missing library')
 
@@ -103,7 +84,7 @@ class TemplateAppValue(Node):
         raise ImproperlyConfigured('Missing default_version')
 
     def has_theme(self, libname, sublibname, theme):
-        library = TemplateAppValue.PROPERTIES.get(libname)
+        library = appsettings.PROPERTIES.get(libname)
         if not library:
             raise ImproperlyConfigured('Missing library')
 
@@ -117,7 +98,7 @@ class TemplateAppValue(Node):
         return theme in library.get('themes', ())
 
     def get_default_theme(self, libname, sublibname=None):
-        library = TemplateAppValue.PROPERTIES.get(libname)
+        library = appsettings.PROPERTIES.get(libname)
         if not library:
             raise ImproperlyConfigured('Missing library')
 
@@ -162,7 +143,7 @@ class TemplateAppValue(Node):
         if not module:
             raise TemplateSyntaxError("missing module name for '%s'" % args)
 
-        prop = TemplateAppValue.PROPERTIES.get(libname)
+        prop = appsettings.PROPERTIES.get(libname)
         if not prop:
             raise TemplateSyntaxError("undefined library '%s' for '%s'" % (libname, args))
 

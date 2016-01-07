@@ -10,8 +10,6 @@ from django.apps import apps
 
 from igdectk.rest.restmiddleware import ViewExceptionRest
 
-from .evaluator import eval_expr
-
 __date__ = "2015-04-13"
 __author__ = "Frédéric Scherma"
 
@@ -38,16 +36,7 @@ def get_setting(app_name, param_name):
     ViewExceptionRest:
         if not found
     """
-
-    # get settings table from the application
-    settings_table = apps.get_app_config(app_name).settings_table
-
-    setting = settings_table.objects.filter(param_name=param_name)
-
-    if len(setting) >= 1 and setting[0].value:
-        return eval_expr(setting[0].value)
-    else:
-        raise ViewExceptionRest('Bad configuration.', 500)
+    return apps.get_app_config(app_name).get_setting(param_name)
 
 
 def int_arg(v):

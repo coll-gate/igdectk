@@ -12,6 +12,8 @@ import logging
 from django.conf import settings
 from django.apps import AppConfig
 
+from igdectk.rest.restmiddleware import ViewExceptionRest
+
 from .evaluator import eval_expr
 
 __date__ = "2015-04-13"
@@ -33,6 +35,8 @@ def startup(appconfig, logger):
     logger.info("'%s' application started into process %i..." % (appconfig.verbose_name, os.getpid()))
 
     if not appconfig.settings_model:
+        appconfig.settings_table = None
+        appconfig.settings_table_name = ''
         return
 
     logger.info("> Looking for the model settings '%s'..." % (appconfig.settings_model,))
@@ -229,11 +233,19 @@ class ApplicationMain(AppConfig):
         """
         # get settings table from the application
         if not self.settings_table:
-            return None
+            # if not returns the settings from the project settings
+            # if not returns it from the appsettings
+            # else returns None
+            param = self.default_settings.get(param_name)
+            if param:
+                return param
+            else:
+                return None
 
         setting = self.settings_table.objects.filter(param_name=param_name)
 
         if len(setting) >= 1 and setting[0].value:
             return eval_expr(setting[0].value)
         else:
-            return None
+            raise ViewExceptionRest('Bad configuration.', 500)
+            # return None
