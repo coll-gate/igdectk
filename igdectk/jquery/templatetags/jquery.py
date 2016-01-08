@@ -10,7 +10,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.template import TemplateSyntaxError, Variable, Library
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
-from igdectk.common import evaluator, helpers
+from igdectk.common import evaluator
 from igdectk.packager.template import Node
 
 from .. import appsettings
@@ -47,6 +47,13 @@ def jquery(parser, token):
 
 
 class TemplateAppValue(Node):
+
+    """
+    Django node parser for packager template.
+    It is used to detect which version and theme of libraries and sub-libraries
+    are used and need to be automaticaly install when using the collectstatics
+    function.
+    """
 
     CACHE = {}
 

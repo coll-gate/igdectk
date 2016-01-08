@@ -110,17 +110,12 @@ def get_app_db_settings(app_short_name):
 
     Normaly should be reserved for internal usage only.
 
-    Parameters
-    ----------
-    app_short_name: string
-        Short name of the application to get the settings dict.
+    :param str app_short_name: Short name of the application to get the settings dict.
 
-    Returns
-    -------
-    :dict
-        The application settings to store into the database, or
+    :return: The application settings to store into the database, or
         None if there is no settings for the application at settings
         level.
+    :rtype: dict
     """
     if hasattr(settings, 'APPLICATIONS'):
         applications = getattr(settings, 'APPLICATIONS')
@@ -145,33 +140,30 @@ class ApplicationMain(AppConfig):
 
     Some globals variables into appsettings are looked for :
 
-    Parameters
-    ----------
-    name: string
-        Application short name
+    :param str name: Application short name
 
-    See also
-    --------
-    :attr:`igdectk.appsettings.APP_VERBOSE_NAME`
-        A string containing the tong name of the application.
-        Application short name is used if not founds.
+    .. seealso::
 
-    :attr:`igdectk.appsettings.APP_DB_DEFAULT_SETTINGS`
-        A dict containing default settings to put into the settings table
-        of the application. An empty dict if used if not founds.
+        :attr:`igdectk.appsettings.APP_VERBOSE_NAME`
+            A string containing the tong name of the application.
+            Application short name is used if not founds.
 
-    :attr:`igdectk.appsettings.APP_SETTINGS_MODEL`
-        Object containing default settings table name or None.
-        '<appname>_settings' is used if not founds.
+        :attr:`igdectk.appsettings.APP_DB_DEFAULT_SETTINGS`
+            A dict containing default settings to put into the settings table
+            of the application. An empty dict if used if not founds.
 
-    :attr:`igdectk.appsettings.HTTP_TEMPLATE_STRING`
-        Compoundable string (containing a %s parameters) to build
-        the path of the HTTP error pages (40x, 50x) template.
-        '<appname>/%s.html' is used if not founds.
+        :attr:`igdectk.appsettings.APP_SETTINGS_MODEL`
+            Object containing default settings table name or None.
+            '<appname>_settings' is used if not founds.
 
-    :attr:`igdectk.appsettings.APP_VERSION`
-        Application version as list.
-        (0, 1) is defined if not founds.
+        :attr:`igdectk.appsettings.HTTP_TEMPLATE_STRING`
+            Compoundable string (containing a %s parameters) to build
+            the path of the HTTP error pages (40x, 50x) template.
+            '<appname>/%s.html' is used if not founds.
+
+        :attr:`igdectk.appsettings.APP_VERSION`
+            Application version as list.
+            (0, 1) is defined if not founds.
     """
 
     def ready(self):
@@ -217,19 +209,14 @@ class ApplicationMain(AppConfig):
         """
         Get a setting value for this application or None if not exists.
 
-        Parameters
-        ----------
-        param_name : string
-            name of the settings parameters key
+        :param str param_name: Name of the settings parameters key
 
-        Returns
-        -------
-        result: any
-            returns the asked value or None if not founds.
+        :return: Returns the asked value or None if not founds.
+        :rtype: any
 
-        See also
-        --------
-        :func:`igdectk.helpers.get_setting`: to get settings from another application.
+        .. seealso::
+
+            :func:`igdectk.helpers.get_setting`: to get settings from another application.
         """
         # get settings table from the application
         if not self.settings_table:

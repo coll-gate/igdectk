@@ -30,23 +30,12 @@ class Node(django.template.Node):
         Check if for a specific library and optionnaly sub-library
         is defined a specific version.
 
-        Parameters
-        ==========
+        :param str libname: Valid library name
+        :param str sublibname: Optional sub-library name (empty string or None if not)
+        :param str version: Queried valid version string as 'x.y.z' format.
 
-        libname: string
-            Valid library name
-
-        sublibname: string
-            Optional sub-library name (empty string or None if not)
-
-        version: string
-            Queried valid version string as 'x.y.z' format.
-
-        Return
-        ======
-
-        : boolean
-            True if the version exists.
+        :return: True if the version exists.
+        :rtype: boolean
         """
         return False
 
@@ -54,20 +43,11 @@ class Node(django.template.Node):
         """
         Get the default version string for the specific library and optionnaly sub-library.
 
-        Parameters
-        ==========
+        :param str libname: Valid library name
+        :param str sublibname: Optional sub-library name (empty string or None if not)
 
-        libname: string
-            Valid library name
-
-        sublibname: string
-            Optional sub-library name (empty string or None if not)
-
-        Return
-        ======
-
-        : string
-            Default version string as 'x.y.z' format.
+        :return: Default version string as 'x.y.z' format.
+        :rtype: str
         """
         raise ImproperlyConfigured('Missing get_default_version override')
 
@@ -76,23 +56,12 @@ class Node(django.template.Node):
         Check if for a specific library and optionnaly sub-library
         is defined a specific theme.
 
-        Parameters
-        ==========
+        :param str libname: Valid library name
+        :param str sublibname: Optional sub-library name (empty string or None if not)
+        :param str theme: Queried valid theme string.
 
-        libname: string
-            Valid library name
-
-        sublibname: string
-            Optional sub-library name (empty string or None if not)
-
-        theme: string
-            Queried valid theme string.
-
-        Return
-        ======
-
-        : boolean
-            True if the version exists.
+        :return: True if the version exists.
+        :rtype: boolean
         """
         raise ImproperlyConfigured('Missing get_default_theme override')
 
@@ -100,19 +69,10 @@ class Node(django.template.Node):
         """
         Get the default theme string for the specific library and optionnaly sub-library.
 
-        Parameters
-        ==========
+        :param str libname: Valid library name
+        :param str sublibname: Optional sub-library name (empty string or None if not)
 
-        libname: string
-            Valid library name
-
-        sublibname: string
-            Optional sub-library name (empty string or None if not)
-
-        Return
-        ======
-
-        : string
-            Default theme string or None.
+        :return: Default theme string or None.
+        :rtype: str
         """
         return False

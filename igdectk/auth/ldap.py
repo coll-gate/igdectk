@@ -3,7 +3,7 @@
 # Copyright (c) 2015 INRA UMR1095 GDEC
 
 """
-ldap authentication backend for django.
+LDAP authentication backend for django.
 """
 
 from __future__ import unicode_literals
@@ -29,44 +29,47 @@ class LdapAuthenticationBackend(ModelBackend):
 
         The Django settings must contain a dict named LDAPS like :
 
+        .. code-block:: python
+
             LDAPS = {
                 'default': {
-                    'HOST': "<ldap.hostname>",
-                    'USER_DN': "<uid=%s<,ou=...,dc=...,...>",
+                    'HOST': "ldap.hostname",
+                    'USER_DN': "uid=%s, ou=..., dc=..., ...",
                     'OPTIONS': {
-                        'auto_add_user': <Boolean>,
-                        'search_filter': "(<field=value,...)",
-                        'email_fields': [<'field1'>, <...>] or None,
-                        'state_fields': {<'field1'>: <'active_state>', <...>: <...>, ...} or None,
-                        'firstname_fields': [<'field1'>, <...>] or None,
-                        'lastname_fields': [<'field1'>, <...>] or None,
+                        'auto_add_user': boolean,
+                        'search_filter': "(field=value,...)",
+                        'email_fields': ['field1', ...] or None,
+                        'state_fields': {'field1': 'active_state', ...: ..., ...} or None,
+                        'firstname_fields': ['field1', ...] or None,
+                        'lastname_fields': ['field1', ...] or None,
                     }
                 },
             }
 
-            - 'default' : dict, used by this backend. Any others entry are ignored.
-            - 'HOST' : str, contains the ldap hostname (with port if necessary).
-            - 'USER_DN' : str, cotains the user domain name as a string. The parameter representing
-                the user identifier must be equal to '%s' because this field is completed by the username
-                coming from the authentication method.
-            - 'OPTIONS' : dict, containing a set of options.
-                - 'auto_add_user' : Boolean, True means users that does not exists into
-                    the user table are automaticaly created. The next parameters are relavant
-                    if this setting is True.
-                - 'search_filter' : str, LDAP search filter is a list wrapped by parenthesis,
-                    containing pairs of fields name and value separate by a equal sign (=), and each
-                    pair are separate by a comma (,).
-                - 'email_fields' : list of str, Defines a list of candidats, in order of priority,
-                    containing an email adresse. Or not defined if email field is not wanted.
-                - 'state_fields' ; dict of str pairs, Defines a dict of candidats, in order of priority,
-                    containing the user status (active, or not) and its value. In others words,
-                    the key contains a name of attribute, and its value is the value meaning
-                    the account is in its active state.
-                    Or None if status field should be not checked.
-                - 'firstname_fields' : list of str, Defines a list of candidats, in order of priority,
-                    containing a first name. Or not defined if first name field is not wanted.
-                - 'lastname_fields' : list of str, Defines a list of candidats, in order of priority,
-                    containing a last name. Or not defined if last name field is not wanted.
+
+        :param dict 'default': Used by this backend. Any others entry are ignored.
+        :param str 'HOST': LDAP hostname (with port if necessary).
+        :param str 'USER_DN': User domain name as a string. The parameter representing
+            the user identifier must be equal to '%s' because this field is completed by the username
+            coming from the authentication method.
+        :param dict 'OPTIONS': Set of options:
+        :param boolean 'auto_add_user': True means users that does not exists into
+            the user table are automaticaly created. The next parameters are relavant
+            if this setting is True.
+        :param str 'search_filter': LDAP search filter is a list wrapped by parenthesis,
+            containing pairs of fields name and value separate by a equal sign (=), and each
+            pair are separate by a comma (,).
+        :param list(str) 'email_fields': List of candidats, in order of priority,
+            containing an email adresse. Or not defined if email field is not wanted.
+        :param dict(str|str) 'state_fields': Defines a dict of candidats, in order of priority,
+            containing the user status (active, or not) and its value. In others words,
+            the key contains a name of attribute, and its value is the value meaning
+            the account is in its active state.
+            Or None if status field should be not checked.
+        :param list(str) 'firstname_fields': List of candidats, in order of priority,
+            containing a first name. Or not defined if first name field is not wanted.
+        :param list(str) 'lastname_fields': List of candidats, in order of priority,
+            containing a last name. Or not defined if last name field is not wanted.
 
         If state fields return a disabled account, then the authentication returns None.
         If email fields returns empty email then the newly created account will have an empty email.

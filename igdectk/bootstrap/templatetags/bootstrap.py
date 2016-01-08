@@ -48,6 +48,13 @@ def bootstrap(parser, token):
 
 class TemplateAppValue(Node):
 
+    """
+    Django node parser for packager template.
+    It is used to detect which version and theme of libraries and sub-libraries
+    are used and need to be automaticaly install when using the collectstatics
+    function.
+    """
+
     CACHE = {}
 
     def has_version(self, libname, sublibname, version):

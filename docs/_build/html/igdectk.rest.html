@@ -1,44 +1,154 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>igdectk.rest package &mdash; igdectk 1.4.3 documentation</title>
-    
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '1.4.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="author" title="About these documents" href="about.html" />
-    <link rel="top" title="igdectk 1.4.3 documentation" href="index.html" />
-    <link rel="up" title="Sub-Packages" href="modules.html" />
-    <link rel="next" title="igdectk.xml package" href="igdectk.xml.html" />
-    <link rel="prev" title="igdectk.permission package" href="igdectk.permission.html" />
-   
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>igdectk.rest package &mdash; igdectk 1.4.4 documentation</title>
+  
 
-  </head>
-  <body role="document">  
+  
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="author" title="About these documents"
+              href="about.html"/>
+    <link rel="top" title="igdectk 1.4.4 documentation" href="index.html"/>
+        <link rel="up" title="Packages" href="packages.html"/>
+        <link rel="next" title="igdectk.xml package" href="igdectk.xml.html"/>
+        <link rel="prev" title="igdectk.permission package" href="igdectk.permission.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> igdectk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.4
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="packages.html">Packages</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="igdectk.auth.html">igdectk.auth package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="igdectk.bootstrap.html">igdectk.bootstrap package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="igdectk.common.html">igdectk.common package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="igdectk.jquery.html">igdectk.jquery package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="igdectk.packager.html">igdectk.packager package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="igdectk.permission.html">igdectk.permission package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">igdectk.rest package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-igdectk.rest.csrf">igdectk.rest.csrf module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-igdectk.rest.handler">igdectk.rest.handler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-igdectk.rest.response">igdectk.rest.response module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-igdectk.rest.restmiddleware">igdectk.rest.restmiddleware module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-igdectk.rest">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="igdectk.xml.html">igdectk.xml package</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">igdectk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="packages.html">Packages</a> &raquo;</li>
+      
+    <li>igdectk.rest package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/igdectk.rest.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="igdectk-rest-package">
 <h1>igdectk.rest package<a class="headerlink" href="#igdectk-rest-package" title="Permalink to this headline">¶</a></h1>
@@ -87,33 +197,23 @@ to the HTTP method and content format.</p>
 <em class="property">class </em><code class="descclassname">igdectk.rest.handler.</code><code class="descname">RestForm</code><a class="reference internal" href="_modules/igdectk/rest/handler.html#RestForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.handler.RestForm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Rest handler to register a form with GET and POST method and HTML format.</p>
-<p class="rubric">Attributes</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="16%" />
-<col width="84%" />
-</colgroup>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
 <tbody valign="top">
-<tr class="row-odd"><td>form_class: django.forms.Form</td>
-<td>Django formular class.</td>
-</tr>
-<tr class="row-even"><td>form_template: string</td>
-<td>Complete name of the template used to render the formular.</td>
-</tr>
-<tr class="row-odd"><td>form_template_name: string</td>
-<td>Name of the template form variable. Default is &#8216;form&#8217;.</td>
-</tr>
-<tr class="row-even"><td>auth</td>
-<td>(boolean) True if the user must be authenticated. Default False.</td>
-</tr>
-<tr class="row-odd"><td>admin</td>
-<td>(boolean) True if the user must be a super-user. Default False.</td>
-</tr>
-<tr class="row-even"><td>redirect: boolean</td>
-<td>If True, when form POST success the client is redirected to attr:<cite>success</cite> location.</td>
-</tr>
-<tr class="row-odd"><td>success: string</td>
-<td>If attr:<cite>redirect</cite> is True success defines the location URL to the redirection when form POST success. If False, success defines the template name to render.</td>
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#igdectk.rest.handler.RestForm.form_class" title="igdectk.rest.handler.RestForm.form_class"><strong>form_class</strong></a> (<em>django.forms.Form</em>) &#8211; Django formular class.</li>
+<li><a class="reference internal" href="#igdectk.rest.handler.RestForm.form_template" title="igdectk.rest.handler.RestForm.form_template"><strong>form_template</strong></a> (<em>str</em>) &#8211; Complete name of the template used to render the formular.</li>
+<li><a class="reference internal" href="#igdectk.rest.handler.RestForm.form_template_name" title="igdectk.rest.handler.RestForm.form_template_name"><strong>form_template_name</strong></a> (<em>str</em>) &#8211; Name of the template form variable. Default is &#8216;form&#8217;.</li>
+<li><a class="reference internal" href="#igdectk.rest.handler.RestForm.auth" title="igdectk.rest.handler.RestForm.auth"><strong>auth</strong></a> (<em>boolean</em>) &#8211; True if the user must be authenticated. Default False.</li>
+<li><a class="reference internal" href="#igdectk.rest.handler.RestForm.admin" title="igdectk.rest.handler.RestForm.admin"><strong>admin</strong></a> (<em>boolean</em>) &#8211; True if the user must be a super-user. Default False.</li>
+<li><a class="reference internal" href="#igdectk.rest.handler.RestForm.redirect" title="igdectk.rest.handler.RestForm.redirect"><strong>redirect</strong></a> (<em>boolean</em>) &#8211; If True, when form POST success the client is redirected to <a class="reference internal" href="#igdectk.rest.handler.RestForm.success" title="igdectk.rest.handler.RestForm.success"><code class="xref py py-attr docutils literal"><span class="pre">success</span></code></a>
+location.</li>
+<li><a class="reference internal" href="#igdectk.rest.handler.RestForm.success" title="igdectk.rest.handler.RestForm.success"><strong>success</strong></a> (<em>str</em>) &#8211; If <a class="reference internal" href="#igdectk.rest.handler.RestForm.redirect" title="igdectk.rest.handler.RestForm.redirect"><code class="xref py py-attr docutils literal"><span class="pre">redirect</span></code></a> is True success defines the location URL to the redirection
+when form POST success.
+If False, success defines the template name to render.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -185,27 +285,24 @@ the django form validation tests. For example updating a model.</p>
 <em class="property">class </em><code class="descclassname">igdectk.rest.handler.</code><code class="descname">RestHandler</code><a class="reference internal" href="_modules/igdectk/rest/handler.html#RestHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#igdectk.rest.handler.RestHandler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Manage RESTfull API with autogenenation and registration of urls.</p>
-<p class="rubric">Attributes</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="8%" />
-<col width="92%" />
-</colgroup>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
 <tbody valign="top">
-<tr class="row-odd"><td>regex: string</td>
-<td>Python regular expression of the URL. It is combined with its parent handler regex when using inheritance of handlers.</td>
-</tr>
-<tr class="row-even"><td>name: string</td>
-<td>Qualified name of the URL to be used into reverse URL and templates. It is possible to omit it and use <a class="reference internal" href="#igdectk.rest.handler.RestHandler.suffix" title="igdectk.rest.handler.RestHandler.suffix"><code class="xref py py-attr docutils literal"><span class="pre">suffix</span></code></a> when using inheritance.</td>
-</tr>
-<tr class="row-odd"><td>suffix: string</td>
-<td>When inherit of a parent handler (excepted RestHandler base class), and if <a class="reference internal" href="#igdectk.rest.handler.RestHandler.name" title="igdectk.rest.handler.RestHandler.name"><code class="xref py py-attr docutils literal"><span class="pre">name</span></code></a> is empty or None, suffix is added to the URL name of its parent. It is useful to avoid the rewriting of the complete path name. There is no need to add a separator before.</td>
-</tr>
-<tr class="row-even"><td>name_separator: string</td>
-<td>Separator used between each word into the URL name. Default is &#8216;-&#8216;.</td>
-</tr>
-<tr class="row-odd"><td>app_name: string</td>
-<td>Application name. If None it is detect from the module where the class is defined.</td>
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#igdectk.rest.handler.RestHandler.regex" title="igdectk.rest.handler.RestHandler.regex"><strong>regex</strong></a> (<em>str</em>) &#8211; Python regular expression of the URL. It is combined with its parent
+handler regex when using inheritance of handlers.</li>
+<li><a class="reference internal" href="igdectk.jquery.html#igdectk.jquery.apps.IgdecTkJquery.name" title="igdectk.jquery.apps.IgdecTkJquery.name"><strong>name</strong></a> (<em>str</em>) &#8211; Qualified name of the URL to be used into reverse URL and templates.
+It is possible to omit it and use <a class="reference internal" href="#igdectk.rest.handler.RestHandler.suffix" title="igdectk.rest.handler.RestHandler.suffix"><code class="xref py py-attr docutils literal"><span class="pre">suffix</span></code></a> when using inheritance.</li>
+<li><a class="reference internal" href="#igdectk.rest.handler.RestHandler.suffix" title="igdectk.rest.handler.RestHandler.suffix"><strong>suffix</strong></a> (<em>str</em>) &#8211; When inherit of a parent handler (excepted RestHandler base class),
+and if <a class="reference internal" href="#igdectk.rest.handler.RestHandler.name" title="igdectk.rest.handler.RestHandler.name"><code class="xref py py-attr docutils literal"><span class="pre">name</span></code></a> is empty or None, suffix is added to the URL name
+of its parent. It is useful to avoid the rewriting of the complete path name.
+There is no need to add a separator before.</li>
+<li><a class="reference internal" href="#igdectk.rest.handler.RestHandler.name_separator" title="igdectk.rest.handler.RestHandler.name_separator"><strong>name_separator</strong></a> (<em>str</em>) &#8211; Separator used between each word into the URL name. Default is &#8216;-&#8216;.</li>
+<li><a class="reference internal" href="#igdectk.rest.handler.RestHandler.app_name" title="igdectk.rest.handler.RestHandler.app_name"><strong>app_name</strong></a> (<em>str</em>) &#8211; Application name. If None it is detect from the module where the
+class is defined.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -228,11 +325,7 @@ and superuser.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fallback: func</strong></p>
-<blockquote class="last">
-<div><p>Optional callback function called in case the user is not authenticated.</p>
-</div></blockquote>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fallback</strong> (<em>func</em>) &#8211; Optional callback function called in case the user is not authenticated.</td>
 </tr>
 </tbody>
 </table>
@@ -246,11 +339,7 @@ and superuser.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fallback: func</strong></p>
-<blockquote class="last">
-<div><p>Optional callback function called in case the user is not authenticated.</p>
-</div></blockquote>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fallback</strong> (<em>func</em>) &#8211; Optional callback function called in case the user is not authenticated.</td>
 </tr>
 </tbody>
 </table>
@@ -277,41 +366,31 @@ HTML or JSON depending of the format.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>method: igdectk.rest.Method</strong></p>
-<blockquote>
-<div><p>One of the Method value (GET, POST...) define the accepted method.</p>
-</div></blockquote>
-<p><strong>format: igdectk.rest.Format</strong></p>
-<blockquote>
-<div><p>One of the Format value (JSON, HTML...) defines the format of the http response,
-and the accepted value from HTTP_ACCEPT.</p>
-</div></blockquote>
-<p><strong>parameters: list</strong></p>
-<blockquote>
-<div><p>A list of strings or an empty list, containing the names of the
-mandatory parameters requested in the URL.</p>
-</div></blockquote>
-<p><strong>content: list</strong></p>
-<blockquote>
-<div><p>A list of strings or an empty list, containing the names of the
-mandatory parameters requested in the body.</p>
-</div></blockquote>
-<p><strong>conditions: string</strong></p>
-<blockquote class="last">
-<div><p>The next parameters if theirs names starts with a &#8216;<a href="#id1"><span class="problematic" id="id2">url__</span></a>&#8216; will
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>method</strong> (<a class="reference internal" href="#igdectk.rest.Method" title="igdectk.rest.Method"><em>igdectk.rest.Method</em></a>) &#8211; One of the Method value (GET, POST...) define the accepted method.</li>
+<li><strong>format</strong> (<a class="reference internal" href="#igdectk.rest.Format" title="igdectk.rest.Format"><em>igdectk.rest.Format</em></a>) &#8211; One of the Format value (JSON, HTML...) defines the format of the http response,
+and the accepted value from HTTP_ACCEPT.</li>
+<li><strong>parameters</strong> (<a class="reference internal" href="igdectk.packager.html#igdectk.packager.finders.AppDirectoriesFinder.list" title="igdectk.packager.finders.AppDirectoriesFinder.list"><em>list</em></a>) &#8211; A list of strings or an empty list, containing the names of the
+mandatory parameters requested in the URL.</li>
+<li><strong>list</strong> (<em>list(str)</em>) &#8211; A list of strings or an empty list, containing the names of the
+mandatory parameters requested in the body.</li>
+<li><strong>conditions</strong> (<em>string</em>) &#8211; <p>The next parameters if theirs names starts with a &#8216;<a href="#id1"><span class="problematic" id="id2">url__</span></a>&#8216; will
 be used as condition expression for the url parameters.</p>
 <p>For example, having url__action=&#8217;save&#8217; mean that the url must
 contains the parameter action with the value &#8216;save&#8217;.</p>
 <p>This is useful to have many action for a same HTTP method.
 It is possible to have many &#8216;<a href="#id1"><span class="problematic" id="id3">url__</span></a>&#8216; conditions.</p>
-</div></blockquote>
+</li>
+</ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Notes</p>
-<p>Only once free of conditions method per handler can be registered.
-Otherwise a <a class="reference internal" href="#igdectk.rest.handler.RestRegistrationException" title="igdectk.rest.handler.RestRegistrationException"><code class="xref any py py-exc docutils literal"><span class="pre">RestRegistrationException</span></code></a> exception is raised.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Only a single free of conditions method per handler can be registered.
+Otherwise a <a class="reference internal" href="#igdectk.rest.handler.RestRegistrationException" title="igdectk.rest.handler.RestRegistrationException"><code class="xref py py-exc docutils literal"><span class="pre">RestRegistrationException</span></code></a> exception is raised.</p>
+</div>
 </dd></dl>
 
 <dl class="attribute">
@@ -381,11 +460,7 @@ into a REST handler.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fallback: func</strong></p>
-<blockquote class="last">
-<div><p>Optional callback function called in case the user is not authenticated.</p>
-</div></blockquote>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fallback</strong> (<em>func</em>) &#8211; Optional callback function called in case the user is not authenticated.</td>
 </tr>
 </tbody>
 </table>
@@ -399,11 +474,7 @@ into a REST handler.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fallback: func</strong></p>
-<blockquote class="last">
-<div><p>Optional callback function called in case the user is not authenticated.</p>
-</div></blockquote>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fallback</strong> (<em>func</em>) &#8211; Optional callback function called in case the user is not authenticated.</td>
 </tr>
 </tbody>
 </table>
@@ -430,41 +501,31 @@ HTML or JSON depending of the format.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>method: igdectk.rest.Method</strong></p>
-<blockquote>
-<div><p>One of the Method value (GET, POST...) define the accepted method.</p>
-</div></blockquote>
-<p><strong>format: igdectk.rest.Format</strong></p>
-<blockquote>
-<div><p>One of the Format value (JSON, HTML...) defines the format of the http response,
-and the accepted value from HTTP_ACCEPT.</p>
-</div></blockquote>
-<p><strong>parameters: list</strong></p>
-<blockquote>
-<div><p>A list of strings or an empty list, containing the names of the
-mandatory parameters requested in the URL.</p>
-</div></blockquote>
-<p><strong>content: list</strong></p>
-<blockquote>
-<div><p>A list of strings or an empty list, containing the names of the
-mandatory parameters requested in the body.</p>
-</div></blockquote>
-<p><strong>conditions: string</strong></p>
-<blockquote class="last">
-<div><p>The next parameters if theirs names starts with a &#8216;<a href="#id1"><span class="problematic" id="id4">url__</span></a>&#8216; will
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>method</strong> (<a class="reference internal" href="#igdectk.rest.Method" title="igdectk.rest.Method"><em>igdectk.rest.Method</em></a>) &#8211; One of the Method value (GET, POST...) define the accepted method.</li>
+<li><strong>format</strong> (<a class="reference internal" href="#igdectk.rest.Format" title="igdectk.rest.Format"><em>igdectk.rest.Format</em></a>) &#8211; One of the Format value (JSON, HTML...) defines the format of the http response,
+and the accepted value from HTTP_ACCEPT.</li>
+<li><strong>parameters</strong> (<a class="reference internal" href="igdectk.packager.html#igdectk.packager.finders.AppDirectoriesFinder.list" title="igdectk.packager.finders.AppDirectoriesFinder.list"><em>list</em></a>) &#8211; A list of strings or an empty list, containing the names of the
+mandatory parameters requested in the URL.</li>
+<li><strong>list</strong> (<em>list(str)</em>) &#8211; A list of strings or an empty list, containing the names of the
+mandatory parameters requested in the body.</li>
+<li><strong>conditions</strong> (<em>string</em>) &#8211; <p>The next parameters if theirs names starts with a &#8216;<a href="#id1"><span class="problematic" id="id4">url__</span></a>&#8216; will
 be used as condition expression for the url parameters.</p>
 <p>For example, having url__action=&#8217;save&#8217; mean that the url must
 contains the parameter action with the value &#8216;save&#8217;.</p>
 <p>This is useful to have many action for a same HTTP method.
 It is possible to have many &#8216;<a href="#id1"><span class="problematic" id="id5">url__</span></a>&#8216; conditions.</p>
-</div></blockquote>
+</li>
+</ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Notes</p>
-<p>Only once free of conditions method per handler can be registered.
-Otherwise a <a class="reference internal" href="#igdectk.rest.handler.RestRegistrationException" title="igdectk.rest.handler.RestRegistrationException"><code class="xref any py py-exc docutils literal"><span class="pre">RestRegistrationException</span></code></a> exception is raised.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Only a single free of conditions method per handler can be registered.
+Otherwise a <a class="reference internal" href="#igdectk.rest.handler.RestRegistrationException" title="igdectk.rest.handler.RestRegistrationException"><code class="xref py py-exc docutils literal"><span class="pre">RestRegistrationException</span></code></a> exception is raised.</p>
+</div>
 </dd></dl>
 
 </div>
@@ -523,14 +584,14 @@ This list is cached the first time.</p>
 <dl class="attribute">
 <dt id="igdectk.rest.restmiddleware.HttpHeader.accepted_language_codes">
 <code class="descname">accepted_language_codes</code><a class="headerlink" href="#igdectk.rest.restmiddleware.HttpHeader.accepted_language_codes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sames as ::ref::<cite>accept_language</cite> but returns only the languages codes.
+<dd><p>Sames as <span class="xref std std-ref">accept_language</span> but returns only the languages codes.
 This list is cached the first time.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="igdectk.rest.restmiddleware.HttpHeader.accepted_types">
 <code class="descname">accepted_types</code><a class="headerlink" href="#igdectk.rest.restmiddleware.HttpHeader.accepted_types" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sames as ::ref::<cite>accept</cite> but returns only the media_type.
+<dd><p>Sames as <span class="xref std std-ref">accept</span> but returns only the media_type.
 This list is cached the first time.</p>
 </dd></dl>
 
@@ -573,9 +634,9 @@ This list is cached the first time.</p>
 It also manage the customized view errors (page if HTML else JSON).</p>
 <p>The middleware decorate the request with a format (HTML by default),
 and by a list of URL parameters.</p>
-<p>When a view is decorated by <code class="xref py py-class docutils literal"><span class="pre">igdectk.helpers.def_request</span></code>,
-<code class="xref py py-class docutils literal"><span class="pre">igdectk.helpers.def_auth_request</span></code> or by
-<code class="xref py py-class docutils literal"><span class="pre">igdectk.helpers.def_admin_request</span></code>,
+<p>When a view is decorated by <a class="reference internal" href="#igdectk.rest.handler.RestHandler.def_request" title="igdectk.rest.handler.RestHandler.def_request"><code class="xref py py-meth docutils literal"><span class="pre">igdectk.rest.handler.RestHandler.def_request()</span></code></a>,
+<a class="reference internal" href="#igdectk.rest.handler.RestHandler.def_auth_request" title="igdectk.rest.handler.RestHandler.def_auth_request"><code class="xref py py-meth docutils literal"><span class="pre">igdectk.rest.handler.RestHandler.def_auth_request()</span></code></a> or by
+<a class="reference internal" href="#igdectk.rest.handler.RestHandler.def_admin_request" title="igdectk.rest.handler.RestHandler.def_admin_request"><code class="xref py py-meth docutils literal"><span class="pre">igdectk.rest.handler.RestHandler.def_admin_request()</span></code></a>,
 the decorator can attach a data dict to the request object.</p>
 <dl class="attribute">
 <dt id="igdectk.rest.restmiddleware.IGdecTkRestMiddleware.TYPES">
@@ -591,24 +652,17 @@ defined into the request, a message, and an HTTP code.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>request</strong> : RequestContext</p>
-<blockquote>
-<div><p>Django request object.</p>
-</div></blockquote>
-<p><strong>message</strong> : str</p>
-<blockquote>
-<div><p>Message contant string.</p>
-</div></blockquote>
-<p><strong>code</strong> : integer</p>
-<blockquote>
-<div><p>HTTP code.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>request</strong> (<em>RequestContext</em>) &#8211; Django request object.</li>
+<li><strong>message</strong> (<em>str</em>) &#8211; Message contant string.</li>
+<li><strong>code</strong> (<em>int</em>) &#8211; HTTP code.</li>
+</ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">: HttpResponse</p>
-<blockquote class="last">
-<div><p>An HTTP response object.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An HTTP response object.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">HttpResponse</p>
 </td>
 </tr>
 </tbody>
@@ -636,14 +690,10 @@ defined into the request, a message, and an HTTP code.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>message: string</strong></p>
-<blockquote>
-<div><p>Cause of the exception</p>
-</div></blockquote>
-<p><strong>code: int</strong></p>
-<blockquote class="last">
-<div><p>HTTP error code</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>message</strong> (<em>str</em>) &#8211; Cause of the exception</li>
+<li><strong>code</strong> (<em>int</em>) &#8211; HTTP error code</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -658,11 +708,11 @@ defined into the request, a message, and an HTTP code.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>accept: string</strong></p>
-<blockquote class="last">
-<div><p>Accept string from HTTP header.</p>
-</div></blockquote>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>accept</strong> (<em>str</em>) &#8211; Accept string from HTTP header.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list with pairs of (media_type, q_value), ordered by q values.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list(tuple)</td>
 </tr>
 </tbody>
 </table>
@@ -698,72 +748,71 @@ defined into the request, a message, and an HTTP code.</p>
 </div>
 
 
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">igdectk.rest package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-igdectk.rest.csrf">igdectk.rest.csrf module</a></li>
-<li><a class="reference internal" href="#module-igdectk.rest.handler">igdectk.rest.handler module</a></li>
-<li><a class="reference internal" href="#module-igdectk.rest.response">igdectk.rest.response module</a></li>
-<li><a class="reference internal" href="#module-igdectk.rest.restmiddleware">igdectk.rest.restmiddleware module</a></li>
-<li><a class="reference internal" href="#module-igdectk.rest">Module contents</a></li>
-</ul>
-</li>
-</ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="modules.html">Sub-Packages</a><ul>
-      <li>Previous: <a href="igdectk.permission.html" title="previous chapter">igdectk.permission package</a></li>
-      <li>Next: <a href="igdectk.xml.html" title="next chapter">igdectk.xml package</a></li>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/igdectk.rest.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="igdectk.xml.html" class="btn btn-neutral float-right" title="igdectk.xml package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="igdectk.permission.html" class="btn btn-neutral" title="igdectk.permission package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Frederic Scherma, Nicolas Guilhot, INRA UMR1095 GDEC.
+
     </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2015, Frederic Scherma, Nicolas Guilhot, INRA UMR1095 GDEC.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-      |
-      <a href="_sources/igdectk.rest.txt"
-          rel="nofollow">Page source</a>
-    </div>
 
-    
+    </section>
 
-    
-  </body>
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.4.4',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

@@ -4,7 +4,3 @@
 
 #2 - ENHANCEMENT
     Support d3 ala jquery
-
-#1 - ENHANCEMENT
-    Find a way to define in settings.py which version(s) to install of jquery...
-    Force the default version into settings too

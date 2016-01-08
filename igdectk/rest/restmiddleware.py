@@ -38,13 +38,8 @@ class ViewExceptionRest(Exception):
     """
     Formated exception with message and code.
 
-    Parameters
-    ----------
-    message: string
-        Cause of the exception
-
-    code: int
-        HTTP error code
+    :param str message: Cause of the exception
+    :param int code: HTTP error code
     """
 
     def __init__(self, message, code):
@@ -70,15 +65,10 @@ def parse_accept_header(accept):
     """
     Parse the Accept header.
 
-    Parameters
-    ----------
-    accept: string
-        Accept string from HTTP header.
+    :param str accept: Accept string from HTTP header.
 
-    Results
-    -------
-    : list(tuple)
-        A list with pairs of (media_type, q_value), ordered by q values.
+    :return: A list with pairs of (media_type, q_value), ordered by q values.
+    :rtype: list(tuple)
     """
     result = []
     for media_range in accept.split(","):
@@ -137,7 +127,7 @@ class HttpHeader(object):
     @property
     def accepted_types(self):
         """
-        Sames as ::ref::`accept` but returns only the media_type.
+        Sames as :ref:`accept` but returns only the media_type.
         This list is cached the first time.
         """
         # not cached
@@ -189,7 +179,7 @@ class HttpHeader(object):
     @property
     def accepted_language_codes(self):
         """
-        Sames as ::ref::`accept_language` but returns only the languages codes.
+        Sames as :ref:`accept_language` but returns only the languages codes.
         This list is cached the first time.
         """
         # not cached
@@ -241,9 +231,9 @@ class IGdecTkRestMiddleware(object):
     The middleware decorate the request with a format (HTML by default),
     and by a list of URL parameters.
 
-    When a view is decorated by :class:`igdectk.helpers.def_request`,
-    :class:`igdectk.helpers.def_auth_request` or by
-    :class:`igdectk.helpers.def_admin_request`,
+    When a view is decorated by :meth:`igdectk.rest.handler.RestHandler.def_request`,
+    :meth:`igdectk.rest.handler.RestHandler.def_auth_request` or by
+    :meth:`igdectk.rest.handler.RestHandler.def_admin_request`,
     the decorator can attach a data dict to the request object.
     """
 
@@ -260,23 +250,12 @@ class IGdecTkRestMiddleware(object):
         Helper to format a response related to the format and parameters
         defined into the request, a message, and an HTTP code.
 
-        Parameters
-        ----------
+        :param RequestContext request: Django request object.
+        :param str message: Message contant string.
+        :param int code: HTTP code.
 
-        request : RequestContext
-            Django request object.
-
-        message : str
-            Message contant string.
-
-        code : integer
-            HTTP code.
-
-        Returns
-        -------
-
-         : HttpResponse
-            An HTTP response object.
+        :return: An HTTP response object.
+        :rtype: HttpResponse
         """
         response_type = IGdecTkRestMiddleware.TYPES.get(code, http.HttpResponse)
 

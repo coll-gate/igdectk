@@ -44,30 +44,14 @@ class RestForm(object):
     """
     Rest handler to register a form with GET and POST method and HTML format.
 
-    Attributes
-    ----------
-
-    form_class: django.forms.Form
-        Django formular class.
-
-    form_template: string
-        Complete name of the template used to render the formular.
-
-    form_template_name: string
-        Name of the template form variable. Default is 'form'.
-
-    auth : boolean
-        True if the user must be authenticated. Default False.
-
-    admin : boolean
-        True if the user must be a super-user. Default False.
-
-    redirect: boolean
-        If True, when form POST success the client is redirected to attr:`success`
+    :ivar django.forms.Form form_class: Django formular class.
+    :ivar str form_template: Complete name of the template used to render the formular.
+    :ivar str form_template_name: Name of the template form variable. Default is 'form'.
+    :ivar boolean auth: True if the user must be authenticated. Default False.
+    :ivar boolean admin: True if the user must be a super-user. Default False.
+    :ivar boolean redirect: If True, when form POST success the client is redirected to :attr:`success`
         location.
-
-    success: string
-        If attr:`redirect` is True success defines the location URL to the redirection
+    :ivar str success: If :attr:`redirect` is True success defines the location URL to the redirection
         when form POST success.
         If False, success defines the template name to render.
     """
@@ -191,28 +175,20 @@ class RestHandler(object, metaclass=RestHandlerMeta):
     """
     Manage RESTfull API with autogenenation and registration of urls.
 
-    Attributes
-    ----------
-
-    regex: string
-        Python regular expression of the URL. It is combined with its parent
+    :ivar str regex: Python regular expression of the URL. It is combined with its parent
         handler regex when using inheritance of handlers.
 
-    name: string
-        Qualified name of the URL to be used into reverse URL and templates.
+    :ivar str name: Qualified name of the URL to be used into reverse URL and templates.
         It is possible to omit it and use :attr:`suffix` when using inheritance.
 
-    suffix: string
-        When inherit of a parent handler (excepted RestHandler base class),
+    :ivar str suffix: When inherit of a parent handler (excepted RestHandler base class),
         and if :attr:`name` is empty or None, suffix is added to the URL name
         of its parent. It is useful to avoid the rewriting of the complete path name.
         There is no need to add a separator before.
 
-    name_separator: string
-        Separator used between each word into the URL name. Default is '-'.
+    :ivar str name_separator: Separator used between each word into the URL name. Default is '-'.
 
-    app_name: string
-        Application name. If None it is detect from the module where the
+    :ivar str app_name: Application name. If None it is detect from the module where the
         class is defined.
     """
 
@@ -441,28 +417,17 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         HTML or JSON depending of the format.
 
         If it pass the test, the function will contains two news parameters :
-            - method : from the decorator
-            - format : from the decorator
+            * method : from the decorator
+            * format : from the decorator
 
-        Parameters
-        ----------
-        method: igdectk.rest.Method
-            One of the Method value (GET, POST...) define the accepted method.
-
-        format: igdectk.rest.Format
-            One of the Format value (JSON, HTML...) defines the format of the http response,
+        :param igdectk.rest.Method method: One of the Method value (GET, POST...) define the accepted method.
+        :param igdectk.rest.Format format: One of the Format value (JSON, HTML...) defines the format of the http response,
             and the accepted value from HTTP_ACCEPT.
-
-        parameters: list
-            A list of strings or an empty list, containing the names of the
+        :param list parameters: A list of strings or an empty list, containing the names of the
             mandatory parameters requested in the URL.
-
-        content: list
-            A list of strings or an empty list, containing the names of the
+        :param list(str) list: A list of strings or an empty list, containing the names of the
             mandatory parameters requested in the body.
-
-        conditions: string
-            The next parameters if theirs names starts with a 'url__' will
+        :param string conditions: The next parameters if theirs names starts with a 'url__' will
             be used as condition expression for the url parameters.
 
             For example, having url__action='save' mean that the url must
@@ -471,11 +436,11 @@ class RestHandler(object, metaclass=RestHandlerMeta):
             This is useful to have many action for a same HTTP method.
             It is possible to have many 'url__' conditions.
 
-        Notes
-        -----
 
-            Only once free of conditions method per handler can be registered.
-            Otherwise a :any:`RestRegistrationException` exception is raised.
+        .. note::
+
+            Only a single free of conditions method per handler can be registered.
+            Otherwise a :exc:`RestRegistrationException` exception is raised.
         """
         # create a decorator for the function
         def decorator(func):
@@ -516,11 +481,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         """
         Same as :meth:`def_request` but in addition the user must be authenticated.
 
-        Parameters
-        ----------
-
-        fallback: func
-            Optional callback function called in case the user is not authenticated.
+        :param func fallback: Optional callback function called in case the user is not authenticated.
         """
         # create a decorator for the function
         def decorator(func):
@@ -569,11 +530,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         Same as :meth:`def_request` but in addition the user must be authenticated
         and superuser.
 
-        Parameters
-        ----------
-
-        fallback: func
-            Optional callback function called in case the user is not authenticated.
+        :param func fallback: Optional callback function called in case the user is not authenticated.
         """
         # create a decorator for the function
         def decorator(func):
@@ -645,28 +602,17 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
     HTML or JSON depending of the format.
 
     If it pass the test, the function will contains two news parameters :
-        - method : from the decorator
-        - format : from the decorator
+        * method : from the decorator
+        * format : from the decorator
 
-    Parameters
-    ----------
-    method: igdectk.rest.Method
-        One of the Method value (GET, POST...) define the accepted method.
-
-    format: igdectk.rest.Format
-        One of the Format value (JSON, HTML...) defines the format of the http response,
+    :param igdectk.rest.Method method: One of the Method value (GET, POST...) define the accepted method.
+    :param igdectk.rest.Format format: One of the Format value (JSON, HTML...) defines the format of the http response,
         and the accepted value from HTTP_ACCEPT.
-
-    parameters: list
-        A list of strings or an empty list, containing the names of the
+    :param list parameters: A list of strings or an empty list, containing the names of the
         mandatory parameters requested in the URL.
-
-    content: list
-        A list of strings or an empty list, containing the names of the
+    :param list(str) list: A list of strings or an empty list, containing the names of the
         mandatory parameters requested in the body.
-
-    conditions: string
-        The next parameters if theirs names starts with a 'url__' will
+    :param string conditions: The next parameters if theirs names starts with a 'url__' will
         be used as condition expression for the url parameters.
 
         For example, having url__action='save' mean that the url must
@@ -675,11 +621,11 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
         This is useful to have many action for a same HTTP method.
         It is possible to have many 'url__' conditions.
 
-    Notes
-    -----
 
-        Only once free of conditions method per handler can be registered.
-        Otherwise a :any:`RestRegistrationException` exception is raised.
+    .. note::
+
+        Only a single free of conditions method per handler can be registered.
+        Otherwise a :exc:`RestRegistrationException` exception is raised.
     """
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -732,11 +678,7 @@ def def_inline_auth_request(inline_handler, method, format, parameters=(), conte
     """
     Same as :func:`def_inline_request` but in addition the user must be authenticated.
 
-    Parameters
-    ----------
-
-    fallback: func
-        Optional callback function called in case the user is not authenticated.
+    :param func fallback: Optional callback function called in case the user is not authenticated.
     """
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -795,11 +737,7 @@ def def_inline_admin_request(inline_handler, method, format, parameters=(), cont
     """
     Same as :meth:`def_inline_request` but in addition the user must be authenticated.
 
-    Parameters
-    ----------
-
-    fallback: func
-        Optional callback function called in case the user is not authenticated.
+    :param func fallback: Optional callback function called in case the user is not authenticated.
     """
     def decorator(func):
         def wrapper(*args, **kwargs):

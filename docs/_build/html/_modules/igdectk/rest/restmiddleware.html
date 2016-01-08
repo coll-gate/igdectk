@@ -1,42 +1,134 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>igdectk.rest.restmiddleware &mdash; igdectk 1.4.3 documentation</title>
-    
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '1.4.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="author" title="About these documents" href="../../../about.html" />
-    <link rel="top" title="igdectk 1.4.3 documentation" href="../../../index.html" />
-    <link rel="up" title="igdectk.rest" href="../rest.html" />
-   
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>igdectk.rest.restmiddleware &mdash; igdectk 1.4.4 documentation</title>
+  
 
-  </head>
-  <body role="document">  
+  
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="author" title="About these documents"
+              href="../../../about.html"/>
+    <link rel="top" title="igdectk 1.4.4 documentation" href="../../../index.html"/>
+        <link rel="up" title="igdectk.rest" href="../rest.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> igdectk
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.4
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../packages.html">Packages</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">igdectk</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../rest.html">igdectk.rest</a> &raquo;</li>
+      
+    <li>igdectk.rest.restmiddleware</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <h1>Source code for igdectk.rest.restmiddleware</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8; -*-</span>
@@ -79,13 +171,8 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Formated exception with message and code.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    message: string</span>
-<span class="sd">        Cause of the exception</span>
-
-<span class="sd">    code: int</span>
-<span class="sd">        HTTP error code</span>
+<span class="sd">    :param str message: Cause of the exception</span>
+<span class="sd">    :param int code: HTTP error code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
@@ -111,15 +198,10 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse the Accept header.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    accept: string</span>
-<span class="sd">        Accept string from HTTP header.</span>
+<span class="sd">    :param str accept: Accept string from HTTP header.</span>
 
-<span class="sd">    Results</span>
-<span class="sd">    -------</span>
-<span class="sd">    : list(tuple)</span>
-<span class="sd">        A list with pairs of (media_type, q_value), ordered by q values.</span>
+<span class="sd">    :return: A list with pairs of (media_type, q_value), ordered by q values.</span>
+<span class="sd">    :rtype: list(tuple)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">media_range</span> <span class="ow">in</span> <span class="n">accept</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">):</span>
@@ -178,7 +260,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">accepted_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Sames as ::ref::`accept` but returns only the media_type.</span>
+<span class="sd">        Sames as :ref:`accept` but returns only the media_type.</span>
 <span class="sd">        This list is cached the first time.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># not cached</span>
@@ -230,7 +312,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">accepted_language_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Sames as ::ref::`accept_language` but returns only the languages codes.</span>
+<span class="sd">        Sames as :ref:`accept_language` but returns only the languages codes.</span>
 <span class="sd">        This list is cached the first time.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># not cached</span>
@@ -282,9 +364,9 @@
 <span class="sd">    The middleware decorate the request with a format (HTML by default),</span>
 <span class="sd">    and by a list of URL parameters.</span>
 
-<span class="sd">    When a view is decorated by :class:`igdectk.helpers.def_request`,</span>
-<span class="sd">    :class:`igdectk.helpers.def_auth_request` or by</span>
-<span class="sd">    :class:`igdectk.helpers.def_admin_request`,</span>
+<span class="sd">    When a view is decorated by :meth:`igdectk.rest.handler.RestHandler.def_request`,</span>
+<span class="sd">    :meth:`igdectk.rest.handler.RestHandler.def_auth_request` or by</span>
+<span class="sd">    :meth:`igdectk.rest.handler.RestHandler.def_admin_request`,</span>
 <span class="sd">    the decorator can attach a data dict to the request object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -301,23 +383,12 @@
 <span class="sd">        Helper to format a response related to the format and parameters</span>
 <span class="sd">        defined into the request, a message, and an HTTP code.</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
+<span class="sd">        :param RequestContext request: Django request object.</span>
+<span class="sd">        :param str message: Message contant string.</span>
+<span class="sd">        :param int code: HTTP code.</span>
 
-<span class="sd">        request : RequestContext</span>
-<span class="sd">            Django request object.</span>
-
-<span class="sd">        message : str</span>
-<span class="sd">            Message contant string.</span>
-
-<span class="sd">        code : integer</span>
-<span class="sd">            HTTP code.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-
-<span class="sd">         : HttpResponse</span>
-<span class="sd">            An HTTP response object.</span>
+<span class="sd">        :return: An HTTP response object.</span>
+<span class="sd">        :rtype: HttpResponse</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">response_type</span> <span class="o">=</span> <span class="n">IGdecTkRestMiddleware</span><span class="o">.</span><span class="n">TYPES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">http</span><span class="o">.</span><span class="n">HttpResponse</span><span class="p">)</span>
 
@@ -398,49 +469,62 @@
         <span class="k">return</span> <span class="n">IGdecTkRestMiddleware</span><span class="o">.</span><span class="n">format_response</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span></div></div>
 </pre></div>
 
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../../../index.html">Documentation overview</a><ul>
-  <li><a href="../../index.html">Module code</a><ul>
-  <li><a href="../rest.html">igdectk.rest</a><ul>
-  </ul></li>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Frederic Scherma, Nicolas Guilhot, INRA UMR1095 GDEC.
+
     </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2015, Frederic Scherma, Nicolas Guilhot, INRA UMR1095 GDEC.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-    </div>
 
-    
+    </section>
 
-    
-  </body>
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.4.4',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

@@ -66,20 +66,11 @@ def eval_expr(expr):
     Evaluate a Python expression safely. Support unaries and binaries
     operators, string, numeric, tuple, list, dict, set.
 
-    Parameters
-    ----------
-    expr: string
-        Literal expression to Evaluate
+    :param str expr: Literal expression to Evaluate
+    :raise TypeError: If a type of the expression is not supported or
+        the expression contains an error.
 
-    Raises
-    ------
-    TypeError:
-        If a type of the expression is not supported or the expression
-        contains an error.
-
-    Returns
-    -------
-    :any
-        According to the expression, return an object of its type.
+    :return: According to the expression, return an object of its type.
+    :rtype: any
     """
     return _eval(ast.parse(expr, mode='eval').body)

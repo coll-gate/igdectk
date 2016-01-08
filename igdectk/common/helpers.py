@@ -18,23 +18,13 @@ def get_setting(app_name, param_name):
     """
     Get a setting value.
 
-    Parameters
-    ----------
-    app_name: string
-        name of the django application
+    :param str app_name: Name of the django application
+    :param str param_name: Name of the settings parameters key
 
-    param_name: string
-        name of the settings parameters key
+    :return: Returns the asked value
+    :rtype: any
 
-    Returns
-    -------
-    result: any
-        returns the asked value
-
-    Raises
-    ------
-    ViewExceptionRest:
-        if not found
+    :raise ViewExceptionRest: If not found
     """
     return apps.get_app_config(app_name).get_setting(param_name)
 
@@ -43,15 +33,10 @@ def int_arg(v):
     """
     Check if v is an integer.
 
-    Parameters
-    ----------
-    v: int, any
-        Potential integer to check
+    :param int|any v: Potential integer to check
 
-    Returns
-    -------
-    : boolean
-        True if success
+    :return: True if success
+    :rtype: boolean
     """
     try:
         return int(v)
@@ -67,17 +52,11 @@ def rint_arg(v, r):
     """
     Check if v is an integer into a specific range r.
 
-    Parameters
-    ----------
-    v: int or any
-        Potential integer to check
-    r: list
-        2 integers list (min and max inclusive of the range)
+    :param int|any v: Potential integer to check
+    :param list(int,int) r: 2 integers list (min and max inclusive of the range)
 
-    Returns
-    -------
-    : boolean
-        True if success
+    :return: True if success
+    :rtype: boolean
     """
     try:
         value = int(v)

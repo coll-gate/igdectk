@@ -8,6 +8,6 @@ Permission backend extension models
 
 import datetime
 
-from django_mongoengine import Document
-from django_mongoengine import fields
+from mongoengine import Document
+from mongoengine import fields
 

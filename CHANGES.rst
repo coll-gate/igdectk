@@ -1,8 +1,17 @@
 List of changes
 ===============
 
-Version head
-------------
+Version 1.4.4
+-------------
+
+| 20160108 :
+
+    - Factorise a main application class for packagers
+    - Now project can defines, for packagers, in its settings which version and theme to use as default
+
+
+Version 1.4.3
+-------------
 
 | 20151218 :
 
