@@ -48,15 +48,10 @@ def bootstrap(parser, token):
 
 class TemplateAppValue(Node):
 
-    PROPERTIES = {
-        'bootstrap': {'js': 'bootstrap.min.js', 'css': ('bootstrap.min.css', 'bootstrap-theme.min.css'), 'default_version': '3.3.6', 'versions': ('3.3.6',)},
-        'contextmenu': {'js': 'bootstrap-contextmenu.js', 'css': '', 'default_version': '0.2.0', 'versions': ('0.2.0',)},
-    }
-
     CACHE = {}
 
     def has_version(self, libname, sublibname, version):
-        library = TemplateAppValue.PROPERTIES.get(libname)
+        library = appsettings.PROPERTIES.get(libname)
         if not library:
             raise ImproperlyConfigured('Missing library')
 
@@ -70,7 +65,7 @@ class TemplateAppValue(Node):
         return version in library.get('versions', ())
 
     def get_default_version(self, libname, sublibname=None):
-        library = TemplateAppValue.PROPERTIES.get(libname)
+        library = appsettings.PROPERTIES.get(libname)
         if not library:
             raise ImproperlyConfigured('Missing library')
 
@@ -89,7 +84,7 @@ class TemplateAppValue(Node):
         raise ImproperlyConfigured('Missing default_version')
 
     def has_theme(self, libname, sublibname, theme):
-        library = TemplateAppValue.PROPERTIES.get(libname)
+        library = appsettings.PROPERTIES.get(libname)
         if not library:
             raise ImproperlyConfigured('Missing library')
 
@@ -103,7 +98,7 @@ class TemplateAppValue(Node):
         return theme in library.get('themes', ())
 
     def get_default_theme(self, libname, sublibname=None):
-        library = TemplateAppValue.PROPERTIES.get(libname)
+        library = appsettings.PROPERTIES.get(libname)
         if not library:
             raise ImproperlyConfigured('Missing library')
 
@@ -148,7 +143,7 @@ class TemplateAppValue(Node):
         if not module:
             raise TemplateSyntaxError("missing module name for '%s'" % args)
 
-        prop = TemplateAppValue.PROPERTIES.get(libname)
+        prop = appsettings.PROPERTIES.get(libname)
         if not prop:
             raise TemplateSyntaxError("undefined library '%s' for '%s'" % (libname, args))
 

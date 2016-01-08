@@ -6,8 +6,6 @@
 JQuery sub-module/Django-application settings
 """
 
-import copy
-
 APP_VERBOSE_NAME = "igdectk.jquery"
 
 APP_SETTINGS_MODEL = None
@@ -25,5 +23,3 @@ DEFAULT_PROPERTIES = {
     'colpick': {'js': 'colpick.js', 'css': 'colpick.css', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
     'numeric': {'js': 'jquery.numeric.js', 'css': '', 'default_version': '1.4.1', 'versions': ('1.4.1',)}
 }
-
-PROPERTIES = copy.deepcopy(DEFAULT_PROPERTIES)

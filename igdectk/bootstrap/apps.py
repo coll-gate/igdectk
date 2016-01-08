@@ -6,8 +6,8 @@
 Django Bootstrap application main
 """
 
-from igdectk.common.apphelpers import ApplicationMain
+from igdectk.packager.apphelpers import PackagerApplicationMain
 
 
-class IgdecTkBootstrap(ApplicationMain):
+class IgdecTkBootstrap(PackagerApplicationMain):
     name = '.'.join(__name__.split('.')[0:-1])
