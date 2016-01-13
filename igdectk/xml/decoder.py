@@ -9,7 +9,7 @@ Simplest XML decoder.
 import xml.etree.cElementTree as etree
 
 
-class Decoder():
+class Decoder:
 
     """
     Simplest XML to object decoder.

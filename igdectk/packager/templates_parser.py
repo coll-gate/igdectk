@@ -12,7 +12,7 @@ import os
 import re
 
 from django.conf import settings
-from django.template.base import Lexer, Parser
+from django.template import Lexer, Parser
 
 import igdectk.packager.template
 

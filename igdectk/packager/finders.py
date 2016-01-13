@@ -6,15 +6,6 @@
 Django app data finder for packagers (jquery, boostrap...)
 """
 
-import os
-from collections import OrderedDict
-
-from django.apps import apps
-from django.conf import settings
-from django.contrib.staticfiles import utils
-from django.core.files.storage import FileSystemStorage
-from django.utils import six
-
 from django.contrib.staticfiles.finders import *
 
 from igdectk.packager.templates_parser import get_installed_packages
