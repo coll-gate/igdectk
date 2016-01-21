@@ -12,7 +12,7 @@ import os
 import re
 
 from django.conf import settings
-from django.template import Lexer, Parser
+from django.template.base import Template
 
 import igdectk.packager.template
 
@@ -20,18 +20,6 @@ from .exception import UnsupportedPackagerConfiguration
 
 
 VALIDATOR = re.compile(r'^([a-zA-Z0-9-]+)(\.[a-zA-Z0-9-]+){0,1}_([a-zA-Z0-9-]+)(\|[a-zA-Z0-9\-]+){0,1}(#[a-zA-Z0-9-_\.]+){0,1}$')
-
-
-def compile_string(template_string, origin):
-    "Compiles template_string into NodeList ready for rendering"
-    if settings.TEMPLATE_DEBUG:
-        from django.template.debug import DebugLexer, DebugParser
-        lexer_class, parser_class = DebugLexer, DebugParser
-    else:
-        lexer_class, parser_class = Lexer, Parser
-    lexer = lexer_class(template_string, origin)
-    parser = parser_class(lexer.tokenize())
-    return parser.parse()
 
 
 def get_apps_list():
@@ -126,7 +114,6 @@ def get_installed_packages():
     for default or specific versions and themes.
     """
     apps = get_apps_list()
-    templates = []
     results = {}
 
     for app in apps:
@@ -134,7 +121,9 @@ def get_installed_packages():
 
         for tpl in templates:
             f = open(tpl, 'rU')
-            root = compile_string(f.read(), None)
+
+            tpl = Template(f.read())
+            root = tpl.compile_nodelist()
 
             for node in root.get_nodes_by_type(igdectk.packager.template.Node):
                 introspect_node(node, results)
