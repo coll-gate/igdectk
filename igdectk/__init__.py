@@ -15,8 +15,9 @@ __maintainer__ = "Frédéric Scherma"
 __email__ = "frederic.scherma@clermont.inra.fr"
 __credits__ = ["Frédéric Scherma", "Nicolas Guilhot"]
 __license__ = 'Private'
-__version__ = '1.4.4'
-__build__ = 0x010404
-__revision__ = "12"
+__version__ = '1.4.5'
+__build__ = 0x010405
+__revision__ = "13"
 __status__ = "Production"
 __requires__ = []
+
