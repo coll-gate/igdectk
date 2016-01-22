@@ -1,5 +1,5 @@
 include README.rst
-include LICENSE
+include igdectk/LICENSE
 recursive-include igdectk/jquery/static *.js *.css *.png *.gif *.eot *.svg *.ttf *.woff
 recursive-include igdectk/jquery/templates *.html
 recursive-include igdectk/bootstrap/static *.js *.css *.png *.gif *.eot *.svg *.ttf *.woff
