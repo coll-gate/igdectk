@@ -166,6 +166,9 @@ class ApplicationMain(AppConfig):
             (0, 1) is defined if not founds.
     """
 
+    def __init__(self, app_name, app_module):
+        super(ApplicationMain, self).__init__(app_name, app_module)
+
     def ready(self):
         """
         Called by Django application manager when the application is loaded.

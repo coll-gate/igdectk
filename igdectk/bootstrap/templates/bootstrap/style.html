@@ -1,0 +1,21 @@
+<style type="text/css">
+.auth_any {
+    display: block !important;
+}
+
+.auth_guest {
+    display: {% if not user.is_authenticated %}block{% else %}none{% endif %} !important;
+}
+
+.auth_user {
+    display: {% if user.is_authenticated %}block{% else %}none{% endif %} !important;
+}
+
+.auth_super_user {
+    display: {% if not user.is_staff %}block{% else %}none{% endif %} !important;
+}
+
+.auth_admin {
+    display: {% if not user.is_admin %}block{% else %}none{% endif %} !important;
+}
+</style>

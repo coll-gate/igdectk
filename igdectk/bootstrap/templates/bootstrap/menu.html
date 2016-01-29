@@ -1,0 +1,22 @@
+{% for menu in menus %}
+<li class="dropdown {{menu.auth_class}}">
+    <a id="drop-{{forloop.counter}}" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">{{menu.label}}<b class="caret"></b></a>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="menu-drop-{{forloop.counter}}">
+        {% for entry in menu.entries %}
+            {% if not entry.label %}
+                <li role="presentation" class="divider {{entry.auth_class}}"></li>
+            {% else %}
+                <li role="presentation" class="{{entry.auth_class}}">
+                    <a role="menuitem" tabindex="-1" href="{{entry.url}}">
+                    {% if entry.icon %}
+                        <span class="glyphicon glyphicon-{{entry.icon}}"></span>
+                    {% else %}
+                        <span class="glyphicon glyphicon-user" style="visibility: hidden;"></span>
+                    {% endif %}
+                    &nbsp;{{entry.label}}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</li>
+{% endfor %}

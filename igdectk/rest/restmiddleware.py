@@ -271,7 +271,7 @@ class IGdecTkRestMiddleware(object):
 
         # HTML format
         elif request.format == Format.HTML:
-            # append a Boostrap message error
+            # append a Bootstrap message error
             messages.error(request, 'Http %i: %s' % (code, message))
 
             # render a default error page if it excepts

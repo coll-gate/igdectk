@@ -210,7 +210,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         Internaly called by RestHandlerMeta on class definition
         in way to create a new entry into the list of managed handlers.
         This list is finally manually inserted into each application urlpatterns
-        classing register_urls.
+        calling register_urls.
         """
         # inheritance of the class name prefix
         # cls.classname_prefix = base[-1].classname_prefix if base[-1].classname_prefix else 'Rest'
@@ -266,7 +266,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
             request.data = data
 
-            # conditionned selection of the handler
+            # conditioned selection of the handler
             sub = None
             fallback = None
 
