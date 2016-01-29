@@ -101,8 +101,8 @@ class HttpHeader(object):
         self._accepted_types = None
 
         # HTTP_ACCEPT_LANGUAGE
-        self._accept_languages = None
-        self._accepted_laguages_codes = None
+        self._accept_language = None
+        self._accepted_language_codes = None
 
         # CONTENT_TYPE
         self._content_type = None
@@ -183,9 +183,18 @@ class HttpHeader(object):
         This list is cached the first time.
         """
         # not cached
+        if not self._accepted_laguage_codes:
+            self._cache_http_accept_language()
+        return self._accepted_laguage_codes
+
+    def prefered_language_code(self):
+        # not cached
         if not self._accepted_language_codes:
             self._cache_http_accept_language()
-        return self._accepted_language_codes
+        if len(self._accepted_language_codes) > 0:
+            return self._accepted_language_codes[0]
+        else:
+            return 'en_US'
 
     def _cache_content_type(self):
         self._content_type = parse_content_type(self.request.META.get("CONTENT_TYPE", ""))
