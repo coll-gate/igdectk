@@ -11,7 +11,7 @@
                 <li role="presentation" class="{{entry.auth_class}}">
                     <a role="menuitem" tabindex="-1" href="{{entry.url}}">
                     {% if entry.icon %}
-                        <span class="glyphicon glyphicon-{{entry.icon}}"></span>
+                        <span class="glyphicon {{entry.icon}}"></span>
                     {% else %}
                         <span class="glyphicon glyphicon-user" style="visibility: hidden;"></span>
                     {% endif %}
