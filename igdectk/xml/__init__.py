@@ -21,4 +21,4 @@ def loads(data):
     """
     Helper to loads an XML string into a Python object.
     """
-    pass  # return Decoder().decode(data)
+    return Decoder().decode(data)
