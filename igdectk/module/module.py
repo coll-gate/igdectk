@@ -63,6 +63,12 @@ class Module(object):
 
         for m in self.menus:
             if m.name == menu.name:
-                raise ModuleException('Menu %s is already defined' % menu.name)
+                # merge menu on existing
+                self.merge_menu(m, menu)
+                return
 
         self.menus.append(menu)
+
+    def merge_menu(self, org, menu):
+        for entry in menu.entries:
+            org.add_entry(entry)

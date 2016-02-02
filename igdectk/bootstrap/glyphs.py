@@ -272,3 +272,6 @@ class Glyph(Enum):
     MENU_RIGHT = "glyphicon-menu-right"
     MENU_DOWN = "glyphicon-menu-down"
     MENU_UP = "glyphicon-menu-up"
+
+    def __str__(self):
+        return self.value
