@@ -6,26 +6,66 @@
 Module manager with template context definition.
 """
 
-from .module import Module, ModuleException
+from .module import Module, ModuleException, ModuleMenu
 
 
 class ModuleManager(object):
+
+    """
+    Module manager. Each module must be registered
+    before to be used correctly (menu...).
+    """
 
     def __init__(self):
         self._menus = []
 
     def register_module(self, module):
+        """
+        Register a new module.
+        :param module: A valid Module instance
+        """
         if not isinstance(module, Module):
             raise ModuleException('Must be a Module')
 
+        # register module urls to primary urls pattern
+        module.include_url()
+
         if module.menus:
             for menu in module.menus:
-                # TODO merge menus
-                self._menus.append(menu)
+                src = None
+
+                # search for an existing menu with the same label
+                for m in self._menus:
+                    if m.label == menu.label:
+                        src = m
+                        break
+
+                # not found, then duplicate the menu from module
+                if not src:
+                    src = ModuleMenu(menu.name, menu.label, menu.order, menu.auth)
+
+                    # insert sorted the menu into the global menu
+                    i = 0
+                    for mm in self._menus:
+                        if mm.order <= src.order:
+                            i += 1
+                        else:
+                            break
+                    self._menus.insert(i, src)
+
+                # finally merge any entries of the current menu into the existing one (global)
+                for entry in menu.entries:
+                    src.add_entry(entry)
 
     @property
     def menus(self):
+        """
+        Get the ordered array of menus of any registered modules.
+        :return: An array of ModuleMenu
+        """
         return self._menus
 
-# singleton
+"""
+Module manager singleton.
+"""
 module_manager = ModuleManager()

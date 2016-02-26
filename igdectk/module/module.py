@@ -13,16 +13,32 @@ from . import AUTH_TYPE, AUTH_ANY
 
 
 class ModuleException(ImproperlyConfigured):
+
+    """
+    Base exception for module registration and definition.
+    """
+
     pass
 
 
 class ModuleMenu(object):
 
-    def __init__(self, name, label, auth=AUTH_ANY):
+    """
+    A mergable menu for a module. It contains ordered menu entries.
+    """
+
+    def __init__(self, name, label, order=-1, auth=AUTH_ANY):
         self.name = name
         self.label = label
+        self.order = order
         self.auth = auth
         self.entries = []
+
+    def __eq__(self, other):
+        return self.order == other.order
+
+    def __lt__(self, other):
+        return self.order < other.order
 
     def add_entry(self, entry):
         if entry:
@@ -50,12 +66,26 @@ class ModuleMenu(object):
 
 class Module(object):
 
-    def __init__(self, name, verbose_name=""):
+    """
+    The module itself that must be registered into the ModuleManager singleton.
+    """
+
+    def __init__(self, name, verbose_name="", base_url=""):
         self.name = name
         self.verbose_name = verbose_name
         self.menus = []
+        self.base_url = base_url
+
+    def merge_menu(self, org, menu):
+        for entry in menu.entries:
+            org.add_entry(entry)
 
     def add_menu(self, menu):
+        """
+        Add a new menu to this module. If the menu already exists
+        it is merged with the previous one.
+        :param menu: A valid module menu.
+        """
         if not menu:
             return
         if not isinstance(menu, ModuleMenu):
@@ -67,8 +97,22 @@ class Module(object):
                 self.merge_menu(m, menu)
                 return
 
-        self.menus.append(menu)
+        i = 0
+        for m in self.menus:
+            if m.order <= menu.order:
+                i += 1
+            else:
+                break
+        self.menus.insert(i, menu)
 
-    def merge_menu(self, org, menu):
-        for entry in menu.entries:
-            org.add_entry(entry)
+    def include_url(self):
+        from django.conf.urls import include, url
+        import urls
+
+        pattern = (r'^%s/%s/' % (self.base_url, self.name)) if self.base_url else (r'^%s/' % self.name)
+
+        urls.urlpatterns += url(
+                     pattern,
+                     include('%s.urls' % self.name,
+                             namespace=self.name,
+                             app_name=self.name)),

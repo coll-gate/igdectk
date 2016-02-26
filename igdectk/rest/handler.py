@@ -16,7 +16,7 @@ from django.apps import apps
 from django.conf.urls import url
 from django.shortcuts import render, redirect
 
-import igdectk.xml
+import igdectk.xmlio
 
 from .restmiddleware import ViewExceptionRest
 
@@ -258,7 +258,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
             if request.header.content_format == Format.JSON and request.body:
                 data = json.loads(request.body.decode())
             elif request.header.content_format == Format.XML and request.body:
-                data = igdectk.xml.loads(request.body.decode())
+                data = igdectk.xmlio.loads(request.body.decode())
             elif request.header.content_format == Format.MULTIPART:
                 data = request.POST  # Form POST encoded
             else:

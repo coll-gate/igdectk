@@ -6,7 +6,7 @@
 Simplest XML decoder.
 """
 
-# import xml.etree.cElementTree as etree
+import xml.etree.cElementTree as etree
 
 
 class Decoder:
@@ -22,11 +22,10 @@ class Decoder:
         """
         processes XML data structure into Python object
         """
-        #tree = etree.fromstring(data)
+        tree = etree.fromstring(data)
 
-        #self.obj = {tree.tag: self._node(tree)}
-        #return self.obj
-        return None
+        self.obj = {tree.tag: self._node(tree)}
+        return self.obj
 
     def _node(self, node):
         content = {}

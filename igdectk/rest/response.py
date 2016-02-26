@@ -16,7 +16,7 @@ from django.db.models.query import QuerySet
 from django.db import models
 
 import decimal
-import igdectk.xml
+import igdectk.xmlio
 
 from igdectk.rest import Format
 
@@ -61,7 +61,7 @@ def HttpResponseRest(request, data):
     elif request.format == Format.HTML:
         return HttpResponse(data)
     elif request.format == Format.XML:
-        encoded = igdectk.xml.dumps(data)
+        encoded = igdectk.xmlio.dumps(data)
         return HttpResponse(encoded, content_type=Format.XML.content_type)
     elif request.format == Format.TEXT:
         return HttpResponse(data, content_type=Format.TEXT.content_type)

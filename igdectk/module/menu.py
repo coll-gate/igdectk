@@ -13,6 +13,10 @@ from . import AUTH_TYPE, AUTH_ANY
 
 class MenuEntryBase(object):
 
+    """
+    Base class for any menu entry.
+    """
+
     def __init__(self, name, order=-1, auth=AUTH_ANY):
         self.name = name
         self.order = order
@@ -30,6 +34,10 @@ class MenuEntryBase(object):
 
 class MenuEntry(MenuEntryBase):
 
+    """
+    Labeled menu entry.
+    """
+
     def __init__(self, name, label, url, icon=None, order=-1, auth=AUTH_ANY):
         super(MenuEntry, self).__init__(name, order, auth)
 
@@ -39,6 +47,10 @@ class MenuEntry(MenuEntryBase):
 
 
 class MenuSeparator(MenuEntryBase):
+
+    """
+    Menu separator without label neither url.
+    """
 
     def __init__(self, order=-1, auth=AUTH_ANY):
         super(MenuSeparator, self).__init__(None, order, auth)

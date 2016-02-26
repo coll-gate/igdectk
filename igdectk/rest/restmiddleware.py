@@ -22,7 +22,7 @@ from django.core.urlresolvers import resolve
 from django.apps import apps
 from django.utils.translation.trans_real import parse_accept_lang_header
 
-import igdectk.xml
+import igdectk.xmlio
 
 from . import Format
 
@@ -301,7 +301,7 @@ class IGdecTkRestMiddleware(object):
 
         # XML format
         elif request.format == Format.XML:
-            data = igdectk.xml.dumps(result)
+            data = igdectk.xmlio.dumps(result)
 
         # TEXT format
         elif request.format == Format.TEXT:
