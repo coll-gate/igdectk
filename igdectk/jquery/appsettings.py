@@ -25,7 +25,8 @@ DEFAULT_PROPERTIES = {
     },
     'colpick': {'js': 'colpick.js', 'css': 'colpick.css', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
     'numeric': {'js': 'jquery.numeric.js', 'css': '', 'default_version': '1.4.1', 'versions': ('1.4.1',)},
-    'igdectk': {'js': 'igdectk.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0',),
+    'igdectk': {
+        'js': 'igdectk.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0',),
         '.csrf': {'js': 'csrf.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
         '.datetime': {'js': 'datetime.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
     },

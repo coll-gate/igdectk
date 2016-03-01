@@ -19,16 +19,13 @@ class ModuleManager(object):
     def __init__(self):
         self._menus = []
 
-    def register_module(self, module):
+    def register_menu(self, module):
         """
-        Register a new module.
+        Register the menu for a specific module.
         :param module: A valid Module instance
         """
         if not isinstance(module, Module):
             raise ModuleException('Must be a Module')
-
-        # register module urls to primary urls pattern
-        module.include_url()
 
         if module.menus:
             for menu in module.menus:

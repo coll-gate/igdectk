@@ -105,14 +105,10 @@ class Module(object):
                 break
         self.menus.insert(i, menu)
 
-    def include_url(self):
-        from django.conf.urls import include, url
-        import urls
+    def include_urls(self, modules=()):
+        from igdectk.rest.handler import RestHandler
+        RestHandler.include_main_url(self.name)
 
-        pattern = (r'^%s/%s/' % (self.base_url, self.name)) if self.base_url else (r'^%s/' % self.name)
+        __import__(self.name, fromlist=modules)
 
-        urls.urlpatterns += url(
-                     pattern,
-                     include('%s.urls' % self.name,
-                             namespace=self.name,
-                             app_name=self.name)),
+        RestHandler.register_urls()

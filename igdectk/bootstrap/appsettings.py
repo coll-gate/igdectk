@@ -19,4 +19,5 @@ DEFAULT_PROPERTIES = {
         '.alert': {'js': 'alert.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
         '.helper': {'js': 'helper.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
     },
+    'select': {'js': 'bootstrap-select.min.js', 'css': 'bootstrap-select.min.css', 'default_version': '1.10.0', 'versions': ('1.10.0',)}
 }

@@ -355,6 +355,24 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         RestHandler.unprocessed_handlers = []
 
     @classmethod
+    def include_main_url(cls, app_name=None, url_prefix=""):
+        from django.conf.urls import include, url
+        import urls
+
+        if app_name:
+            name = app_name
+        else:
+            name = cls.__module__.split('.')[0]
+
+        pattern = r'^%s%s/' % (url_prefix, name)
+
+        urls.urlpatterns += url(
+                     pattern,
+                     include('%s.urls' % name,
+                             namespace=name,
+                             app_name=name)),
+
+    @classmethod
     def _register_wrapper(cls, wrapper, method, format, parameters, content, conditions):
         """
         Internaly register a wrapper for a specific method and conditions.
