@@ -31,6 +31,10 @@ class MenuEntryBase(object):
     def auth_class(self):
         return AUTH_TYPE[self.auth][2]
 
+    @property
+    def has_label(self):
+        return False
+
 
 class MenuEntry(MenuEntryBase):
 
@@ -44,6 +48,10 @@ class MenuEntry(MenuEntryBase):
         self.label = label
         self.url = reverse(url) if ':' in url else url
         self.icon = icon
+
+    @property
+    def has_label(self):
+        return True
 
 
 class MenuSeparator(MenuEntryBase):

@@ -47,14 +47,22 @@ $(function() {
     // AJAX configuration for CSRF protection
     //
 
-    // $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
-    //     data = jqXHR.responseJSON;
-    //     if (data.cause) {
-    //         error(data.cause);
-    //     } else {
-    //         error(data);
-    //     }
-    // });
+    $(document).ajaxSuccess(function(event, jqXHR, settings, thrownError) {
+        // error message on failure
+        data = jqXHR.responseJSON;
+        if (data.cause && data.result && data.result == "failed") {
+            error(data.cause);
+        }
+    });
+
+    $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
+        data = jqXHR.responseJSON;
+        if (data.cause) {
+            error(data.cause);
+        } else {
+            error(data);
+        }
+    });
 
     $(document).ajaxSend(function(event, jqXHR, settings) {
         // always add the csrf token to safe method ajax query
@@ -63,13 +71,13 @@ $(function() {
         }
     });
 
-    $(document).ajaxComplete(function(event, xhr, settings) {
+    $(document).ajaxComplete(function(event, jqXHR, settings) {
         // for any form in the page update its csrf token after each safe method call
         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-            var crsftoken = getCookie('csrftoken');
+            var csrftoken = getCookie('csrftoken');
 
             $('form').each(function(index, el) {
-                $(this).find('input[name="csrfmiddlewaretoken"]').attr('value', crsftoken)
+                $(this).find('input[name="csrfmiddlewaretoken"]').attr('value', csrftoken)
             });
         }
     });

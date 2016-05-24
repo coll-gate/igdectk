@@ -495,7 +495,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         return decorator
 
     @classmethod
-    def def_auth_request(cls, method, format, parameters=(), content=(), fallback=None, **kwargs):
+    def def_auth_request(cls, method, format, parameters=(), content=(), fallback=None, perms=None, **kwargs):
         """
         Same as :meth:`def_request` but in addition the user must be authenticated.
 
@@ -515,6 +515,12 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                     if fallback:
                         return fallback(request)
                     raise ViewExceptionRest("Unauthorized", 401)
+
+                # permissions check
+                if perms:
+                    for k, v in perms.items():
+                        if not request.user.has_perm(k):
+                            raise ViewExceptionRest(v, 401)
 
                 # check for the existence of the values into the encoded body
                 data = request.data if hasattr(request, 'data') else request.POST

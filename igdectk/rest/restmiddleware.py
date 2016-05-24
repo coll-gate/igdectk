@@ -249,6 +249,7 @@ class IGdecTkRestMiddleware(object):
     TYPES = {
         400: http.HttpResponseBadRequest,
         401: HttpResponseUnauthorized,
+        403: http.HttpResponseForbidden,
         404: http.HttpResponseNotFound,
         500: http.HttpResponseServerError,
     }

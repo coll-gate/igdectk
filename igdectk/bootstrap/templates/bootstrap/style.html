@@ -16,6 +16,6 @@
 }
 
 .auth_admin {
-    display: {% if not user.is_admin %}block{% else %}none{% endif %} !important;
+    display: {% if not user.is_superuser %}block{% else %}none{% endif %} !important;
 }
 </style>
