@@ -36,7 +36,7 @@ function getCookie(name) {
  * @return {boolean}       true if the method is safe
  */
 function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
+    // these HTTP methods does not requires CSRF protection
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
@@ -50,18 +50,14 @@ $(function() {
     $(document).ajaxSuccess(function(event, jqXHR, settings, thrownError) {
         // error message on failure
         data = jqXHR.responseJSON;
-        if (data.cause && data.result && data.result == "failed") {
-            error(data.cause);
-        }
+        if (data.cause && data.result && data.result == "failed")
+            error(gettext(data.cause));
     });
 
     $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
         data = jqXHR.responseJSON;
-        if (data.cause) {
-            error(data.cause);
-        } else {
-            error(data);
-        }
+        if (data.cause)
+            error(gettext(data.cause));
     });
 
     $(document).ajaxSend(function(event, jqXHR, settings) {

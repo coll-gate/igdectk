@@ -107,7 +107,7 @@ class Module(object):
 
     def include_urls(self, modules=()):
         from igdectk.rest.handler import RestHandler
-        RestHandler.include_main_url(self.name)
+        RestHandler.include_main_url(self.name, self.base_url)
 
         __import__(self.name, fromlist=modules)
 

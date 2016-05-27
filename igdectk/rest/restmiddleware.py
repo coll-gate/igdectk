@@ -332,7 +332,9 @@ class IGdecTkRestMiddleware(object):
         elif isinstance(exception, PermissionDenied):
             message = exception.args[0]
             code = 403
-        elif isinstance(exception, http.Http404):
+        elif (isinstance(exception, http.Http404) or
+              isinstance(exception, ObjectDoesNotExist) or
+              isinstance(exception, MultipleObjectsReturned)):
             message = exception.args[0]
             code = 404
         else:
