@@ -48,6 +48,31 @@ def int_arg(v):
         )
 
 
+def bool_arg(v):
+    """
+    Check if v is a boolean string (true|false).
+
+    :param string: Potential boolean to check
+
+    :return: True or False
+    :rtype: boolean
+    """
+    try:
+        val = str(v)
+        if val == 'true':
+            return True
+        elif val == 'false':
+            return False
+        else:
+            raise
+    except:
+        raise ViewExceptionRest(
+            'Invalid argument format. %s must be a boolean string (true|false).' %
+            (repr(v),),
+            400
+        )
+
+
 def rint_arg(v, r):
     """
     Check if v is an integer into a specific range r.
