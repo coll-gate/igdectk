@@ -42,6 +42,10 @@ class ComplexEncoder(json.JSONEncoder):
             return str(obj)
         elif isinstance(obj, decimal.Decimal):
             return float(obj)  # TODO as str or as float because of the double precision ?
+        elif hasattr(obj, "__dict__"):
+            return obj.__dict__
+        elif hasattr(obj, "to_JSON"):
+            return obj.to_JSON()
         else:
             # Let the base class default method raise the TypeError
             return json.JSONEncoder.default(self, obj)

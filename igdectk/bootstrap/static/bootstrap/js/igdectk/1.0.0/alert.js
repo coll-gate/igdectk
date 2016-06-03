@@ -15,6 +15,8 @@ function message(style, msg) {
     var message = $('<div>' + '<strong>' + style + ': </strong>' + msg + '</div>');
     $("#messenger").append(message);
 
+    message.on("click", function () { $(this).remove(); });
+
     message.attr('class', 'alert fade in' + ' alert-' + style)
     var button = $('<button></button>')
         .attr("class", "close")
@@ -59,6 +61,7 @@ function success(msg) {
 $(function() {
     // initial message .alert fade out (initiated from Django-Bootstrap)
     $(".alert").each(function(index, val) {
+        $(this).on("click", function () { $(this).remove(); });
         $(this).hide().fadeIn(200).delay(2000).fadeOut(1000, function () { $(this).remove(); });
     });
 });

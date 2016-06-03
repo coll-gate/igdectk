@@ -496,7 +496,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         return decorator
 
     @classmethod
-    def def_auth_request(cls, method, format, parameters=(), content=(), fallback=None, perms=None, **kwargs):
+    def def_auth_request(cls, method, format, parameters=(), content=(), fallback=None, perms=None, staff=None, **kwargs):
         """
         Same as :meth:`def_request` but in addition the user must be authenticated.
 
@@ -515,7 +515,12 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 if not request.user.is_authenticated():
                     if fallback:
                         return fallback(request)
-                    raise ViewExceptionRest("Unauthorized", 401)
+                    raise ViewExceptionRest("Authenticated users only", 401)
+
+                if staff and (not request.user.is_staff and not request.user.is_superuser):
+                    if fallback:
+                        return fallback(request)
+                    raise PermissionDenied("Superuser and staff only")
 
                 # simple permissions check
                 if perms:
@@ -570,13 +575,13 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 if not request.user.is_authenticated():
                     if fallback:
                         return fallback(request)
-                    raise ViewExceptionRest("Unauthorized", 401)
+                    raise ViewExceptionRest("Authenticated users only", 401)
 
                 # check for super-user authentication
                 if not request.user.is_superuser:
                     if fallback:
                         return fallback(request)
-                    raise PermissionDenied("Admin only")
+                    raise PermissionDenied("Superuser only")
 
                 # check for the existence of the values into the encoded body
                 data = request.data if hasattr(request, 'data') else request.POST
@@ -699,7 +704,7 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
     return decorator
 
 
-def def_inline_auth_request(inline_handler, method, format, parameters=(), content=(), fallback=None, perms=None, **kwargs):
+def def_inline_auth_request(inline_handler, method, format, parameters=(), content=(), fallback=None, perms=None, staff=None, **kwargs):
     """
     Same as :func:`def_inline_request` but in addition the user must be authenticated.
 
@@ -717,7 +722,12 @@ def def_inline_auth_request(inline_handler, method, format, parameters=(), conte
             if not request.user.is_authenticated():
                 if fallback:
                     return fallback(request)
-                raise ViewExceptionRest("Unauthorized", 401)
+                raise ViewExceptionRest("Authenticated users only", 401)
+
+            if staff and (not request.user.is_staff and not request.user.is_superuser):
+                if fallback:
+                    return fallback(request)
+                raise PermissionDenied("Superuser and staff only")
 
             # simple permissions check
             if perms:
@@ -782,13 +792,13 @@ def def_inline_admin_request(inline_handler, method, format, parameters=(), cont
             if not request.user.is_authenticated():
                 if fallback:
                     return fallback(request)
-                raise ViewExceptionRest("Unauthorized", 401)
+                raise ViewExceptionRest("Authenticated users only", 401)
 
             # check for super-user authentication
             if not request.user.is_superuser:
                 if fallback:
                     return fallback(request)
-                raise PermissionDenied("Admin only")
+                raise PermissionDenied("Superuser only")
 
             # check for the existence of the values into the encoded body
             data = request.data if hasattr(request, 'data') else request.POST
