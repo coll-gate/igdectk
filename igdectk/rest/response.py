@@ -56,7 +56,7 @@ def HttpResponseRest(request, data):
     Return an Http response into the correct output format (JSON, XML or HTML),
     according of the request.format parameters.
 
-    Format is automaticaly added when using the
+    Format is automatically added when using the
     :class:`igdectk.rest.restmiddleware.IGdecTkRestMiddleware` and views decorators.
     """
     if request.format == Format.JSON:

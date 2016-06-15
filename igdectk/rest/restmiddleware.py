@@ -21,6 +21,7 @@ from django.contrib import messages
 from django.core.urlresolvers import resolve
 from django.apps import apps
 from django.utils.translation.trans_real import parse_accept_lang_header
+from validictory import FieldValidationError
 
 import igdectk.xmlio
 
@@ -337,6 +338,9 @@ class IGdecTkRestMiddleware(object):
               isinstance(exception, MultipleObjectsReturned)):
             message = exception.args[0]
             code = 404
+        elif isinstance(exception, FieldValidationError):
+            message = exception.args[0]
+            code = 400
         else:
             message = repr(exception)
             code = 500

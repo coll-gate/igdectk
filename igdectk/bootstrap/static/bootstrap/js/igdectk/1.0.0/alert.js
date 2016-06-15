@@ -12,7 +12,7 @@
  * Styled alert dialog
  */
 function message(style, msg) {
-    var message = $('<div>' + '<strong>' + style + ': </strong>' + msg + '</div>');
+    var message = $('<div>' + '<strong>' + style + ': </strong><span class"message-content">' + msg + '</span></div>');
     $("#messenger").append(message);
 
     message.on("click", function () { $(this).remove(); });
@@ -61,7 +61,13 @@ function success(msg) {
 $(function() {
     // initial message .alert fade out (initiated from Django-Bootstrap)
     $(".alert").each(function(index, val) {
-        $(this).on("click", function () { $(this).remove(); });
-        $(this).hide().fadeIn(200).delay(2000).fadeOut(1000, function () { $(this).remove(); });
+        var msg = $(this);
+
+        msg.on("click", function () { $(this).remove(); });
+        msg.hide().fadeIn(200).delay(2000).fadeOut(1000, function () { msg.remove(); });
+
+        // i18n comes from django catalog
+        var content = msg.find("span.message-content");
+        content.html(django.gettext(content.html()));
     });
 });

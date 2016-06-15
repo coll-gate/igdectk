@@ -50,14 +50,18 @@ $(function() {
     $(document).ajaxSuccess(function(event, jqXHR, settings, thrownError) {
         // error message on failure
         data = jqXHR.responseJSON;
-        if (data.cause && data.result && data.result == "failed")
+        if (data.cause && data.result && data.result == "failed") {
+            alert("!!! this should not arrives !!!");
             error(gettext(data.cause));
+        }
     });
 
     $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
         data = jqXHR.responseJSON;
-        if (data.cause)
+        console.log("ajaxError: " + jqXHR.statusText + " " + jqXHR.responseText);
+        if (data.cause) {
             error(gettext(data.cause));
+        }
     });
 
     $(document).ajaxSend(function(event, jqXHR, settings) {
