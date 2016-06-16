@@ -49,17 +49,18 @@ $(function() {
 
     $(document).ajaxSuccess(function(event, jqXHR, settings, thrownError) {
         // error message on failure
-        data = jqXHR.responseJSON;
-        if (data.cause && data.result && data.result == "failed") {
-            alert("!!! this should not arrives !!!");
+        var data = jqXHR.responseJSON;
+        if (data && (typeof(data.cause) !== "string") && data.result && data.result == "failed") {
+            alert("!! this should not arrives, please contact your administrator !!");
             error(gettext(data.cause));
         }
     });
 
     $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
-        data = jqXHR.responseJSON;
         console.log("ajaxError: " + jqXHR.statusText + " " + jqXHR.responseText);
-        if (data.cause) {
+
+        var data = jqXHR.responseJSON;
+        if (data && (typeof(data.cause) === "string")) {
             error(gettext(data.cause));
         }
     });
