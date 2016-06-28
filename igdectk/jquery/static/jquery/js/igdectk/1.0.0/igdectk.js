@@ -73,7 +73,8 @@ $.fn.formToObject = function() {
         return this.each(function(i) {
             var datestr = $(this).attr("date")/* + " UTC"*/.replace(' ', 'T');
             var datetime = new Date(Date.parse(datestr));
-            var fmt = format ? format : 'yy M dd';
+
+            var fmt = format || $.datepicker._defaults.dateFormat;
             $(this).html($.datepicker.formatDate(fmt, datetime) + ' ' + datetime.toTimeString().split(' ')[0]);
         });
     };
@@ -81,6 +82,8 @@ $.fn.formToObject = function() {
 
 // common ready dom
 $(function() {
+    // jquery.ui.datepicker i18n
+    $.datepicker.setDefaults($.datepicker.regional[$("html").attr("lang") || ""]);
     // localize and format .datetime to local timezone
-    $(".datetime").localizeDate('dd M yy');
+    $(".datetime").localizeDate();
 });

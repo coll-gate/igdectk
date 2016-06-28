@@ -12,6 +12,7 @@ this modify the data attached to the request and the format.
 
 import json
 import logging
+import threading
 
 from django import http
 from django.core.exceptions import *
@@ -188,6 +189,7 @@ class HttpHeader(object):
             self._cache_http_accept_language()
         return self._accepted_laguage_codes
 
+    @property
     def prefered_language_code(self):
         # not cached
         if not self._accepted_language_codes:
@@ -232,7 +234,9 @@ class HttpHeader(object):
         return self._content_format
 
 
-class IGdecTkRestMiddleware(object):
+class RestMiddleware(object):
+
+    thread_local = threading.local()
 
     """
     Middleware that manages request format and catch views exceptions.
@@ -262,13 +266,13 @@ class IGdecTkRestMiddleware(object):
         defined into the request, a message, and an HTTP code.
 
         :param RequestContext request: Django request object.
-        :param str message: Message contant string.
+        :param str message: Message constant string.
         :param int code: HTTP code.
 
         :return: An HTTP response object.
         :rtype: HttpResponse
         """
-        response_type = IGdecTkRestMiddleware.TYPES.get(code, http.HttpResponse)
+        response_type = RestMiddleware.TYPES.get(code, http.HttpResponse)
 
         result = {
             "result": "failed",
@@ -324,6 +328,10 @@ class IGdecTkRestMiddleware(object):
 
         request.header = HttpHeader(request)
 
+        # initialize thread local current request information
+        RestMiddleware.thread_local.current_user = request.user
+        RestMiddleware.thread_local.current_remote_addr = request.META.get('REMOTE_ADDR', '')
+
     def process_exception(self, request, exception):
         if isinstance(exception, ViewExceptionRest):
             message, code = exception.args
@@ -349,4 +357,23 @@ class IGdecTkRestMiddleware(object):
             # write the traceback to the logger (should be redirected to console)
             logger.error(traceback.format_exc())
 
-        return IGdecTkRestMiddleware.format_response(request, message, code)
+        return RestMiddleware.format_response(request, message, code)
+
+    @staticmethod
+    def current_user():
+        tl = RestMiddleware.thread_local
+        if hasattr(tl, 'current_user'):
+            return tl.current_user
+        else:
+            return None
+
+    @staticmethod
+    def current_remote_addr():
+        tl = RestMiddleware.thread_local
+        if hasattr(tl, 'current_remote_addr'):
+            return tl.current_remote_addr
+        else:
+            return ''
+
+# deprecated name, for compatibility
+IGdecTkRestMiddleware = RestMiddleware

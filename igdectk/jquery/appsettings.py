@@ -14,7 +14,10 @@ APP_VERSION = (1, 0, 3)
 
 DEFAULT_PROPERTIES = {
     'jquery': {'js': 'jquery.min.js', 'css': '', 'default_version': '2.1.4', 'versions': ('2.1.4',)},
-    'ui': {'js': 'jquery-ui.min.js', 'css': 'ui-%(theme)s/jquery-ui.min.css', 'img': '%(filename)s', 'default_version': '1.10.4', 'versions': ('1.10.4',), 'default_theme': 'lightness', 'themes': ('lightness',)},
+    'ui': {
+        'js': 'jquery-ui.min.js', 'css': 'ui-%(theme)s/jquery-ui.min.css', 'img': '%(filename)s', 'default_version': '1.10.4', 'versions': ('1.10.4',), 'default_theme': 'lightness', 'themes': ('lightness',),
+        '.datepicker-fr': {'js': 'i18n/datepicker-fr.js', 'css': '', 'default_version': '1.10.4', 'versions': ('1.10.4',), 'default_theme': ''}
+    },
     'fancytree': {
         'js': 'jquery.fancytree.min.js', 'css': 'skin-%(theme)s/ui.fancytree.min.css', 'default_version': '2.12.0', 'versions': ('2.12.0', '2.13.0'), 'default_theme': 'bootstrap', 'themes': ('bootstrap',),
         '.glyph': {'js': 'jquery.fancytree.glyph.min.js', 'css': '', 'default_version': '2.12.0', 'versions': ('2.12.0', '2.13.0'), 'default_theme': ''}
