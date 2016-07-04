@@ -29,9 +29,11 @@ class AppDirectoriesFinder(BaseFinder):
         if app_names:
             app_names = set(app_names)
             app_configs = [ac for ac in app_configs if ac.name in app_names]
+
         for app_config in app_configs:
             app_storage = self.storage_class(
                 os.path.join(app_config.path, self.source_dir))
+
             if os.path.isdir(app_storage.location):
                 self.storages[app_config.name] = app_storage
                 if app_config.name not in self.apps:
@@ -58,7 +60,7 @@ class AppDirectoriesFinder(BaseFinder):
         for storage in six.itervalues(self.storages):
             if storage.exists(''):  # check if storage location exists
                 for path in utils.get_files(storage, ignore_patterns):
-                    # for packagers we only accept specifics packages, library and versions
+                    # for packagers we only accept specifics packages, library and versions (meaning sublib needs lib)
                     splitted_path = path.split(os.path.sep)
 
                     packager = self.packagers.get(splitted_path[0], None)
@@ -69,7 +71,8 @@ class AppDirectoriesFinder(BaseFinder):
                     if splitted_path[0] in self.installed_packagers:
                         if packager:
                             for library in packager:
-                                if splitted_path[2] == library[0]:
+                                # split to have sublib when parent lib is not imported
+                                if splitted_path[2] == library[0].split('.')[0]:
                                     if splitted_path[3] in library[1]:
                                         # found package.library(version)
                                         found = True

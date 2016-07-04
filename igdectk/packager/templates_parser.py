@@ -77,6 +77,7 @@ def introspect_node(node, results):
         for library in results[module_name]:
             if library[0] == fq_libname:
                 lib = library
+                break
 
         # specific version in param
         if node.param:
@@ -99,6 +100,25 @@ def introspect_node(node, results):
         if not lib:
             lib = [fq_libname, [], []]
             results[module_name].append(lib)
+
+            # was a workaround in way to add the parent library
+            # when only sublib are imported. but this is more easily
+            # done in finders.py#l75 using a split on the library name
+            # if sublibname:
+            #     # can need parent lib for sublib and parent not specifically imported
+            #     has_parent_lib = False
+            #
+            #     for library in results[module_name]:
+            #         # when sublib and if parent lib is not imported in template
+            #         # we have to add load it into the list of results
+            #         if sublibname and library[0] == libname:
+            #             print(module_name, libname, library)
+            #             has_parent_lib = True
+            #             break
+            #
+            #     if not has_parent_lib:
+            #         parent_lib = [libname, [version_v], [theme_v]]
+            #         results[module_name].append(parent_lib)
 
         if lib:
             if version_v not in lib[1]:
