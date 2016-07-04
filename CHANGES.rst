@@ -1,6 +1,26 @@
 List of changes
 ===============
 
+Version 1.4.7
+-------------
+
+| 20160704 :
+
+    - Fix issue with import of sublibrary for packagers
+    - Add jquery::idectk.validator
+    - Update jquery::idectk.csrf jquery AJAX callback
+    - Add default permission support for rest handler decorators
+    - Fix exception management in rest middleware for views
+
+Version 1.4.6
+-------------
+
+| 20160501 :
+
+    - Factorise a main application class for packagers
+    - Add jquery::idectk.csrf
+    - Add underscorejs pakager for non wepback, browserify or ... managed client project
+
 Version 1.4.4
 -------------
 

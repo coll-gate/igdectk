@@ -52,7 +52,10 @@ $(function() {
         var data = jqXHR.responseJSON;
         if (data && (typeof(data.cause) !== "string") && data.result && data.result == "failed") {
             alert("!! this should not arrives, please contact your administrator !!");
-            error(gettext(data.cause));
+            if (typeof(gettext) == "undefined")
+                error(data.cause);
+            else
+                error(gettext(data.cause));
         }
     });
 
@@ -61,7 +64,10 @@ $(function() {
 
         var data = jqXHR.responseJSON;
         if (data && (typeof(data.cause) === "string")) {
-            error(gettext(data.cause));
+            if (typeof(gettext) == "undefined")
+                error(data.cause);
+            else
+                error(gettext(data.cause));
         }
     });
 
