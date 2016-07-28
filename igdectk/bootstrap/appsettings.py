@@ -17,7 +17,7 @@ DEFAULT_PROPERTIES = {
     'contextmenu': {'js': 'bootstrap-contextmenu.js', 'css': '', 'default_version': '0.2.0', 'versions': ('0.2.0',)},
     'igdectk': {
         '.alert': {'js': 'alert.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
-        '.helper': {'js': 'helper.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
+        '.helper': {'js': 'helper.js', 'css': 'helper.css', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
     },
     'select': {'js': 'bootstrap-select.min.js', 'css': 'bootstrap-select.min.css', 'default_version': '1.10.0', 'versions': ('1.10.0',)}
 }

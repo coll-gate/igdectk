@@ -19,14 +19,15 @@ DEFAULT_PROPERTIES = {
         '.datepicker-fr': {'js': 'i18n/datepicker-fr.js', 'css': '', 'default_version': '1.10.4', 'versions': ('1.10.4',), 'default_theme': ''}
     },
     'fancytree': {
-        'js': 'jquery.fancytree.min.js', 'css': 'skin-%(theme)s/ui.fancytree.min.css', 'default_version': '2.12.0', 'versions': ('2.12.0', '2.13.0'), 'default_theme': 'bootstrap', 'themes': ('bootstrap',),
-        '.glyph': {'js': 'jquery.fancytree.glyph.min.js', 'css': '', 'default_version': '2.12.0', 'versions': ('2.12.0', '2.13.0'), 'default_theme': ''}
+        'js': 'jquery.fancytree.min.js', 'css': 'skin-%(theme)s/ui.fancytree.min.css', 'default_version': '2.18.0', 'versions': ('2.12.0', '2.13.0', '2.18.0'), 'default_theme': 'bootstrap', 'themes': ('bootstrap',),
+        '.glyph': {'js': 'jquery.fancytree.glyph.min.js', 'css': '', 'default_version': '2.18.0', 'versions': ('2.12.0', '2.13.0', '2.18.0'), 'default_theme': ''},
+        '.filter': {'js': 'jquery.fancytree.filter.min.js', 'css': '', 'default_version': '2.18.0', 'versions': ('2.18.0',), 'default_theme': ''}
     },
     'select2': {
         'js': 'select2.min.js', 'css': 'select2.css', 'default_version': '3.5.4', 'versions': ('3.5.1', '3.5.4', '4.0.3'),
         '.bootstrap': {'js': '', 'css': 'select2-bootstrap.css', 'default_version': '3.5.4', 'versions': ('3.5.1', '3.5.4')},
-        '.fr': {'js': 'i18n/fr.js', 'css': '', 'default_version': '4.0.3', 'versions': ('4.0.3')},
-        '.en': {'js': 'i18n/en.js', 'css': '', 'default_version': '4.0.3', 'versions': ('4.0.3')},
+        '.fr': {'js': 'i18n/fr.js', 'css': '', 'default_version': '4.0.3', 'versions': ('4.0.3',)},
+        '.en': {'js': 'i18n/en.js', 'css': '', 'default_version': '4.0.3', 'versions': ('4.0.3',)},
     },
     'colpick': {'js': 'colpick.js', 'css': 'colpick.css', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
     'numeric': {'js': 'jquery.numeric.js', 'css': '', 'default_version': '1.4.1', 'versions': ('1.4.1',)},

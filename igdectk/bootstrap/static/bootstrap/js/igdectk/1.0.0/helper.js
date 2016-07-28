@@ -82,6 +82,26 @@ function createHelper(object) {
     }
 }
 
+// function on jQuery selectors
+(function($) {
+    $.fn.updateProgressBar = function(min, max, value) {
+        this.each(function(){
+            var percent = Math.min(((value-min) * 100 / Math.max(max, 1)) + min, 100);
+            var el = $(this);
+
+            //el.attr({min:min, value:value, max:max});
+            el.css({width: percent + '%'}).attr({
+                'aria-valuenow':min,
+                'aria-valuenow':value,
+                'aria-valuemax':max})
+                    .html(percent + '%');
+
+            return el; // support chaining
+        });
+    };
+
+}( jQuery ));
+
 // common ready dom
 $(function() {
     // initiate any helper tooltip
@@ -94,4 +114,5 @@ $(function() {
         $(".popover-dismiss").popover('hide');
         return true;
     });
+
 });

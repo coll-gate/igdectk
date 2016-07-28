@@ -17,6 +17,7 @@ class ModuleManager(object):
     """
 
     def __init__(self):
+        self._modules = []
         self._menus = []
 
     def register_menu(self, module):
@@ -26,6 +27,9 @@ class ModuleManager(object):
         """
         if not isinstance(module, Module):
             raise ModuleException('Must be a Module')
+
+        if module not in self._modules:
+            self._modules.append(module)
 
         if module.menus:
             for menu in module.menus:
@@ -61,6 +65,14 @@ class ModuleManager(object):
         :return: An array of ModuleMenu
         """
         return self._menus
+
+    @property
+    def modules(self):
+        """
+        Get the list of installed and initialized modules.
+        :return: An array of Module
+        """
+        return self._modules
 
 """
 Module manager singleton.
