@@ -67,7 +67,8 @@ $(function() {
         msg.hide().fadeIn(200).delay(2000).fadeOut(1000, function () { msg.remove(); });
 
         // i18n comes from django catalog
-        var content = msg.find("span.message-content");
-        content.html(django.gettext(content.html()));
+        //var content = msg.find("span.message-content");
+        //content.html(django.gettext(content.html()));
+        //content.html(gt.gettext(content.html()));
     });
 });

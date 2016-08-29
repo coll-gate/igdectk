@@ -52,10 +52,10 @@ $(function() {
         var data = jqXHR.responseJSON;
         if (data && (typeof(data.cause) !== "string") && data.result && data.result == "failed") {
             alert("!! this should not arrives, please contact your administrator !!");
-            if (typeof(gettext) == "undefined")
+            //if (typeof(django) != "undefined" && typeof(django.gettext) != "undefined")
+            //   error(django.gettext(data.cause));
+            //else
                 error(data.cause);
-            else
-                error(gettext(data.cause));
         }
     });
 
@@ -64,10 +64,10 @@ $(function() {
 
         var data = jqXHR.responseJSON;
         if (data && (typeof(data.cause) === "string")) {
-            if (typeof(gettext) == "undefined")
+            //if (typeof(django) != "undefined" && typeof(django.gettext) != "undefined")
+            //   error(django.gettext(data.cause));
+            //else
                 error(data.cause);
-            else
-                error(gettext(data.cause));
         }
     });
 

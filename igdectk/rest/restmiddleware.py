@@ -299,7 +299,7 @@ class RestMiddleware(object):
                 data = render_to_string(
                     http_template_string % (code,),
                     result,
-                    context_instance=RequestContext(request))
+                    request=request)
             except Exception:
                 return response_type('Http %i: %s' % (code, message), RequestContext(request))
 
