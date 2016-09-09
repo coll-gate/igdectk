@@ -69,13 +69,37 @@ $.fn.formToObject = function() {
 
 // localize and format .datetime to local timezone
 (function($) {
-    $.fn.localizeDate = function (format) {
+    /**
+     * Display and if necessary localize an iso-datetime.
+     * The iso-datetime must be set into the date attribute,
+     * and the HTML content is replaced by the formatted and localized
+     * date and time (without ms).
+     * @param dateFormat ISO datetime
+     * @param locale null or country local ("en", "fr", "en-us"...)
+     */
+    $.fn.localizeDate = function (dateFormat, locale) {
         return this.each(function(i) {
-            var datestr = $(this).attr("date")/* + " UTC"*/.replace(' ', 'T');
+            var datestr = $(this).attr("date").replace(' ', 'T');
             var datetime = new Date(Date.parse(datestr));
 
-            var fmt = format || $.datepicker._defaults.dateFormat;
-            $(this).html($.datepicker.formatDate(fmt, datetime) + ' ' + datetime.toTimeString().split(' ')[0]);
+            var fmt = dateFormat || $.datepicker._defaults.dateFormat;
+            var date = "";
+            var time = "";
+
+            if (locale) {
+                if (typeof(locale) == "boolean") {
+                    date = datetime.toLocaleDateString();
+                    time = datetime.toLocaleTimeString();
+                } else {
+                    date = datetime.toLocaleDateString(locale);
+                    time = datetime.toLocaleTimeString(locale);
+                }
+            } else {
+                date = $.datepicker.formatDate(fmt, datetime);
+                time = datetime.toTimeString().split(' ')[0];
+            }
+
+            $(this).html(date + ' ' + time);
         });
     };
 }( jQuery ));

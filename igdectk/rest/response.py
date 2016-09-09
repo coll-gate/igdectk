@@ -37,9 +37,9 @@ class ComplexEncoder(json.JSONEncoder):
         elif isinstance(obj, models.Model):
             return serializers.serialize('python', [obj])[0]
         elif isinstance(obj, date):
-            return str(obj)
+            return obj.isoformat()
         elif isinstance(obj, datetime):
-            return str(obj)
+            return obj.isoformat()
         elif isinstance(obj, decimal.Decimal):
             return float(obj)  # TODO as str or as float because of the double precision ?
         elif hasattr(obj, "__dict__"):

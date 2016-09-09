@@ -31,9 +31,9 @@ class Encoder():
         elif isinstance(obj, Model):
             result = serializers.serialize('xml', [obj])[0]
         elif isinstance(obj, date):
-            result = str(obj)
+            result = obj.isoformat()
         elif isinstance(obj, datetime):
-            result = str(obj)
+            result = obj.isoformat()
         elif isinstance(obj, decimal.Decimal):
             result = str(obj)
         else:
