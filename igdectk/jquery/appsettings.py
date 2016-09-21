@@ -33,7 +33,7 @@ DEFAULT_PROPERTIES = {
     'numeric': {'js': 'jquery.numeric.js', 'css': '', 'default_version': '1.4.1', 'versions': ('1.4.1',)},
     'igdectk': {
         'js': 'igdectk.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0',),
-        '.csrf': {'js': 'csrf.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
+        '.csrf': {'js': 'csrf.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0', '2.0.0')},
         '.validator': {'js': 'validator.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0',)},
     },
 }

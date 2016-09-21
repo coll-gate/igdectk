@@ -49,10 +49,11 @@ $(function() {
 
     $(document).ajaxSuccess(function(event, jqXHR, settings, thrownError) {
         // error message on failure
+        alert(getCookie('sessionid'));
         var data = jqXHR.responseJSON;
         if (data && (typeof(data.cause) !== "string") && data.result && data.result == "failed") {
             alert("!! this should not arrives, please contact your administrator !!");
-            error(data.cause);
+            $.alert.error(data.cause);
         }
     });
 
@@ -61,7 +62,7 @@ $(function() {
 
         var data = jqXHR.responseJSON;
         if (data && (typeof(data.cause) === "string")) {
-            error(data.cause);
+            $.alert.error(data.cause);
         }
     });
 

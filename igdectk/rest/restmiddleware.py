@@ -235,9 +235,6 @@ class HttpHeader(object):
 
 
 class RestMiddleware(object):
-
-    thread_local = threading.local()
-
     """
     Middleware that manages request format and catch views exceptions.
     It also manage the customized view errors (page if HTML else JSON).
@@ -258,6 +255,21 @@ class RestMiddleware(object):
         404: http.HttpResponseNotFound,
         500: http.HttpResponseServerError,
     }
+
+    thread_local = threading.local()
+
+    def __init__(self, get_response=None):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        self.process_request(request)
+
+        try:
+            response = self.get_response(request)
+        except BaseException as e:
+            response = self.process_exception(request, e)
+
+        return response
 
     @staticmethod
     def format_response(request, message, code):
@@ -374,6 +386,3 @@ class RestMiddleware(object):
             return tl.current_remote_addr
         else:
             return ''
-
-# deprecated name, for compatibility
-IGdecTkRestMiddleware = RestMiddleware
