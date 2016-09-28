@@ -22,9 +22,12 @@ from django.contrib import messages
 from django.core.urlresolvers import resolve
 from django.apps import apps
 from django.utils.translation.trans_real import parse_accept_lang_header
+
 from validictory import FieldValidationError
 
 import igdectk.xmlio
+
+from igdectk.rest.response import ComplexEncoder
 
 from . import Format
 
@@ -272,7 +275,7 @@ class RestMiddleware(object):
         return response
 
     @staticmethod
-    def format_response(request, message, code):
+    def format_response(request, message, code, error=""):
         """
         Helper to format a response related to the format and parameters
         defined into the request, a message, and an HTTP code.
@@ -289,12 +292,13 @@ class RestMiddleware(object):
         result = {
             "result": "failed",
             "cause": message,
-            "code": code
+            "code": code,
+            "error": error
         }
 
         # JSON format
         if request.format == Format.JSON:
-            data = json.dumps(result)
+            data = json.dumps(result, cls=ComplexEncoder)
 
         # HTML format
         elif request.format == Format.HTML:
@@ -346,30 +350,46 @@ class RestMiddleware(object):
 
     def process_exception(self, request, exception):
         if isinstance(exception, ViewExceptionRest):
-            message, code = exception.args
+            cause, code = exception.args
+            error = "view_exception"
         elif isinstance(exception, SuspiciousOperation):
-            message = exception.args[0]
+            cause = exception.args[0]
             code = 400
+            error = "suspicious_operation" if len(exception.args) < 2 else exception.args[1]
         elif isinstance(exception, PermissionDenied):
-            message = exception.args[0]
+            cause = exception.args[0]
             code = 403
-        elif (isinstance(exception, http.Http404) or
-              isinstance(exception, ObjectDoesNotExist) or
-              isinstance(exception, MultipleObjectsReturned)):
-            message = exception.args[0]
+            error = "permission_denied" if len(exception.args) < 2 else exception.args[1]
+        elif isinstance(exception, http.Http404):
+            cause = exception.args[0]
             code = 404
+            error = "http404" if len(exception.args) < 2 else exception.args[1]
+        elif isinstance(exception, ObjectDoesNotExist):
+            cause = exception.args[0]
+            code = 404
+            error = "object_does_not_exists" if len(exception.args) < 2 else exception.args[1]
+        elif isinstance(exception, MultipleObjectsReturned):
+            cause = exception.args[0]
+            code = 404
+            error = "multiple_objects_returned" if len(exception.args) < 2 else exception.args[1]
         elif isinstance(exception, FieldValidationError):
-            message = exception.args[0]
+            cause = exception.args[0]
             code = 400
+            error = "field_validation_error" if len(exception.args) < 2 else exception.args[1]
+        elif isinstance(exception, ValidationError):
+            cause = exception.messages
+            code = 400
+            error = "field_validation_error" if len(exception.args) < 2 else exception.args[1]
         else:
-            message = repr(exception)
+            cause = repr(exception)
             code = 500
+            error = "internal_error" if len(exception.args) < 2 else exception.args[1]
 
             import traceback
             # write the traceback to the logger (should be redirected to console)
             logger.error(traceback.format_exc())
 
-        return RestMiddleware.format_response(request, message, code)
+        return RestMiddleware.format_response(request, cause, code, error)
 
     @staticmethod
     def current_user():

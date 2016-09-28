@@ -60,8 +60,21 @@ $(function() {
         console.log("ajaxError: " + jqXHR.statusText + " " + jqXHR.responseText);
 
         var data = jqXHR.responseJSON;
-        if (data && (typeof(data.cause) === "string")) {
-            $.alert.error(data.cause);
+        if (data) {
+            if (typeof(data.cause) === "string") {
+                // an single string of cause generate a single alert
+                $.alert.error(data.cause);
+            } else if (Array.isArray(data.cause)) {
+                // an array of cause generate multiple alerts
+                for (var i = 0; i < data.cause.length; ++i) {
+                    $.alert.error(data.cause[i]);
+                }
+            } else if (typeof(data.cause) === "object") {
+                // an array of cause generate multiple alerts
+                for (var k in data.cause) {
+                    $.alert.error(k + ": " + data.cause[k]);
+                }
+            }
         }
     });
 
