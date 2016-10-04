@@ -13,7 +13,18 @@ APP_SETTINGS_MODEL = None
 APP_VERSION = (1, 0, 3)
 
 DEFAULT_PROPERTIES = {
-    'bootstrap': {'js': 'bootstrap.min.js', 'css': ('bootstrap.min.css', 'bootstrap-theme.min.css'), 'default_version': '3.3.6', 'versions': ('3.3.6',)},
+    'bootstrap': {
+        'js': 'bootstrap.min.js',
+        'css': ('bootstrap.min.css', 'bootstrap-theme.min.css'),
+        'fonts': (
+            'glyphicons-halflings-regular.eot',
+            'glyphicons-halflings-regular.svg',
+            'glyphicons-halflings-regular.ttf',
+            'glyphicons-halflings-regular.woff',
+            'glyphicons-halflings-regular.woff2'),
+        'default_version': '3.3.6',
+        'versions': ('3.3.6',)
+    },
     'contextmenu': {'js': 'bootstrap-contextmenu.js', 'css': '', 'default_version': '0.2.0', 'versions': ('0.2.0',)},
     'igdectk': {
         '.alert': {'js': 'alert.js', 'css': '', 'default_version': '1.0.0', 'versions': ('1.0.0', '2.0.0')},
