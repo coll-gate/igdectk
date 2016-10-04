@@ -60,7 +60,6 @@ class AppDirectoriesFinder(BaseFinder):
         for storage in six.itervalues(self.storages):
             if storage.exists(''):  # check if storage location exists
                 for path in utils.get_files(storage, ignore_patterns):
-                    print(path)
                     # for packagers we only accept specifics packages, library and versions (meaning sublib needs lib)
                     splitted_path = path.split(os.path.sep)
 
