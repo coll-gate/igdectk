@@ -57,7 +57,9 @@ $(function() {
     });
 
     $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
-        console.log("ajaxError: " + jqXHR.statusText + " " + jqXHR.responseText);
+        if (jqXHR.statusText && jqXHR.responseText) {
+            console.log("ajaxError: " + jqXHR.statusText + " " + jqXHR.responseText);
+        }
 
         var data = jqXHR.responseJSON;
         if (data) {
