@@ -7,15 +7,18 @@ Simplest XML encoder.
 """
 
 import decimal
+import uuid
 
 from datetime import date, datetime
 
 from django.core import serializers
 from django.db.models.query import QuerySet
+from django.utils import six
 from django.db.models import Model
+from django.utils.functional import Promise
 
 
-class Encoder():
+class Encoder(object):
 
     """
     Simplest XML to object encoder.
@@ -36,6 +39,12 @@ class Encoder():
             result = obj.isoformat()
         elif isinstance(obj, decimal.Decimal):
             result = str(obj)
+        elif isinstance(obj, Promise):
+            result = six.text_type(obj)
+        elif isinstance(obj, uuid.UUID):
+            result = str(obj)
+        elif hasattr(obj, "__dict__"):
+            result = str(obj.__dict__)
         else:
             result = str(obj)
 

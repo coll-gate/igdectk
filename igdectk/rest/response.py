@@ -7,6 +7,7 @@ Usefull common responses.
 """
 
 import json
+import uuid
 
 from datetime import date, datetime
 
@@ -17,6 +18,8 @@ from django.db import models
 
 import decimal
 import igdectk.xmlio
+from django.utils import six
+from django.utils.functional import Promise
 
 from igdectk.rest import Format
 
@@ -41,15 +44,16 @@ class ComplexEncoder(json.JSONEncoder):
         elif isinstance(obj, datetime):
             return obj.isoformat()
         elif isinstance(obj, decimal.Decimal):
-            return float(obj)  # TODO as str or as float because of the double precision ?
+            return str(obj)
+        elif isinstance(obj, Promise):
+            return six.text_type(obj)
+        elif isinstance(obj, uuid.UUID):
+            return str(obj)
         elif hasattr(obj, "__dict__"):
             return obj.__dict__
-        elif hasattr(obj, "to_JSON"):
-            return obj.to_JSON()
         else:
             # Let the base class default method raise the TypeError
             return json.JSONEncoder.default(self, obj)
-
 
 def HttpResponseRest(request, data):
     """
