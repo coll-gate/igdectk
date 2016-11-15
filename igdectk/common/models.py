@@ -6,7 +6,7 @@
 Helper for enum choice to uses for a database field.
 """
 
-from enum import Enum, EnumMeta
+from enum import Enum
 
 
 class IntegerChoice(int):
@@ -27,7 +27,7 @@ class IntegerChoice(int):
 
     @property
     def pair(self):
-        return (self, self._label)
+        return self, self._label
 
 
 class StringChoice(str):
@@ -48,7 +48,7 @@ class StringChoice(str):
 
     @property
     def pair(self):
-        return (self, self._label)
+        return self, self._label
 
 
 class ChoiceEnum(Enum):
