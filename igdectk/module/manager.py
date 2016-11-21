@@ -74,6 +74,18 @@ class ModuleManager(object):
         """
         return self._modules
 
+    def get_module(self, module_name):
+        """
+        Get a specific module according to its unique name.
+        :param module_name: string
+        :return: A module or raise BadValue exception if not found
+        """
+        for module in self._modules:
+            if module.name == module_name:
+                return module
+
+        raise ValueError("Invalid module name")
+
 """
 Module manager singleton.
 """

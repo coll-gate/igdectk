@@ -1,5 +1,5 @@
 /**
- * @file alert.js
+ * @file helper.js
  * @brief Popover helper toolbox.
  * @author Frederic SCHERMA
  * @date 2016-01-26
@@ -72,7 +72,7 @@ function createHelper(object) {
         });
     }
 
-    // because popover button are manualy trigged we have to manage it
+    // because popover button are manually triggered we have to manage it
     if (helper_trigger == null) {
         elt.click(function(e) {
             $(".popover-dismiss").each(function(i) { if (this != e.target) $(this).popover('hide'); });
@@ -85,7 +85,7 @@ function createHelper(object) {
 // function on jQuery selectors
 (function($) {
     $.fn.updateProgressBar = function(min, max, value) {
-        this.each(function(){
+        this.each(function() {
             var percent = Math.min(((value-min) * 100 / Math.max(max, 1)) + min, 100);
             var el = $(this);
 
@@ -100,11 +100,20 @@ function createHelper(object) {
         });
     };
 
+    $.fn.makePopover = function() {
+        this.each(function() {
+            var el = $(this);
+
+            createHelper(el);
+
+            return el; // support chaining
+        })
+    };
 }( jQuery ));
 
 // common ready dom
 $(function() {
-    // initiate any helper tooltip
+    // initiate any helper tooltips
     $(".helper").each(function(i) {
         createHelper(this);
     });
@@ -114,5 +123,4 @@ $(function() {
         $(".popover-dismiss").popover('hide');
         return true;
     });
-
 });
