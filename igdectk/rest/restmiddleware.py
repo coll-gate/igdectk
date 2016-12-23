@@ -352,6 +352,10 @@ class RestMiddleware(object):
         if isinstance(exception, ViewExceptionRest):
             cause, code = exception.args
             error = "view_exception"
+        elif isinstance(exception, ValueError):
+            cause = exception.args[0]
+            code = 400
+            error = "value_error" if len(exception.args) < 2 else exception.args[1]
         elif isinstance(exception, SuspiciousOperation):
             cause = exception.args[0]
             code = 400
