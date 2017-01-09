@@ -331,7 +331,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
         # when no view is defined for the method, there is no decorator
         # to apply the format, so we have to look what client ask for
-        request.format = request.header.prefered_type
+        request.format = request.header.preferred_type
 
         raise ViewExceptionRest(
             'Undefined view for %s %s' % (request.path, request.method), 404)

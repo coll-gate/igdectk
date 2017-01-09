@@ -128,7 +128,7 @@ if django.VERSION[0] <= 1 and django.VERSION[1] <= 9:
             )
 
             # it is not defined at this level
-            request.format = request.header.prefered_type
+            request.format = request.header.preferred_type
 
             return RestMiddleware.format_response(request, reason, 403)
 
@@ -304,6 +304,6 @@ else:
             )
 
             # it is not defined at this level
-            request.format = request.header.prefered_type
+            request.format = request.header.preferred_type
 
             return RestMiddleware.format_response(request, reason, 403)

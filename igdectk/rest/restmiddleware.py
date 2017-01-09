@@ -141,9 +141,9 @@ class HttpHeader(object):
         return self._accepted_types
 
     @property
-    def prefered_type(self):
+    def preferred_type(self):
         """
-        Get the prefered media_type as Format enum.
+        Get the preferred media_type as Format enum.
         """
         # not cached
         if not self._accepted_types:
@@ -193,7 +193,7 @@ class HttpHeader(object):
         return self._accepted_laguage_codes
 
     @property
-    def prefered_language_code(self):
+    def preferred_language_code(self):
         # not cached
         if not self._accepted_language_codes:
             self._cache_http_accept_language()

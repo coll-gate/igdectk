@@ -58,7 +58,9 @@ $(function() {
 
     $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
         if (jqXHR.statusText && jqXHR.responseText) {
-            console.log("ajaxError: " + jqXHR.statusText + " " + jqXHR.responseText);
+            if (jqXHR.getResponseHeader('Content-Type') === "application/json") {
+                console.log("ajaxError: " + jqXHR.statusText + " " + jqXHR.responseText);
+            }
         }
 
         var data = jqXHR.responseJSON;
