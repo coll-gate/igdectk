@@ -21,27 +21,30 @@ function manualPopoverShow(object) {
  * @param  {Object} object dom element
  */
 function createHelper(object) {
-    var target = object;
     var elt = $(object);
     var helper_id = elt.attr("helper-id");
+    var helper_inline = elt.children('.helper-content');
     var helper_text = elt.attr("helper-text");
     var helper_title = elt.attr("helper-title");
     var helper_trigger = elt.attr("helper-trigger");
     var template = undefined;
 
-    if (helper_id || helper_text) {
+    if (helper_id || helper_text || helper_inline.length) {
         elt.addClass('btn');
-        elt.addClass('glyphicon');
-        elt.addClass('glyphicon-question-sign');
         elt.addClass('popover-dismiss')
+        elt.addClass('glyphicon glyphicon-question-sign');
         elt.attr('data-toggle', 'popover');
-        elt.css('top', '-8px');
-        elt.css('left', '2px');
-        elt.css('height', '16px');
-        elt.css('padding', '0px');
-        elt.css('padding-left', '1px');
-        elt.css('padding-right', '1px');
-        elt.css('border', '0px');
+
+        // not a css because element attribute (over btn style)
+        elt.css({
+            'top': '-8px',
+            'left': '2px',
+            'height': '16px',
+            'padding': '0px',
+            'padding-left': '1px',
+            'padding-right': '1px',
+            'border': '0px'
+        });
     } else if (helper_trigger) {
         elt.addClass('popover-dismiss');
         elt.attr('data-toggle', 'popover');
@@ -50,11 +53,21 @@ function createHelper(object) {
     if (elt.hasClass("helper-lg"))
         template = '<div class="popover popover-large"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'
 
-    if (helper_id) {
+    if (helper_inline.length) {
         elt.popover({
             html: true,
             placement: 'bottom',
-            container: 'body',
+            container: false,  //'body',
+            title: helper_title,
+            content: helper_inline.html(),
+            template: template,
+            trigger: 'manual'
+        });
+    } else if (helper_id) {
+        elt.popover({
+            html: true,
+            placement: 'bottom',
+            container: false,  //'body',
             title: helper_title,
             content: $('#' + helper_id).html(),
             template: template,
@@ -64,7 +77,7 @@ function createHelper(object) {
         elt.popover({
             html: false,
             placement: 'bottom',
-            container: 'body',
+            container: false,  // 'body',
             title: helper_title,
             content: helper_text,
             template: template,
@@ -75,7 +88,12 @@ function createHelper(object) {
     // because popover button are manually triggered we have to manage it
     if (helper_trigger == null) {
         elt.click(function(e) {
-            $(".popover-dismiss").each(function(i) { if (this != e.target) $(this).popover('hide'); });
+            $(".popover-dismiss").each(function(i) {
+                if (this != e.target) {
+                    $(this).popover('hide');
+                }
+            });
+
             $(this).popover('show');
             return false;
         });

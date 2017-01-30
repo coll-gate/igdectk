@@ -208,7 +208,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
     @classmethod
     def _register(cls, base, regex, name, app_name=None, urls='urls'):
         """
-        Internaly called by RestHandlerMeta on class definition
+        Internally called by RestHandlerMeta on class definition
         in way to create a new entry into the list of managed handlers.
         This list is finally manually inserted into each application urlpatterns
         calling register_urls.
