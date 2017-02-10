@@ -106,9 +106,13 @@ function createHelper(object) {
         this.each(function() {
             var percent = Math.min(((value-min) * 100 / Math.max(max, 1)) + min, 100);
             var el = $(this);
+            var progress = el.children('.progress-bar');
+            if (progress.length == 0) {
+                progress = el;
+            }
 
-            //el.attr({min:min, value:value, max:max});
-            el.css({width: percent + '%'}).attr({
+            //progress.attr({min:min, value:value, max:max});
+            progress.css({width: percent + '%'}).attr({
                 'aria-valuenow':min,
                 'aria-valuenow':value,
                 'aria-valuemax':max})
