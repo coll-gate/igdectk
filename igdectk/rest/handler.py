@@ -12,14 +12,13 @@ import validictory
 
 import logging
 
-from django.apps import apps
+from importlib import import_module
+
 from django.conf.urls import url
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
 
 import igdectk.xmlio
-
-from .restmiddleware import ViewExceptionRest
 
 from igdectk.rest import Format, Method
 from igdectk.common.helpers import *
@@ -31,7 +30,6 @@ logger = logging.getLogger(__name__)
 
 
 class RestRegistrationException(Exception):
-
     """
     Occurs during registration of a handler or a method
     into a REST handler.
@@ -41,7 +39,6 @@ class RestRegistrationException(Exception):
 
 
 class RestForm(object):
-
     """
     Rest handler to register a form with GET and POST method and HTML format.
 
@@ -75,7 +72,7 @@ class RestForm(object):
 
         It is permit to raise an exception here.
         """
-        pass
+        return True
 
     @classmethod
     def valid_form(cls, request, form):
@@ -87,7 +84,7 @@ class RestForm(object):
 
         It is permit to raise an exception here.
         """
-        pass
+        return True
 
     @classmethod
     def invalid_form(cls, request, form):
@@ -98,7 +95,7 @@ class RestForm(object):
 
         It is permit to raise an exception here.
         """
-        pass
+        return True
 
     @classmethod
     def _register_form(cls, handler):
@@ -157,7 +154,6 @@ class RestForm(object):
 
 
 class RestHandlerMeta(type):
-
     """
     Metaclass for :class:`RestHandler` used to automatize the registration of
     the handler.
@@ -172,9 +168,8 @@ class RestHandlerMeta(type):
 
 
 class RestHandler(object, metaclass=RestHandlerMeta):
-
     """
-    Manage RESTfull API with autogenenation and registration of urls.
+    Manage RESTfull API with auto-generation and registration of urls.
 
     :ivar str regex: Python regular expression of the URL. It is combined with its parent
         handler regex when using inheritance of handlers.
@@ -236,12 +231,12 @@ class RestHandler(object, metaclass=RestHandlerMeta):
         cls.application = apps.get_app_config(cls.app_name)
 
         # application urls
-        cls.urlsname = urls if urls else 'urls'
+        cls.urls_name = urls if urls else 'urls'
 
         try:
-            cls.urls = __import__(
-                '%s.%s' % (cls.application.module.__name__, cls.urlsname),
-                fromlist=['*'])
+            cls.urls = import_module(
+                '%s.%s' % (cls.application.module.__name__, cls.urls_name),
+            )
         except ImportError:
             raise
 
@@ -309,11 +304,11 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                                 sub = None
                                 break
 
-                # we have our candidat
+                # we have our candidate
                 if sub:
                     break
 
-            # if no candidat, try to use fallback
+            # if no candidate, try to use fallback
             if sub:
                 method = sub
             else:
@@ -358,7 +353,8 @@ class RestHandler(object, metaclass=RestHandlerMeta):
     @classmethod
     def include_main_url(cls, app_name=None, url_prefix=""):
         from django.conf.urls import include, url
-        import urls
+
+        urls = import_module("urls")
 
         if app_name:
             name = app_name
@@ -374,9 +370,9 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                              app_name=name)),
 
     @classmethod
-    def _register_wrapper(cls, wrapper, method, format, parameters, content, conditions):
+    def _register_wrapper(cls, wrapper, method, data_format, parameters, content, conditions):
         """
-        Internaly register a wrapper for a specific method and conditions.
+        Internally register a wrapper for a specific method and conditions.
         """
         # look for an existing similar entry
         if method.name in cls.methods:
@@ -394,15 +390,15 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                         raise RestRegistrationException(
                             "Duplicate entry for %s with %s" % (cls.__name__, wrapper.target_name))
 
-            cls.methods[method.name].append((wrapper, format, parameters, content, conditions))
+            cls.methods[method.name].append((wrapper, data_format, parameters, content, conditions))
         else:
-            cls.methods[method.name] = [(wrapper, format, parameters, content, conditions)]
+            cls.methods[method.name] = [(wrapper, data_format, parameters, content, conditions)]
 
     @staticmethod
-    def _make_conditions(format, parameters, kwargs):
+    def _make_conditions(data_format, parameters, kwargs):
         """
-        For requests decorator submethod creating the conditions
-        for a specific method, using optionals arguments dictionnary.
+        For requests decorator sub-method creating the conditions
+        for a specific method, using optionals arguments dictionary.
         This conditions list is a parameter for :meth:`_register_wrapper`.
         """
         # parse the url__ conditions
@@ -418,12 +414,12 @@ class RestHandler(object, metaclass=RestHandlerMeta):
             conditions.append((param, '', 'has'))
 
         # HTTP_ACCEPT must respect the format value
-        conditions.append((format.accept, '', 'accept'))
+        conditions.append((data_format.accept, '', 'accept'))
 
         return conditions
 
     @classmethod
-    def def_request(cls, method, format, parameters=(), content=(), **kwargs):
+    def def_request(cls, method, data_format, parameters=(), content=(), **kwargs):
         """
         Request function register and wrapper for non auth requests.
 
@@ -437,16 +433,16 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
         If it pass the test, the function will contains two news parameters :
             * method : from the decorator
-            * format : from the decorator
+            * data_format : from the decorator
 
         :param igdectk.rest.Method method: One of the Method value (GET, POST...) define the accepted method.
-        :param igdectk.rest.Format format: One of the Format value (JSON, HTML...) defines the format of the http response,
-            and the accepted value from HTTP_ACCEPT.
+        :param igdectk.rest.Format data_format: One of the Format value (JSON, HTML...) defines the format of the http
+            response, and the accepted value from HTTP_ACCEPT.
         :param list parameters: A list of strings or an empty list, containing the names of the
             mandatory parameters requested in the URL.
-        :param list(str) list: A list of strings or an empty list, containing the names of the
-            mandatory parameters requested in the body.
-        :param string conditions: The next parameters if theirs names starts with a 'url__' will
+        :param list(str) content: A list of strings or an empty list, containing the names of the
+            mandatory parameters requested in the body, or validictory object.
+        :param string kwargs: The next parameters if theirs names starts with a 'url__' will
             be used as condition expression for the url parameters.
 
             For example, having url__action='save' mean that the url must
@@ -454,7 +450,6 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
             This is useful to have many action for a same HTTP method.
             It is possible to have many 'url__' conditions.
-
 
         .. note::
 
@@ -467,7 +462,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 request = args[0]
 
                 # add the parameters to the request
-                request.format = format
+                request.format = data_format
                 request.parameters = parameters
 
                 # check for the existence of the values into the encoded body
@@ -485,18 +480,18 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 return func(*args, **kwargs)
 
             # target conditions
-            conditions = RestHandler._make_conditions(format, parameters, kwargs)
+            conditions = RestHandler._make_conditions(data_format, parameters, kwargs)
 
             # register the wrapper
             wrapper.target_name = func.__module__ + '.' + func.__qualname__
-            cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
+            cls._register_wrapper(wrapper, method, data_format, parameters, content, conditions)
 
             return wrapper
 
         return decorator
 
     @classmethod
-    def def_auth_request(cls, method, format, parameters=(), content=(), fallback=None, perms=None, staff=None, **kwargs):
+    def def_auth_request(cls, method, data_format, parameters=(), content=(), fallback=None, perms=None, staff=None, **kwargs):
         """
         Same as :meth:`def_request` but in addition the user must be authenticated.
 
@@ -508,7 +503,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 request = args[0]
 
                 # add the parameters to the request
-                request.format = format
+                request.format = data_format
                 request.parameters = parameters
 
                 # check for user authentication
@@ -544,18 +539,18 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 return func(*args, **kwargs)
 
             # target conditions
-            conditions = RestHandler._make_conditions(format, parameters, kwargs)
+            conditions = RestHandler._make_conditions(data_format, parameters, kwargs)
 
             # register the wrapper
             wrapper.target_name = func.__module__ + '.' + func.__qualname__
-            cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
+            cls._register_wrapper(wrapper, method, data_format, parameters, content, conditions)
 
             return wrapper
 
         return decorator
 
     @classmethod
-    def def_admin_request(cls, method, format, parameters=(), content=(), fallback=None, **kwargs):
+    def def_admin_request(cls, method, data_format, parameters=(), content=(), fallback=None, **kwargs):
         """
         Same as :meth:`def_request` but in addition the user must be authenticated
         and superuser.
@@ -568,7 +563,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 request = args[0]
 
                 # add the parameters to the request
-                request.format = format
+                request.format = data_format
                 request.parameters = parameters
 
                 # check for user authentication
@@ -599,11 +594,11 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 return func(*args, **kwargs)
 
             # target conditions
-            conditions = RestHandler._make_conditions(format, parameters, kwargs)
+            conditions = RestHandler._make_conditions(data_format, parameters, kwargs)
 
             # register the wrapper
             wrapper.target_name = func.__module__ + '.' + func.__qualname__
-            cls._register_wrapper(wrapper, method, format, parameters, content, conditions)
+            cls._register_wrapper(wrapper, method, data_format, parameters, content, conditions)
 
             return wrapper
 
@@ -619,7 +614,7 @@ class InlineRestHandler(object):
         self.version = version
 
 
-def def_inline_request(inline_handler, method, format, parameters=(), content=(), **kwargs):
+def def_inline_request(inline_handler, method, data_format, parameters=(), content=(), **kwargs):
     """
     Request function register and wrapper for non auth requests.
 
@@ -633,16 +628,16 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
 
     If it pass the test, the function will contains two news parameters :
         * method : from the decorator
-        * format : from the decorator
+        * data_format : from the decorator
 
     :param igdectk.rest.Method method: One of the Method value (GET, POST...) define the accepted method.
-    :param igdectk.rest.Format format: One of the Format value (JSON, HTML...) defines the format of the http response,
-        and the accepted value from HTTP_ACCEPT.
+    :param igdectk.rest.Format data_format: One of the Format value (JSON, HTML...) defines the format of the http
+        response, and the accepted value from HTTP_ACCEPT.
     :param list parameters: A list of strings or an empty list, containing the names of the
         mandatory parameters requested in the URL.
-    :param list(str) list: A list of strings or an empty list, containing the names of the
-        mandatory parameters requested in the body.
-    :param string conditions: The next parameters if theirs names starts with a 'url__' will
+    :param list(str) content: A list of strings or an empty list, containing the names of the
+        mandatory parameters requested in the body, or validictory object.
+    :param string kwargs: The next parameters if theirs names starts with a 'url__' will
         be used as condition expression for the url parameters.
 
         For example, having url__action='save' mean that the url must
@@ -662,7 +657,7 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
             request = args[0]
 
             # add the parameters to the request
-            request.format = format
+            request.format = data_format
             request.parameters = parameters
 
             # check for the existence of the values into the encoded body
@@ -686,25 +681,26 @@ def def_inline_request(inline_handler, method, format, parameters=(), content=()
         else:
             _app_name = func.__module__.split('.')[0]
 
-        class InlineRestHandler(RestHandler):
+        class _InlineRestHandler(RestHandler):
             version = inline_handler.version
             regex = inline_handler.regex
             name = inline_handler.name
             app_name = _app_name
 
         # target conditions
-        conditions = RestHandler._make_conditions(format, parameters, kwargs)
+        conditions = RestHandler._make_conditions(data_format, parameters, kwargs)
 
         # register the wrapper
         wrapper.target_name = func.__module__ + '.' + func.__qualname__
-        InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, conditions)
+        _InlineRestHandler._register_wrapper(wrapper, method, data_format, parameters, content, conditions)
 
         return wrapper
 
     return decorator
 
 
-def def_inline_auth_request(inline_handler, method, format, parameters=(), content=(), fallback=None, perms=None, staff=None, **kwargs):
+def def_inline_auth_request(
+        inline_handler, method, data_format, parameters=(), content=(), fallback=None, perms=None, staff=None, **kwargs):
     """
     Same as :func:`def_inline_request` but in addition the user must be authenticated.
 
@@ -715,7 +711,7 @@ def def_inline_auth_request(inline_handler, method, format, parameters=(), conte
             request = args[0]
 
             # add the parameters to the request
-            request.format = format
+            request.format = data_format
             request.parameters = parameters
 
             # check for user authentication
@@ -756,25 +752,25 @@ def def_inline_auth_request(inline_handler, method, format, parameters=(), conte
         else:
             _app_name = func.__module__.split('.')[0]
 
-        class InlineRestHandler(RestHandler):
+        class _InlineRestHandler(RestHandler):
             version = inline_handler.version
             regex = inline_handler.regex
             name = inline_handler.name
             app_name = _app_name
 
         # target conditions
-        conditions = RestHandler._make_conditions(format, parameters, kwargs)
+        conditions = RestHandler._make_conditions(data_format, parameters, kwargs)
 
         # register the wrapper
         wrapper.target_name = func.__module__ + '.' + func.__qualname__
-        InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, conditions)
+        _InlineRestHandler._register_wrapper(wrapper, method, data_format, parameters, content, conditions)
 
         return wrapper
 
     return decorator
 
 
-def def_inline_admin_request(inline_handler, method, format, parameters=(), content=(), fallback=None, **kwargs):
+def def_inline_admin_request(inline_handler, method, data_format, parameters=(), content=(), fallback=None, **kwargs):
     """
     Same as :meth:`def_inline_request` but in addition the user must be authenticated.
 
@@ -785,7 +781,7 @@ def def_inline_admin_request(inline_handler, method, format, parameters=(), cont
             request = args[0]
 
             # add the parameters to the request
-            request.format = format
+            request.format = data_format
             request.parameters = parameters
 
             # check for user authentication
@@ -821,18 +817,18 @@ def def_inline_admin_request(inline_handler, method, format, parameters=(), cont
         else:
             _app_name = func.__module__.split('.')[0]
 
-        class InlineRestHandler(RestHandler):
+        class _InlineRestHandler(RestHandler):
             version = inline_handler.version
             regex = inline_handler.regex
             name = inline_handler.name
             app_name = _app_name
 
         # target conditions
-        conditions = RestHandler._make_conditions(format, parameters, kwargs)
+        conditions = RestHandler._make_conditions(data_format, parameters, kwargs)
 
         # register the wrapper
         wrapper.target_name = func.__module__ + '.' + func.__qualname__
-        InlineRestHandler._register_wrapper(wrapper, method, format, parameters, content, conditions)
+        _InlineRestHandler._register_wrapper(wrapper, method, data_format, parameters, content, conditions)
 
         return wrapper
 

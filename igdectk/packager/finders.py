@@ -3,8 +3,10 @@
 # Copyright (c) 2014 INRA UMR1095 GDEC
 
 """
-Django app data finder for packagers (jquery, boostrap...)
+Django app data finder for packagers (jquery, bootstrap...)
 """
+
+from importlib import import_module
 
 from django.contrib.staticfiles.finders import *
 
@@ -44,7 +46,7 @@ class AppDirectoriesFinder(BaseFinder):
         self.installed_packagers = []
 
         for app in installed_apps:
-            module = __import__(app, fromlist=['*'])
+            module = import_module(app)
             if hasattr(module, 'PACKAGER'):
                 self.installed_packagers.append(getattr(module, 'PACKAGER'))
 

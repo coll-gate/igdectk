@@ -3,7 +3,7 @@
 # Copyright (c) 2015 INRA UMR1095 GDEC
 
 """
-Usefull common helpers.
+Useful common helpers.
 """
 
 from django.apps import apps
@@ -52,7 +52,7 @@ def bool_arg(v):
     """
     Check if v is a boolean string (true|false).
 
-    :param string: Potential boolean to check
+    :param str v : Potential boolean to check
 
     :return: True or False
     :rtype: boolean
@@ -64,7 +64,7 @@ def bool_arg(v):
         elif val == 'false':
             return False
         else:
-            raise
+            raise ValueError('Boolean value must be "true" or "false"')
     except:
         raise ViewExceptionRest(
             'Invalid argument format. %s must be a boolean string (true|false).' %

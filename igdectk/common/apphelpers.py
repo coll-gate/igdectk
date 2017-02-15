@@ -9,6 +9,8 @@ Application startup process around django.apps.AppConfig.
 import os
 import logging
 
+from importlib import import_module
+
 from django.conf import settings
 from django.apps import AppConfig
 
@@ -22,7 +24,7 @@ __author__ = "Frédéric Scherma"
 logger = logging.getLogger(__name__)
 
 
-def startup(appconfig, logger):
+def startup(appconfig, app_logger):
     """
     Helper function called by :class:`ApplicationMain` on ready.
 
@@ -32,26 +34,25 @@ def startup(appconfig, logger):
 
     Later any other generic application startup processing will goes here.
     """
-    logger.info("'%s' application started into process %i..." % (appconfig.verbose_name, os.getpid()))
+    app_logger.info("'%s' application started into process %i..." % (appconfig.verbose_name, os.getpid()))
 
     if not appconfig.settings_model:
         appconfig.settings_table = None
         appconfig.settings_table_name = ''
         return
 
-    logger.info("> Looking for the model settings '%s'..." % (appconfig.settings_model,))
+    app_logger.info("> Looking for the model settings '%s'..." % (appconfig.settings_model,))
 
     # first we look for the settings table
     from django.db import connection
 
-    module = __import__(
-        '.'.join(appconfig.settings_model.split('.')[0:-1]),
-        fromlist=[appconfig.settings_model.split('.')[-1]])
+    module_name, settings_class = appconfig.settings_model.rsplit('.', 1)
+    module = import_module(module_name)
 
-    appconfig.settings_table = getattr(module, appconfig.settings_model.split('.')[-1])
+    appconfig.settings_table = getattr(module, settings_class)
     appconfig.settings_table_name = appconfig.settings_table._meta.db_table
 
-    logger.info("> Validate defaults settings :")
+    app_logger.info("> Validate defaults settings :")
 
     if appconfig.settings_table_name in connection.introspection.table_names():
         # check or init default and mandatory settings
@@ -66,10 +67,10 @@ def startup(appconfig, logger):
                 try:
                     value_str = str(appconfig.default_settings[k])
                 except TypeError:
-                    logger.fatal('Unable to eval %s' % (k,))
+                    app_logger.fatal('Unable to eval %s' % (k,))
                     raise
 
-                logger.info("    %s = %s (inserted with default)" % (k, value_str))
+                app_logger.info("    %s = %s (inserted with default)" % (k, value_str))
 
             elif obj[0].value is None or not obj[0].value:
                 obj[0].value = appconfig.default_settings[k]
@@ -78,24 +79,25 @@ def startup(appconfig, logger):
                 try:
                     value_str = str(obj[0].value)
                 except TypeError:
-                    logger.fatal('Unable to eval %s' % (obj[0].param_name,))
+                    app_logger.fatal('Unable to eval %s' % (obj[0].param_name,))
                     raise
 
-                logger.info(
+                app_logger.info(
                     "    %s = %s (update to default)" % (
                         obj[0].param_name, value_str))
             else:
                 try:
                     value_str = str(obj[0].value)
                 except TypeError:
-                    logger.fatal('Unable to eval %s' % (obj[0].param_name,))
+                    app_logger.fatal('Unable to eval %s' % (obj[0].param_name,))
                     raise
 
-                logger.info("    %s = %s (found)" % (obj[0].param_name, value_str))
+                app_logger.info("    %s = %s (found)" % (obj[0].param_name, value_str))
 
-        logger.info("> All checks passes. Now running...")
+        app_logger.info("> All checks passes. Now running...")
     else:
-        logger.warning("'%s' table does not exists (maybee you should apply the database migrations)" % (appconfig.settings_table_name,))
+        app_logger.warning("'%s' table does not exists (maybe you should apply the database migrations)" % (
+            appconfig.settings_table_name,))
 
 
 def get_app_db_settings(app_short_name):
@@ -169,14 +171,23 @@ class ApplicationMain(AppConfig):
     def __init__(self, app_name, app_module):
         super(ApplicationMain, self).__init__(app_name, app_module)
 
+        self.appsettings = None
+        self.verbose_name = self.name
+        self.default_settings = {}
+        self.settings_model = self.name + '.models.Settings'
+        self.settings_table = None
+        self.settings_table_name = ''
+        self.http_template_string = self.name + '/%s.html'
+        self.version = (0, 1)
+        self.logger = logging.getLogger(self.name)
+
     def ready(self):
         """
         Called by Django application manager when the application is loaded.
         """
 
         # application settings
-        self.appsettings = __import__(
-            '%s.appsettings' % self.module.__name__, fromlist=['*'])
+        self.appsettings = import_module('%s.appsettings' % self.module.__name__)
 
         # load the application settings
         self.verbose_name = (

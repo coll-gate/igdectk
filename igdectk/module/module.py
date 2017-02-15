@@ -109,6 +109,9 @@ class Module(object):
         from igdectk.rest.handler import RestHandler
         RestHandler.include_main_url(self.name, self.base_url)
 
-        __import__(self.name, fromlist=modules)
+        # an exception is raised if a module doesn't exists
+        from importlib import import_module
+        for module in modules:
+            import_module("%s.%s" % (self.name, module))
 
         RestHandler.register_urls()

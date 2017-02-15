@@ -11,6 +11,8 @@ packages and which version even at css templates level.
 import os
 import re
 
+from importlib import import_module
+
 from django.conf import settings
 from django.template.base import Template
 
@@ -29,7 +31,7 @@ def get_apps_list():
 def get_templates_list(application):
     result = []
 
-    app_module = __import__(application, fromlist=['*'])
+    app_module = import_module(application)
 
     app_abspath = app_module.__path__[0]
 
