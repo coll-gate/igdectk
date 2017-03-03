@@ -71,10 +71,20 @@ class Module(object):
     """
 
     def __init__(self, name, verbose_name="", base_url=""):
+        # module name
         self.name = name
+
+        # module verbose name
         self.verbose_name = verbose_name
+
+        # list of registered menus
         self.menus = []
+
+        # prefix for URLs
         self.base_url = base_url
+
+        # client side module (default is True)
+        self.client_export = True
 
     def merge_menu(self, org, menu):
         for entry in menu.entries:
@@ -115,3 +125,6 @@ class Module(object):
             import_module("%s.%s" % (self.name, module))
 
         RestHandler.register_urls()
+
+    def has_client(self):
+        return self.client_export

@@ -106,7 +106,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['validictory', 'ldap3', 'unidecode', 'django'],
+    install_requires=['validictory', 'ldap3', 'django'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

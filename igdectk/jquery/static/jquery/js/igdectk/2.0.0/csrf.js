@@ -43,6 +43,8 @@ function csrfSafeMethod(method) {
 // common ready dom
 $(function() {
 
+    window.ajaxCount = 0;
+
     //
     // AJAX configuration for CSRF protection
     //

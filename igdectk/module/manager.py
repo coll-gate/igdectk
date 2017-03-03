@@ -20,6 +20,13 @@ class ModuleManager(object):
         self._modules = []
         self._menus = []
 
+    def register_module(self, module):
+        """
+        Register a module and its menu.
+        :param module: A valid module instance
+        """
+        self.register_menu(module)
+
     def register_menu(self, module):
         """
         Register the menu for a specific module.
