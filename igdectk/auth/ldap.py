@@ -176,19 +176,19 @@ class LdapAuthenticationBackend(ModelBackend):
             srv = ldap3.Server(settings.LDAPS['default']['HOST'])
             conn = ldap3.Connection(
                 srv,
-                authentication=ldap3.AUTH_SIMPLE,
+                authentication=ldap3.SIMPLE,
                 user=user_dn,
                 password=password,
                 check_names=True,
                 lazy=False,
-                client_strategy=ldap3.STRATEGY_SYNC,
+                client_strategy=ldap3.SYNC,
                 raise_exceptions=True)
 
             conn.open()
             conn.bind()
         except ldap3.core.exceptions.LDAPInvalidCredentialsResult:
             return None
-        except Exception:
+        except ldap3.core.exceptions.LDAPException:
             return None
 
         return user
