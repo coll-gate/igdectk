@@ -55,7 +55,7 @@ $.alert.message = function(style, msg) {
 
     message.on("click", function () { $(this).remove(); });
 
-    message.attr('class', $.alert.config.className + ' fade in' + ' alert-' + style)
+    message.attr('class', $.alert.config.className + ' fade in' + ' alert-' + style);
     var button = $('<button></button>')
         .attr("class", "close")
         .attr("data-dismiss", "alert")

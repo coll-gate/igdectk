@@ -96,6 +96,10 @@ def startup(appconfig, app_logger):
 
         app_logger.info("> All checks passes. Now running...")
     else:
+        # not yet configured
+        appconfig.settings_table = None
+        appconfig.settings_table_name = ''
+
         app_logger.warning("'%s' table does not exists (maybe you should apply the database migrations)" % (
             appconfig.settings_table_name,))
 
@@ -249,4 +253,3 @@ class ApplicationMain(AppConfig):
             return eval_expr(setting[0].value)
         else:
             raise ViewExceptionRest('Bad configuration.', 500)
-            # return None
