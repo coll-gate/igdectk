@@ -137,6 +137,31 @@ function createHelper(object) {
             return el; // support chaining
         })
     };
+
+    /**
+     * Swap to elements.
+     * @param to Destination of the selected element
+     * @returns Element
+     */
+    $.fn.swapWith = function(to) {
+        return this.each(function() {
+            // var copyTo = $(to).clone(true);
+            // var copyFrom = $(this).clone(true);
+            // $(to).replaceWith(copyFrom);
+            // $(this).replaceWith(copyTo);
+
+            var parent1, next1,
+            parent2, next2;
+
+            parent1 = this.parentNode;
+            next1   = this.nextSibling;
+            parent2 = to[0].parentNode;
+            next2   = to[0].nextSibling;
+
+            parent1.insertBefore(to[0], next1);
+            parent2.insertBefore(this, next2);
+        });
+    };
 }( jQuery ));
 
 // common ready dom
