@@ -12,7 +12,12 @@
  * @param  {Object} object selection
  */
 function manualPopoverShow(object) {
-    $(".popover-dismiss").each(function(i) { if (this != object[0]) $(this).popover('hide'); });
+    $(".popover-dismiss").each(function(i) {
+        if (this !== object[0]) {
+            $(this).popover('hide');
+        }
+    });
+
     object.popover('show');
 }
 
@@ -107,16 +112,17 @@ function createHelper(object) {
             var percent = Math.min(((value-min) * 100 / Math.max(max, 1)) + min, 100);
             var el = $(this);
             var progress = el.children('.progress-bar');
-            if (progress.length == 0) {
+
+            if (progress.length === 0) {
                 progress = el;
             }
 
             //progress.attr({min:min, value:value, max:max});
             progress.css({width: percent + '%'}).attr({
-                'aria-valuenow':min,
-                'aria-valuenow':value,
-                'aria-valuemax':max})
-                    .html(percent + '%');
+                'aria-valuenow': min,
+                'aria-valuenow': value,
+                'aria-valuemax': max
+            }).html(percent + '%');
 
             return el; // support chaining
         });
@@ -141,7 +147,7 @@ $(function() {
     });
 
     // clicking outside of the button hide popover
-    $('html').click(function(e) {
+    $('body').click(function(e) {
         $(".popover-dismiss").popover('hide');
         return true;
     });

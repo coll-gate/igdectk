@@ -25,7 +25,7 @@ DEFAULT_PROPERTIES = {
     },
     'select2': {
         'js': 'select2.min.js', 'css': 'select2.css', 'default_version': '3.5.4', 'versions': ('3.5.1', '3.5.4', '4.0.3'),
-        '.bootstrap': {'js': '', 'css': 'select2-bootstrap.css', 'default_version': '3.5.4', 'versions': ('3.5.1', '3.5.4')},
+        '.bootstrap': {'js': '', 'css': 'select2-bootstrap.css', 'default_version': '3.5.4', 'versions': ('3.5.1', '3.5.4', '4.0.3')},
         '.fr': {'js': 'i18n/fr.js', 'css': '', 'default_version': '4.0.3', 'versions': ('4.0.3',)},
         '.en': {'js': 'i18n/en.js', 'css': '', 'default_version': '4.0.3', 'versions': ('4.0.3',)},
     },
