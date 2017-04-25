@@ -14,21 +14,21 @@
  * Messages are display into the configured container alert.container as jquery element.
  *
  * config.container: jquery element (default is body)
- * config.className: class name for a message (default is alert)
+ * config.className: class name for a message (default is igdectk-alert)
  * config.delay: auto-close delay in milliseconds (0 for infinite) (default is 2000ms)
  */
 $.alert = function(config) {
     config = config || {};
 
-    if(typeof config.container == "undefined") {
+    if(typeof config.container === "undefined") {
         config.container = $("body");
     }
 
-    if(typeof config.className == "undefined") {
-        config.className = "alert";
+    if(typeof config.className === "undefined") {
+        config.className = "igdectk-alert";
     }
 
-    if(typeof config.delay == "undefined") {
+    if(typeof config.delay === "undefined") {
         config.delay = 2000;
     }
 
@@ -55,7 +55,7 @@ $.alert.message = function(style, msg) {
 
     message.on("click", function () { $(this).remove(); });
 
-    message.attr('class', $.alert.config.className + ' fade in' + ' alert-' + style);
+    message.attr('class', $.alert.config.className + ' alert fade in' + ' alert-' + style);
     var button = $('<button></button>')
         .attr("class", "close")
         .attr("data-dismiss", "alert")
@@ -65,17 +65,17 @@ $.alert.message = function(style, msg) {
     message.append(button);
 
     if (style === "info" || style === "success") {
-        // auto hide after 1sec
-        message.hide().fadeIn(200).delay($.alert.config.delay).fadeOut(1000, function () { $(this).remove(); });
+        // auto hide after delay
+        message.hide().fadeIn(200).delay($.alert.config.delay).fadeOut(200, function () { $(this).remove(); });
     } else if (style === "warning") {
-        // auto hide after 2sec
-        message.hide().fadeIn(200).delay($.alert.config.delay).fadeOut(2000, function () { $(this).remove(); });
+        // auto hide after delay
+        message.hide().fadeIn(200).delay($.alert.config.delay).fadeOut(200, function () { $(this).remove(); });
     } else if (style === "danger") {
         // no auto hide
-        message.hide().fadeIn(200).delay($.alert.config.delay);
+        message.hide().fadeIn(200);
     } else {
         // no auto hide
-        message.hide().fadeIn(200).delay($.alert.config.delay);
+        message.hide().fadeIn(200);
     }
 };
 
@@ -109,7 +109,7 @@ $.alert.success = function(msg) {
 
 // clicking outside of the alert hide it
 $('body').click(function(e) {
-    $(".alert").remove();
+    $("." + $.alert.config.className).remove();
     return true;
 });
 
