@@ -1,17 +1,16 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-Useful common helpers.
-"""
+# @file evaluator.py
+# @brief Useful common helpers.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-04-13
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 from django.apps import apps
 
 from igdectk.rest.restmiddleware import ViewExceptionRest
-
-__date__ = "2015-04-13"
-__author__ = "Frédéric Scherma"
 
 
 def get_setting(app_name, param_name):

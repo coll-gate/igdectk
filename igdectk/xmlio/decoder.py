@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-Simplest XML decoder.
-"""
+# @file decoder.py
+# @brief Simplest XML decoder.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-03-10
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 import xml.etree.cElementTree as etree
 

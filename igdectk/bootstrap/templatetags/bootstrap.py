@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-Boostrap Django integrator with template tag.
-"""
+# @file glyph.py
+# @brief Boostrap Django integrator with template tag.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-04-13
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 from django.core.exceptions import ImproperlyConfigured
 from django.template import TemplateSyntaxError, Variable, Library

@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-rest sub-package init. Contains common enums.
-"""
+# @file __init__.py
+# @brief rest sub-package init. Contains common enums.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-02-10
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 from enum import Enum
 

@@ -1,10 +1,11 @@
 /**
  * @file alert.js
  * @brief Common utils based on JQuery
- * @author Frederic SCHERMA
+ * @author Frederic SCHERMA (INRA UMR1095)
  * @date 2016-01-26
- * @copyright Copyright (c) 2016 INRA UMR1095 GDEC
- * @license @todo
+ * @copyright Copyright (c) 2016 INRA UMR1095
+ * @license MIT (see LICENSE file)
+ * @details
  */
 
 /**

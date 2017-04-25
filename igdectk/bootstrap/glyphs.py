@@ -1,10 +1,13 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2016 INRA UMR1095 GDEC
+# @file glyph.py
+# @brief bootstrap glyphs enums.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-04-13
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details
 
-"""
-bootstrap glyphs enums
-"""
 from enum import Enum
 
 

@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-Usefull common responses.
-"""
+# @file response.py
+# @brief Usefull common responses.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-04-13
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 import json
 import uuid

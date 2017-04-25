@@ -1,10 +1,10 @@
 /**
  * @file alert.js
  * @brief Defines helpers for manipulate info and alert dialogs
- * @author Frederic SCHERMA
+ * @author Frederic SCHERMA (INRA UMR1095)
  * @date 2016-09-09
- * @copyright Copyright (c) 2016 INRA UMR1095 GDEC
- * @license @todo
+ * @copyright Copyright (c) 2016 INRA UMR1095
+ * @license MIT (see LICENSE file)
  * @details An alert is defined with the @em alert class.
  */
 
@@ -64,7 +64,19 @@ $.alert.message = function(style, msg) {
 
     message.append(button);
 
-    message.hide().fadeIn(200).delay($.alert.config.delay).fadeOut(1000, function () { $(this).remove(); });
+    if (style === "info" || style === "success") {
+        // auto hide after 1sec
+        message.hide().fadeIn(200).delay($.alert.config.delay).fadeOut(1000, function () { $(this).remove(); });
+    } else if (style === "warning") {
+        // auto hide after 2sec
+        message.hide().fadeIn(200).delay($.alert.config.delay).fadeOut(2000, function () { $(this).remove(); });
+    } else if (style === "danger") {
+        // no auto hide
+        message.hide().fadeIn(200).delay($.alert.config.delay);
+    } else {
+        // no auto hide
+        message.hide().fadeIn(200).delay($.alert.config.delay);
+    }
 };
 
 /**
@@ -94,5 +106,11 @@ $.alert.info = function(msg) {
 $.alert.success = function(msg) {
     this.message("success", msg);
 };
+
+// clicking outside of the alert hide it
+$('body').click(function(e) {
+    $(".alert").remove();
+    return true;
+});
 
 })(jQuery);

@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-JQuery Django integrator with template tag.
-"""
+# @file jquery.py
+# @brief JQuery Django integrator with template tag.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-07-09
+# @copyright Copyright (c) 2017 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 from django.core.exceptions import ImproperlyConfigured
 from django.template import TemplateSyntaxError, Variable, Library

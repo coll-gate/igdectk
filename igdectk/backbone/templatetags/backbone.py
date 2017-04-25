@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2016 INRA UMR1095 GDEC
-
-"""
-Backbone Django integrator with template tag.
-"""
+# @file backbone.py
+# @brief Backbone Django integrator with template tag.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2016-02-03
+# @copyright Copyright (c) 2016 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 from django.core.exceptions import ImproperlyConfigured
 from django.template import TemplateSyntaxError, Variable, Library

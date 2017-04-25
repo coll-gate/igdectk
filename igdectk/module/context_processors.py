@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2016 INRA UMR1095 GDEC
-
-"""
-Context processor to insert the module context to each view.
-"""
+# @file context_processors.py
+# @brief Context processor to insert the module context to each view.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2016-02-03
+# @copyright Copyright (c) 2016 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 from .manager import module_manager
 

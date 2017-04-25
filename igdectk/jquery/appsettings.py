@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-JQuery sub-module/Django-application settings
-"""
+# @file appsettings.py
+# @brief JQuery sub-module/Django-application settings.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-07-09
+# @copyright Copyright (c) 2017 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 APP_VERBOSE_NAME = "igdectk.jquery"
 

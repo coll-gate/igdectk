@@ -1,14 +1,15 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-Middleware thats manage common view errors.
-The middleware decorate the request with a format (HTML by default),
-and by a list of URL parameters.
-When a view is decorated by def_request or def_auth_request,
-this modify the data attached to the request and the format.
-"""
+# @file restmiddleware.py
+# @brief REST django middleware.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-04-13
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details Middleware thats manage common view errors.
+# The middleware decorate the request with a format (HTML by default), and by a list of URL parameters.
+# When a view is decorated by def_request or def_auth_request,
+# this modify the data attached to the request and the format.
 
 import json
 import logging
@@ -30,10 +31,6 @@ import igdectk.xmlio
 from igdectk.rest.response import ComplexEncoder
 
 from . import Format
-
-__date__ = "2015-04-13"
-__author__ = "Frédéric Scherma"
-
 
 logger = logging.getLogger(__name__)
 

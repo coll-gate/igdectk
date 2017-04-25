@@ -1,10 +1,11 @@
 /**
  * @file csrf.js
  * @brief Utils for CSRF.
- * @author Frederic SCHERMA
- * @date 2016-01-26
- * @copyright Copyright (c) 2016 INRA UMR1095 GDEC
- * @license @todo
+ * @author Frederic SCHERMA (INRA UMR1095)
+ * @date 2016-07-04
+ * @copyright Copyright (c) 2016 INRA UMR1095
+ * @license MIT (see LICENSE file)
+ * @details
  */
 
 /**

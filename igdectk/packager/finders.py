@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2014 INRA UMR1095 GDEC
-
-"""
-Django app data finder for packagers (jquery, bootstrap...)
-"""
+# @file finders.py
+# @brief Django app data finder for packagers (jquery, bootstrap...).
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2014-06-03
+# @copyright Copyright (c) 2014 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 from importlib import import_module
 

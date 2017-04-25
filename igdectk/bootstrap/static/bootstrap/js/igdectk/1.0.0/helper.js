@@ -3,8 +3,9 @@
  * @brief Popover helper toolbox.
  * @author Frederic SCHERMA
  * @date 2016-01-26
- * @copyright Copyright (c) 2016 INRA UMR1095 GDEC
- * @license @todo
+ * @copyright Copyright (c) 2016 INRA UMR1095
+ * @license MIT (see LICENSE file)
+ * @details
  */
 
 /**

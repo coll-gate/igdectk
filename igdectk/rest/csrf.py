@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-Advanced CSRF middleware for django.
-"""
+# @file csrf.py
+# @brief Advanced CSRF middleware for django..
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-04-13
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 from __future__ import unicode_literals
 
@@ -25,9 +27,6 @@ from django.utils import http
 from django.utils.http import is_same_domain
 
 from igdectk.rest.restmiddleware import RestMiddleware
-
-__date__ = "2015-04-13"
-__author__ = "Frédéric Scherma"
 
 """
 This version make the CSRF token rotate, but since Django 1.10 this is no longer necessary because

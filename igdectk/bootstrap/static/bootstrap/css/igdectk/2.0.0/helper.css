@@ -1,3 +1,13 @@
+/**
+ * @file helper.css
+ * @brief
+ * @author Frederic SCHERMA (INRA UMR1095)
+ * @date 2016-09-09
+ * @copyright Copyright (c) 2016 INRA UMR1095
+ * @license MIT (see LICENSE file)
+ * @details
+ */
+
 .btn-file {
     position: relative;
     overflow: hidden;

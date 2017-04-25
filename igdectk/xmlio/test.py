@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-xml sub-package unit tests.
-"""
+# @file test.py
+# @brief xml sub-package unit tests.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-03-10
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 import unittest
 

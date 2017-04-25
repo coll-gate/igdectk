@@ -1,13 +1,15 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-init of the igdectk package.
-"""
+# @file __init__.py
+# @brief init of the igdectk package.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-03-10
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 __title__ = 'INRA GDEC Toolkit'
-__copyright__ = "Copyright (c) 2015-2017 INRA UMR1095 GDEC"
+__copyright__ = "Copyright (c) 2015-2017 INRA UMR1095"
 __organisation__ = "INRA"
 __date__ = "2015-04-13"
 __author__ = "Frédéric Scherma"

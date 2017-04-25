@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2014 INRA UMR1095 GDEC
-
-"""
-Django Bootstrap application main
-"""
+# @file apps.py
+# @brief Django Bootstrap application main.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-04-13
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 from igdectk.packager.apphelpers import PackagerApplicationMain
 

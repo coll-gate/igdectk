@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-Application startup process around django.apps.AppConfig.
-"""
+# @file apphelpers.py
+# @brief Application startup process around django.apps.AppConfig.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-04-13
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 import os
 import logging
@@ -17,9 +19,6 @@ from django.apps import AppConfig
 from igdectk.rest.restmiddleware import ViewExceptionRest
 
 from .evaluator import eval_expr
-
-__date__ = "2015-04-13"
-__author__ = "Frédéric Scherma"
 
 logger = logging.getLogger(__name__)
 

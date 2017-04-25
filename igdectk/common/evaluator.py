@@ -1,18 +1,15 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-Python expression safe evaluator, supporting basic mathematics and
-booleans operators.
-"""
+# @file evaluator.py
+# @brief Python expression safe evaluator.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-04-13
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details Python expression safe evaluator, supporting basic mathematics and booleans operators.
 
 import ast
 import operator as op
-
-__date__ = "2015-04-13"
-__author__ = "Frédéric Scherma"
-
 
 # supported operators
 operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,

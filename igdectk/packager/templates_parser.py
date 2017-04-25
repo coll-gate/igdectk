@@ -1,12 +1,14 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2014 INRA UMR1095 GDEC
-
-"""
-Allow to parse Django templates and to find what are the used custom tag and theirs values.
-This is especialy used to detect for the packager in way to auto initialize the list of installed
-packages and which version even at css templates level.
-"""
+# @file template_parser.py
+# @brief Base class for packager templage node.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2014-06-03
+# @copyright Copyright (c) 2014 INRA
+# @license MIT (see LICENSE file)
+# @details Allow to parse Django templates and to find what are the used custom tag and theirs values.
+# This is especially used to detect for the packager in way to auto initialize the list of installed packages and which
+# version even at css templates level.
 
 import os
 import re

@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2016 INRA UMR1095 GDEC
-
-"""
-module sub-package init.
-"""
+# @file __init__.py
+# @brief module sub-package init.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2016-02-03
+# @copyright Copyright (c) 2016 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 AUTH_ANY = 0
 AUTH_GUEST = 1

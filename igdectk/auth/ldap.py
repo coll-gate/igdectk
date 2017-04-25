@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2015 INRA UMR1095 GDEC
-
-"""
-LDAP authentication backend for django.
-"""
+# @file ldap.py
+# @brief LDAP authentication backend for django.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2015-04-13
+# @copyright Copyright (c) 2015 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 from __future__ import unicode_literals
 
@@ -14,9 +16,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 # from django.contrib.auth.models import Permission
 from django.contrib.auth.backends import ModelBackend
-
-__date__ = "2015-04-13"
-__author__ = "Frédéric Scherma"
 
 
 class LdapAuthenticationBackend(ModelBackend):

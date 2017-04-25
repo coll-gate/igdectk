@@ -1,10 +1,12 @@
 # -*- coding: utf-8; -*-
 #
-# Copyright (c) 2014 INRA UMR1095 GDEC
-
-"""
-Packager application initialization helper.
-"""
+# @file apphelpers.py
+# @brief Packager application initialization helper.
+# @author Frédéric SCHERMA (INRA UMR1095)
+# @date 2014-06-03
+# @copyright Copyright (c) 2014 INRA
+# @license MIT (see LICENSE file)
+# @details
 
 import copy
 
