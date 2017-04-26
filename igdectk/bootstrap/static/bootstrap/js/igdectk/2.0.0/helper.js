@@ -163,6 +163,20 @@ function createHelper(object) {
             parent2.insertBefore(this, next2);
         });
     };
+
+    /**
+     * Check if an element is visible.
+     * @returns {boolean}
+     */
+    $.fn.isInViewport = function() {
+        var elementTop = $(this).offset().top;
+        var elementBottom = elementTop + $(this).outerHeight();
+
+        var viewportTop = $(window).scrollTop();
+        var viewportBottom = viewportTop + $(window).height();
+
+        return elementBottom > viewportTop && elementTop < viewportBottom;
+    };
 }( jQuery ));
 
 // common ready dom
