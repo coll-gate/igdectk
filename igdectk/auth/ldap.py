@@ -48,26 +48,25 @@ class LdapAuthenticationBackend(ModelBackend):
 
         :param dict 'default': Used by this backend. Any others entry are ignored.
         :param str 'HOST': LDAP hostname (with port if necessary).
-        :param str 'USER_DN': User domain name as a string. The parameter representing
-            the user identifier must be equal to '%s' because this field is completed by the username
-            coming from the authentication method.
+        :param str 'BASE_DN': Base domain name as a string.
         :param dict 'OPTIONS': Set of options:
+        :param str 'username_attr': Name of the attribute of the username (default is "uid")
         :param boolean 'auto_add_user': True means users that does not exists into
-            the user table are automaticaly created. The next parameters are relavant
+            the user table are automatically created. The next parameters are relevant
             if this setting is True.
         :param str 'search_filter': LDAP search filter is a list wrapped by parenthesis,
             containing pairs of fields name and value separate by a equal sign (=), and each
             pair are separate by a comma (,).
-        :param list(str) 'email_fields': List of candidats, in order of priority,
-            containing an email adresse. Or not defined if email field is not wanted.
-        :param dict(str|str) 'state_fields': Defines a dict of candidats, in order of priority,
+        :param list(str) 'email_attrs': List of candidates, in order of priority,
+            containing an email adress. Or not defined if email field is not wanted.
+        :param dict(str|str) 'state_fields': Defines a dict of candidates, in order of priority,
             containing the user status (active, or not) and its value. In others words,
             the key contains a name of attribute, and its value is the value meaning
             the account is in its active state.
             Or None if status field should be not checked.
-        :param list(str) 'firstname_fields': List of candidats, in order of priority,
+        :param list(str) 'firstname_attrs': List of candidates, in order of priority,
             containing a first name. Or not defined if first name field is not wanted.
-        :param list(str) 'lastname_fields': List of candidats, in order of priority,
+        :param list(str) 'lastname_attrs': List of candidates, in order of priority,
             containing a last name. Or not defined if last name field is not wanted.
 
         If state fields return a disabled account, then the authentication returns None.
@@ -75,8 +74,7 @@ class LdapAuthenticationBackend(ModelBackend):
     """
 
     def authenticate(self, username=None, password=None, **kwargs):
-        user_dn = settings.LDAPS['default']['USER_DN'] % (
-            username)
+        base_dn = settings.LDAPS['default']['BASE_DN']
 
         UserModel = get_user_model()
 
@@ -89,70 +87,74 @@ class LdapAuthenticationBackend(ModelBackend):
         except UserModel.DoesNotExist:
             options = settings.LDAPS['default'].get('OPTIONS', {})
 
-            # auto creation of non registred users
+            # auto creation of non registered users
             if options.get('auto_add_user', True):
                 email = ''
                 firstname = ''
                 lastname = ''
 
-                state_fields = options.get('state_fields', {})
-                email_fields = options.get('email_fields', [])
-                firstname_fields = options.get('firstname_fields', [])
-                lastname_fields = options.get('lastname_fields', [])
+                state_attrs = options.get('state_attrs', {})
+                email_attrs = options.get('email_attrs', [])
+                firstname_attrs = options.get('firstname_attrs', [])
+                lastname_attrs = options.get('lastname_attrs', [])
                 search_filter = options.get('search_filter', '()')
+                username_attr = options.get('username_attr', 'uid')
+
+                search_filters = [x for x in search_filter.lstrip('(').rstrip(')').split(',') if x != ""]
+                search_filters.append('%s=%s' % (username_attr, username))
+                search_filter = '(%s)' % ','.join(search_filters)
 
                 # process an LDAP query for the uid
                 srv = ldap3.Server(settings.LDAPS['default']['HOST'])
                 conn = ldap3.Connection(srv, auto_bind=True, client_strategy=ldap3.SYNC)
 
-                attributes = ['uid']
+                attributes = [username_attr]
 
-                if email_fields:
-                    attributes.extend(email_fields)
+                if email_attrs:
+                    attributes.extend(email_attrs)
 
-                if firstname_fields:
-                    attributes.extend(firstname_fields)
+                if firstname_attrs:
+                    attributes.extend(firstname_attrs)
 
-                if lastname_fields:
-                    attributes.extend(lastname_fields)
+                if lastname_attrs:
+                    attributes.extend(lastname_attrs)
 
-                if state_fields:
-                    attributes.extend(state_fields.keys())
+                if state_attrs:
+                    attributes.extend(state_attrs.keys())
                     active_user = False
                 else:
                     active_user = True
 
-                if len(attributes) > 1:
-                    conn.search(user_dn, search_filter, ldap3.SUBTREE, attributes=attributes)
+                conn.search(base_dn, search_filter, ldap3.SUBTREE, attributes=attributes)
 
-                    for r in conn.response:
-                        if 'attributes' not in r:
-                            continue
+                for r in conn.response:
+                    if 'attributes' not in r:
+                        continue
 
-                        attrs = r['attributes']
+                    attrs = r['attributes']
 
-                        if 'uid' not in attrs:
-                            continue
+                    if username_attr not in attrs:
+                        continue
 
-                        for stk, stv in state_fields.items():
-                            if stk in attrs and attrs[stk][0] and attrs[stk][0] == stv:
-                                active_user = True
-                                break
+                    for stk, stv in state_attrs.items():
+                        if stk in attrs and attrs[stk][0] and attrs[stk][0] == stv:
+                            active_user = True
+                            break
 
-                        for f in email_fields:
-                            if f in attrs and attrs[f][0]:
-                                email = attrs[f][0]
-                                break
+                    for f in email_attrs:
+                        if f in attrs and attrs[f][0]:
+                            email = attrs[f][0]
+                            break
 
-                        for f in firstname_fields:
-                            if f in attrs and attrs[f][0]:
-                                firstname = attrs[f][0]
-                                break
+                    for f in firstname_attrs:
+                        if f in attrs and attrs[f][0]:
+                            firstname = attrs[f][0]
+                            break
 
-                        for f in lastname_fields:
-                            if f in attrs and attrs[f][0]:
-                                lastname = attrs[f][0]
-                                break
+                    for f in lastname_attrs:
+                        if f in attrs and attrs[f][0]:
+                            lastname = attrs[f][0]
+                            break
 
                 if active_user:
                     user = UserModel.objects.create_user(
@@ -173,10 +175,25 @@ class LdapAuthenticationBackend(ModelBackend):
         # try to bind account
         try:
             srv = ldap3.Server(settings.LDAPS['default']['HOST'])
+
+            options = settings.LDAPS['default'].get('OPTIONS', {})
+            username_attr = options.get('username_attr', 'uid')
+            search_filter = options.get('search_filter', '()')
+
+            search_filters = [x for x in search_filter.lstrip('(').rstrip(')').split(',') if x != ""]
+            search_filters.append('%s=%s' % (username_attr, username))
+            search_filter = '(%s)' % ','.join(search_filters)
+
+            conn = ldap3.Connection(srv, auto_bind=True, client_strategy=ldap3.SYNC)
+            conn.search(base_dn, search_filter, ldap3.SUBTREE, attributes=[username_attr])
+
+            if len(conn.response) != 1:
+                return None
+
             conn = ldap3.Connection(
                 srv,
                 authentication=ldap3.SIMPLE,
-                user=user_dn,
+                user=conn.response[0]['dn'],
                 password=password,
                 check_names=True,
                 lazy=False,
