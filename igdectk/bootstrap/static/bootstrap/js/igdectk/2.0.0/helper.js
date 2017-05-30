@@ -140,7 +140,7 @@ function createHelper(object) {
     };
 
     /**
-     * Swap to elements.
+     * Swap two elements.
      * @param to Destination of the selected element
      * @returns Element
      */
@@ -151,8 +151,7 @@ function createHelper(object) {
             // $(to).replaceWith(copyFrom);
             // $(this).replaceWith(copyTo);
 
-            var parent1, next1,
-            parent2, next2;
+            var parent1, next1, parent2, next2;
 
             parent1 = this.parentNode;
             next1   = this.nextSibling;
@@ -161,6 +160,24 @@ function createHelper(object) {
 
             parent1.insertBefore(to[0], next1);
             parent2.insertBefore(this, next2);
+        });
+    };
+
+    /**
+     * Move an element.
+     * @param before Move the element just before this element.
+     * @returns Element
+     */
+    $.fn.moveBefore = function(before) {
+        return this.each(function() {
+            var parent1, next1, parent2, next2;
+
+            parent1 = this.parentNode;
+            next1   = this.nextSibling;
+            parent2 = before[0].parentNode;
+            next2   = before[0].nextSibling;
+
+            parent1.insertBefore(this, next2);
         });
     };
 

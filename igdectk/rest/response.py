@@ -25,9 +25,6 @@ from django.utils.functional import Promise
 
 from igdectk.rest import Format
 
-__date__ = "2015-04-13"
-__author__ = "Frédéric Scherma"
-
 
 class ComplexEncoder(json.JSONEncoder):
 
@@ -56,6 +53,7 @@ class ComplexEncoder(json.JSONEncoder):
         else:
             # Let the base class default method raise the TypeError
             return json.JSONEncoder.default(self, obj)
+
 
 def HttpResponseRest(request, data):
     """

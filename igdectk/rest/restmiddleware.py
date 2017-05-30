@@ -36,9 +36,8 @@ logger = logging.getLogger(__name__)
 
 
 class ViewExceptionRest(Exception):
-
     """
-    Formated exception with message and code.
+    Formatted exception with message and code.
 
     :param str message: Cause of the exception
     :param int code: HTTP error code
