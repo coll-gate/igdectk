@@ -60,7 +60,7 @@ def startup(appconfig, app_logger):
             if obj is None or not obj:
                 obj = appconfig.settings_table()
                 obj.param_name = k
-                obj.value = appconfig.default_settings[k]
+                obj.value = repr(appconfig.default_settings[k])
                 obj.save()
 
                 try:
@@ -72,7 +72,7 @@ def startup(appconfig, app_logger):
                 app_logger.info("    %s = %s (inserted with default)" % (k, value_str))
 
             elif obj[0].value is None or not obj[0].value:
-                obj[0].value = appconfig.default_settings[k]
+                obj[0].value = repr(appconfig.default_settings[k])
                 obj[0].save()
 
                 try:
@@ -113,7 +113,7 @@ def get_app_db_settings(app_short_name):
     application. Once the value exists into the database this is
     the database value that is taken en priority.
 
-    Normaly should be reserved for internal usage only.
+    Normally it should be reserved for internal usage only.
 
     :param str app_short_name: Short name of the application to get the settings dict.
 
@@ -137,7 +137,6 @@ def get_app_db_settings(app_short_name):
 
 
 class ApplicationMain(AppConfig):
-
     """
     Advanced Django AppConfig.
 
@@ -198,10 +197,22 @@ class ApplicationMain(AppConfig):
             if hasattr(self.appsettings, 'APP_VERBOSE_NAME')
             else self.name)
 
-        self.default_settings = get_app_db_settings(self.name) or (
-            getattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
-            if hasattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
-            else {})
+        # self.default_settings = get_app_db_settings(self.name) or (
+        #     getattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
+        #     if hasattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
+        #     else {})
+
+        project_default_settings = get_app_db_settings(self.name) or {}
+        app_default_settings = (getattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
+                                if hasattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
+                                else {})
+
+        # merge for missing default settings in global settings
+        for setting_name, app_default_value in app_default_settings.items():
+            if project_default_settings.get(setting_name):
+                self.default_settings[setting_name] = project_default_settings.get(setting_name)
+            else:
+                self.default_settings[setting_name] = app_default_value
 
         self.settings_model = (
             getattr(self.appsettings, 'APP_SETTINGS_MODEL')
@@ -240,15 +251,15 @@ class ApplicationMain(AppConfig):
             # if not returns the settings from the project settings
             # if not returns it from the appsettings
             # else returns None
-            param = self.default_settings.get(param_name)
-            if param:
-                return param
-            else:
-                return None
+            return self.default_settings.get(param_name, None)
 
+        # search for setting in DB
         setting = self.settings_table.objects.filter(param_name=param_name)
 
-        if len(setting) >= 1 and setting[0].value:
+        # if found in DB eval it and returns, else fallback to the default value
+        if len(setting) >= 1:
             return eval_expr(setting[0].value)
-        else:
-            raise ViewExceptionRest('Bad configuration.', 500)
+        # else:
+        #     raise ViewExceptionRest('Bad configuration.', 500)
+
+        return self.default_settings.get(param_name, None)
