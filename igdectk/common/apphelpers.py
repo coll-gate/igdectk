@@ -197,22 +197,19 @@ class ApplicationMain(AppConfig):
             if hasattr(self.appsettings, 'APP_VERBOSE_NAME')
             else self.name)
 
-        # self.default_settings = get_app_db_settings(self.name) or (
-        #     getattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
-        #     if hasattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
-        #     else {})
+        self.default_settings = get_app_db_settings(self.name) or (
+            getattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
+            if hasattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
+            else {})
 
-        project_default_settings = get_app_db_settings(self.name) or {}
         app_default_settings = (getattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
                                 if hasattr(self.appsettings, 'APP_DB_DEFAULT_SETTINGS')
                                 else {})
 
         # merge for missing default settings in global settings
-        for setting_name, app_default_value in app_default_settings.items():
-            if project_default_settings.get(setting_name):
-                self.default_settings[setting_name] = project_default_settings.get(setting_name)
-            else:
-                self.default_settings[setting_name] = app_default_value
+        for param_name, value in app_default_settings.items():
+            if param_name not in self.default_settings:
+                self.default_settings[param_name] = value
 
         self.settings_model = (
             getattr(self.appsettings, 'APP_SETTINGS_MODEL')
