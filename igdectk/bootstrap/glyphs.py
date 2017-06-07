@@ -267,7 +267,7 @@ class Glyph(Enum):
     TRIANGLE_RIGHT = "glyphicon-triangle-right"
     TRIANGLE_LEFT = "glyphicon-triangle-left"
     TRIANGLE_BOTTOM = "glyphicon-triangle-bottom"
-    TRIANGL_TOP = "glyphicon-triangle-top"
+    TRIANGLE_TOP = "glyphicon-triangle-top"
     CONSOLE = "glyphicon-console"
     SUPERSCRIPT = "glyphicon-superscript"
     SUBSCRIPT = "glyphicon-subscript"
