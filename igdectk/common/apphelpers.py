@@ -9,6 +9,7 @@
 # @details
 
 import os
+import sys
 import logging
 
 from importlib import import_module
@@ -260,3 +261,21 @@ class ApplicationMain(AppConfig):
         #     raise ViewExceptionRest('Bad configuration.', 500)
 
         return self.default_settings.get(param_name, None)
+
+    def is_run_mode(self):
+        command_list = ("init_fixtures", "migrate", "makemigrations", "help", "")
+
+        for command in command_list:
+            if command in sys.argv:
+                return False
+
+        return True
+
+    def is_table_exists(self, table_name_or_model):
+        from django.db import connection
+
+        if type(table_name_or_model) == str:
+            return table_name_or_model in connection.introspection.table_names()
+        else:
+            table_name = table_name_or_model._meta.db_table
+            return table_name in connection.introspection.table_names()
