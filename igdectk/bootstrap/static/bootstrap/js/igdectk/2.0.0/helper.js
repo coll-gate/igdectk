@@ -175,7 +175,7 @@ function createHelper(object) {
             parent1 = this.parentNode;
             next1   = this.nextSibling;
             parent2 = before[0].parentNode;
-            next2   = before[0].nextSibling;
+            next2   = before[0]; // .nextSibling;
 
             parent1.insertBefore(this, next2);
         });
