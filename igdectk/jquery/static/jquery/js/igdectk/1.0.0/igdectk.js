@@ -11,7 +11,7 @@
 /**
  * @details Helper to serialize a JQuery object (usually used to serialize a form)
  * If many input have the same name, then the value
- * is stored as an array, with any occurencies.
+ * is stored as an array, with any occurrences.
  * @return {Object} Serialized object
  */
 $.fn.serializeObject = function() {
@@ -38,7 +38,7 @@ $.fn.serializeObject = function() {
  *     - others are kept as string
  *
  * If many input have the same name, then the value
- * is stored as an array, with any occurencies.
+ * is stored as an array, with any occurrences.
  * @return {Object} Serialized object
  * @todo distinct between Number and Integer
  */
