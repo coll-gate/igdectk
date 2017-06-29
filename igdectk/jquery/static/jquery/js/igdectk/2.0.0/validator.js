@@ -31,7 +31,8 @@ function validateInput(elt, validity, comment) {
 
     // adjust in case of a select2 element
     if (elt.hasClass('select2-hidden-accessible')) {
-        feedback.css('top', '22px').css('right', '12px');
+        feedback.css('right', '12px');
+        feedback.css('top', (feedback.height() - 9) + 'px');
     } else if (div.children('select').length) {
         feedback.css('right', '19px');
     }
