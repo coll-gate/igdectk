@@ -14,7 +14,6 @@ from . import AUTH_TYPE, AUTH_ANY
 
 
 class MenuEntryBase(object):
-
     """
     Base class for any menu entry.
     """
@@ -39,7 +38,6 @@ class MenuEntryBase(object):
 
 
 class MenuEntry(MenuEntryBase):
-
     """
     Labeled menu entry.
     """
@@ -57,7 +55,6 @@ class MenuEntry(MenuEntryBase):
 
 
 class MenuSeparator(MenuEntryBase):
-
     """
     Menu separator without label neither url.
     """

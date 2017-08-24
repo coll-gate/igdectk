@@ -65,6 +65,14 @@ class ModuleMenu(object):
     def auth_class(self):
         return AUTH_TYPE[self.auth][2]
 
+    def to_json(self):
+        return {
+            'name': self.name,
+            'label': str(self.label),
+            'order': self.order,
+            'auth': self.auth_class().split('-')[1],
+            'entries': []
+        }
 
 class Module(object):
 

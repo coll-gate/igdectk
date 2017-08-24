@@ -15,12 +15,12 @@
  */
 function getCookie(name) {
     var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
+    if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
             var cookie = jQuery.trim(cookies[i]);
             // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
             }
@@ -53,7 +53,7 @@ $(function() {
     $(document).ajaxSuccess(function(event, jqXHR, settings, thrownError) {
         // error message on failure
         var data = jqXHR.responseJSON;
-        if (data && (typeof(data.cause) !== "string") && data.result && data.result == "failed") {
+        if (data && (typeof(data.cause) !== "string") && data.result && data.result === "failed") {
             alert("!! this should not arrives, please contact your administrator !!");
             $.alert.error(data.cause);
         }
