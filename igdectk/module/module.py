@@ -10,12 +10,11 @@
 
 from django.core.exceptions import ImproperlyConfigured
 
-from .menu import MenuEntryBase, MenuSeparator
+from .menu import MenuEntryBase, MenuSeparator, MenuEntry
 from . import AUTH_TYPE, AUTH_ANY
 
 
 class ModuleException(ImproperlyConfigured):
-
     """
     Base exception for module registration and definition.
     """
@@ -24,9 +23,8 @@ class ModuleException(ImproperlyConfigured):
 
 
 class ModuleMenu(object):
-
     """
-    A mergable menu for a module. It contains ordered menu entries.
+    A merge-able menu for a module. It contains ordered menu entries.
     """
 
     def __init__(self, name, label, order=-1, auth=AUTH_ANY):
@@ -65,17 +63,38 @@ class ModuleMenu(object):
     def auth_class(self):
         return AUTH_TYPE[self.auth][2]
 
-    def to_json(self):
+    def dump(self):
+        entries = []
+
+        for entry in self.entries:
+            e = {
+                'name': entry.name,
+                'order': entry.order,
+                'auth': AUTH_TYPE[entry.auth][2].split('-')[1]
+            }
+
+            if isinstance(entry, MenuEntry):
+                e['type'] = 'entry'
+                e['icon'] = entry.icon.value
+                e['label'] = str(entry.label)
+                e['url'] = entry.url
+            elif isinstance(entry, MenuSeparator):
+                e['type'] = 'separator'
+            else:
+                continue
+
+            entries.append(e)
+
         return {
             'name': self.name,
             'label': str(self.label),
             'order': self.order,
             'auth': self.auth_class().split('-')[1],
-            'entries': []
+            'entries': entries
         }
 
-class Module(object):
 
+class Module(object):
     """
     The module itself that must be registered into the ModuleManager singleton.
     """

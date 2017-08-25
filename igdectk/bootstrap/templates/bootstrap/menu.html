@@ -13,14 +13,14 @@
 {% load i18n %}
 
 {% for menu in menus %}
-<li class="dropdown {{menu.auth_class}}">
-    <a id="drop-{{forloop.counter}}" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">{{menu.label}}<b class="caret"></b></a>
-    <ul class="dropdown-menu" role="menu" aria-labelledby="menu-drop-{{forloop.counter}}">
+<li class="dropdown {{menu.auth_class}}" name="{{menu.name}}">
+    <a id="drop-{{menu.name}}" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">{{menu.label}}<b class="caret"></b></a>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="menu-drop-{{menu.name}}">
         {% for entry in menu.entries %}
             {% if not entry.has_label %}
-                <li role="presentation" class="divider {{entry.auth_class}}"></li>
+                <li role="presentation" class="divider {{entry.auth_class}}" name="{{entry.name}}"></li>
             {% else %}
-                <li role="presentation" class="{{entry.auth_class}}">
+                <li role="presentation" class="{{entry.auth_class}}" name="{{entry.name}}">
                     <a role="menuitem" class="url" tabindex="-1" href="{{entry.url}}">
                     {% if entry.icon %}
                         <span class="glyphicon {{entry.icon}}"></span>
