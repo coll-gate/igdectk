@@ -35,7 +35,7 @@ def int_arg(v):
     :param int|any v: Potential integer to check
 
     :return: True if success
-    :rtype: boolean
+    :rtype: int
     """
     try:
         return int(v)
@@ -80,7 +80,7 @@ def rint_arg(v, r):
     :param list(int,int) r: 2 integers list (min and max inclusive of the range)
 
     :return: True if success
-    :rtype: boolean
+    :rtype: int
     """
     try:
         value = int(v)
