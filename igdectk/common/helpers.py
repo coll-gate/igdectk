@@ -39,7 +39,7 @@ def int_arg(v):
     """
     try:
         return int(v)
-    except:
+    except ValueError:
         raise ViewExceptionRest(
             'Invalid argument format. %s must be an integer.' %
             (repr(v),),
@@ -64,7 +64,7 @@ def bool_arg(v):
             return False
         else:
             raise ValueError('Boolean value must be "true" or "false"')
-    except:
+    except ValueError:
         raise ViewExceptionRest(
             'Invalid argument format. %s must be a boolean string (true|false).' %
             (repr(v),),
@@ -84,7 +84,7 @@ def rint_arg(v, r):
     """
     try:
         value = int(v)
-    except:
+    except ValueError:
         raise ViewExceptionRest(
             'Invalid argument format. %s must be an integer.' %
             (repr(v),),

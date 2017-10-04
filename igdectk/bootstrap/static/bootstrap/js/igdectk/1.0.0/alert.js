@@ -69,6 +69,6 @@ $(function() {
         // i18n comes from django catalog
         //var content = msg.find("span.message-content");
         //content.html(django.gettext(content.html()));
-        //content.html(gt.gettext(content.html()));
+        //content.html(_t(content.html()));
     });
 });

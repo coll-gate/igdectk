@@ -37,7 +37,7 @@ function createHelper(object) {
 
     if (helper_id || helper_text || helper_inline.length) {
         elt.addClass('btn');
-        elt.addClass('popover-dismiss')
+        elt.addClass('popover-dismiss');
         elt.addClass('glyphicon glyphicon-question-sign');
         elt.attr('data-toggle', 'popover');
 
@@ -92,10 +92,10 @@ function createHelper(object) {
     }
 
     // because popover button are manually triggered we have to manage it
-    if (helper_trigger == null) {
+    if (!helper_trigger) {
         elt.click(function(e) {
             $(".popover-dismiss").each(function(i) {
-                if (this != e.target) {
+                if (this !== e.target) {
                     $(this).popover('hide');
                 }
             });
