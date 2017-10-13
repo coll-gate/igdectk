@@ -16,16 +16,21 @@
  * @param  {string} comment  optional comment below the input
  */
 function validateInput(elt, validity, comment) {
-    var glyphicon = '';
-    var div = elt.parent();
+    let div = elt.parent();
 
     if (!div.hasClass('has-feedback')) {
         div.addClass('has-feedback');
     }
 
-    var feedback = elt.siblings('span.form-control-feedback');
+    let feedback = elt.siblings('span.form-control-feedback');
     if (feedback.length === 0) {
-        feedback = $('<span class="glyphicon form-control-feedback" aria-hidden="true"></span>');
+        feedback = $('<span class="form-control-feedback" aria-hidden="true"></span>');
+        feedback.addClass($.fn.validator.glyphicon.prefix);
+
+        if ($.fn.validator.className) {
+            feedback.addClass($.fn.validator.className);
+        }
+
         div.append(feedback);
     }
 
@@ -38,9 +43,9 @@ function validateInput(elt, validity, comment) {
     }
 
     if (validity === 'ok') {
-        feedback.removeClass('glyphicon-refresh');
-        feedback.removeClass('glyphicon-remove');
-        feedback.addClass('glyphicon-ok');
+        feedback.removeClass($.fn.validator.glyphicon.warning);
+        feedback.removeClass($.fn.validator.glyphicon.failed);
+        feedback.addClass($.fn.validator.glyphicon.ok);
 
         div.removeClass('has-error');
         div.removeClass('has-warning');
@@ -48,9 +53,9 @@ function validateInput(elt, validity, comment) {
 
         elt.removeClass('invalid');
     } else if (validity === 'warn') {
-        feedback.addClass('glyphicon-refresh');
-        feedback.removeClass('glyphicon-remove');
-        feedback.removeClass('glyphicon-ok');
+        feedback.addClass($.fn.validator.glyphicon.warning);
+        feedback.removeClass($.fn.validator.glyphicon.failed);
+        feedback.removeClass($.fn.validator.glyphicon.ok);
 
         div.removeClass('has-error');
         div.removeClass('has-success');
@@ -58,9 +63,9 @@ function validateInput(elt, validity, comment) {
 
         elt.addClass('invalid');
     } else if (validity === 'failed') {
-        feedback.removeClass('glyphicon-refresh');
-        feedback.addClass('glyphicon-remove');
-        feedback.removeClass('glyphicon-ok');
+        feedback.removeClass($.fn.validator.glyphicon.warning);
+        feedback.addClass($.fn.validator.glyphicon.failed);
+        feedback.removeClass($.fn.validator.glyphicon.ok);
 
         div.removeClass('has-warning');
         div.removeClass('has-success');
@@ -68,9 +73,9 @@ function validateInput(elt, validity, comment) {
 
         elt.addClass('invalid');
     } else {
-        feedback.removeClass('glyphicon-refresh');
-        feedback.removeClass('glyphicon-remove');
-        feedback.removeClass('glyphicon-ok');
+        feedback.removeClass($.fn.validator.glyphicon.warning);
+        feedback.removeClass($.fn.validator.glyphicon.failed);
+        feedback.removeClass($.fn.validator.glyphicon.ok);
 
         div.removeClass('has-warning');
         div.removeClass('has-success');
@@ -80,7 +85,7 @@ function validateInput(elt, validity, comment) {
     }
 
     if (comment) {
-        var help = elt.siblings('span.help-block');
+        let help = elt.siblings('span.help-block');
         if (help.length === 0) {
             help = $('<span class="help-block"></span>');
             div.append(help);
@@ -88,7 +93,7 @@ function validateInput(elt, validity, comment) {
         help.show();
         help.text(comment);
     } else {
-        var help = elt.siblings('span.help-block');
+        let help = elt.siblings('span.help-block');
         if (help.length > 0) {
             help.hide();
         }
@@ -129,5 +134,15 @@ function validateInput(elt, validity, comment) {
         });
 
         return result;
+    };
+
+    $.fn.validator = {
+        className: undefined,
+        glyphicon: {
+            'prefix': 'glyphicon',
+            'warning': 'glyphicon-refresh',
+            'failed': 'glyphicon-remove',
+            'ok': 'glyphicon-ok'
+        }
     };
 })(jQuery);

@@ -9,6 +9,34 @@
  */
 
 /**
+ * @brief Get the index of 'styleSheetName' from the document.styleSheets object
+ */
+function selectorInStyleSheet(styleSheetName, selector) {
+    let idx = -1;
+
+    for (let i = 0; i < document.styleSheets.length; i++) {
+        let thisStyleSheet = document.styleSheets[i].href ? document.styleSheets[i].href.replace(/^.*[\\\/]/, '') : '';
+        if (thisStyleSheet === styleSheetName) {
+            idx = i;
+            break;
+        }
+    }
+
+    // can't find the specified stylesheet
+    if (idx < 0)
+        return false;
+
+    // check the stylesheet for the specified selector
+    let styleSheet = document.styleSheets[idx];
+    let cssRules = styleSheet.rules ? styleSheet.rules : styleSheet.cssRules;
+    for (let i = 0; i < cssRules.length; ++i) {
+        if (cssRules[i].selectorText === selector)
+            return true;
+    }
+    return false;
+}
+
+/**
  * @brief Externally triggered popover must use this method to show them (not the default popover('show') method)
  * @param  {Object} object selection
  */
@@ -38,8 +66,13 @@ function createHelper(object) {
     if (helper_id || helper_text || helper_inline.length) {
         elt.addClass('btn');
         elt.addClass('popover-dismiss');
-        elt.addClass('glyphicon glyphicon-question-sign');
         elt.attr('data-toggle', 'popover');
+
+        if ($.fn.popover.glyphicon) {
+            elt.addClass($.fn.popover.glyphicon);
+        } else {
+            elt.text('?');
+        }
 
         // not a css because element attribute (over btn style)
         elt.css({
@@ -194,6 +227,13 @@ function createHelper(object) {
 
         return elementBottom > viewportTop && elementTop < viewportBottom;
     };
+
+    /**
+     * Default glyphicon for popover.
+     * @type {string}
+     */
+    $.fn.popover.glyphicon = 'glyphicon glyphicon-question-sign';
+
 }( jQuery ));
 
 // common ready dom

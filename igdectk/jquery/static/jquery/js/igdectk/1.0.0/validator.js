@@ -24,12 +24,12 @@ function validateInput(elt, validity, comment) {
     }
 
     var feedback = elt.siblings('span.form-control-feedback');
-    if (feedback.length == 0) {
+    if (feedback.length === 0) {
         feedback = $('<span class="glyphicon form-control-feedback" aria-hidden="true"></span>');
         div.append(feedback);
     }
 
-    if (validity == 'ok') {
+    if (validity === 'ok') {
         feedback.removeClass('glyphicon-refresh');
         feedback.removeClass('glyphicon-remove');
         feedback.addClass('glyphicon-ok');
@@ -39,7 +39,7 @@ function validateInput(elt, validity, comment) {
         div.addClass('has-success');
 
         elt.removeClass('invalid');
-    } else if (validity == 'warn') {
+    } else if (validity === 'warn') {
         feedback.addClass('glyphicon-refresh');
         feedback.removeClass('glyphicon-remove');
         feedback.removeClass('glyphicon-ok');
@@ -49,7 +49,7 @@ function validateInput(elt, validity, comment) {
         div.addClass('has-warning');
 
         elt.addClass('invalid');
-    } else if (validity == 'failed') {
+    } else if (validity === 'failed') {
         feedback.removeClass('glyphicon-refresh');
         feedback.addClass('glyphicon-remove');
         feedback.removeClass('glyphicon-ok');
@@ -73,7 +73,7 @@ function validateInput(elt, validity, comment) {
 
     if (comment) {
         var help = elt.siblings('span.help-block');
-        if (help.length == 0) {
+        if (help.length === 0) {
             help = $('<span class="help-block"></span>');
             div.append(help);
         }
