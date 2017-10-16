@@ -22,12 +22,7 @@
             {% else %}
                 <li role="presentation" class="{{entry.auth_class}}" name="{{entry.name}}">
                     <a role="menuitem" class="url" tabindex="-1" href="{{entry.url}}">
-                    {% if entry.icon %}
-                        <span class="glyphicon {{entry.icon}}"></span>
-                    {% else %}
-                        <span class="glyphicon glyphicon-user" style="visibility: hidden;"></span>
-                    {% endif %}
-                    &nbsp;{{entry.label}}</a>
+                    {% if entry.icon %}{{entry.icon.html|safe}}{% else %}{{entry.icon.html|safe}}{% endif %}&nbsp;{{entry.label|safe}}</a>
                 </li>
             {% endif %}
         {% endfor %}

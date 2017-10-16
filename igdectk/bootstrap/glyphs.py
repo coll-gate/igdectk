@@ -278,3 +278,7 @@ class Glyph(Enum):
 
     def __str__(self):
         return self.value
+
+    @property
+    def html(self):
+        return '<span class="glyphicon %s">' % self.value
