@@ -20,7 +20,7 @@ from django.core.exceptions import *
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.contrib import messages
-from django.core.urlresolvers import resolve
+from django.urls import resolve
 from django.apps import apps
 from django.utils.translation.trans_real import parse_accept_lang_header
 

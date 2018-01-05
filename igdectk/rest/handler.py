@@ -108,7 +108,7 @@ class RestForm(object):
             request = args[0]
 
             # check for user authentication
-            if cls.auth and not request.user.is_authenticated():
+            if cls.auth and not request.user.is_authenticated:
                 raise ViewExceptionRest("Unauthorized", 401)
 
             # check for super-user authentication
@@ -508,7 +508,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 request.parameters = parameters
 
                 # check for user authentication
-                if not request.user.is_authenticated():
+                if not request.user.is_authenticated:
                     if fallback:
                         return fallback(request)
                     raise ViewExceptionRest("Authenticated users only", 401)
@@ -568,7 +568,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
                 request.parameters = parameters
 
                 # check for user authentication
-                if not request.user.is_authenticated():
+                if not request.user.is_authenticated:
                     if fallback:
                         return fallback(request)
                     raise ViewExceptionRest("Authenticated users only", 401)
@@ -716,7 +716,7 @@ def def_inline_auth_request(
             request.parameters = parameters
 
             # check for user authentication
-            if not request.user.is_authenticated():
+            if not request.user.is_authenticated:
                 if fallback:
                     return fallback(request)
                 raise ViewExceptionRest("Authenticated users only", 401)
@@ -786,7 +786,7 @@ def def_inline_admin_request(inline_handler, method, data_format, parameters=(),
             request.parameters = parameters
 
             # check for user authentication
-            if not request.user.is_authenticated():
+            if not request.user.is_authenticated:
                 if fallback:
                     return fallback(request)
                 raise ViewExceptionRest("Authenticated users only", 401)

@@ -8,7 +8,7 @@
 # @license MIT (see LICENSE file)
 # @details
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from . import AUTH_TYPE, AUTH_ANY
 

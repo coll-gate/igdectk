@@ -65,10 +65,5 @@ $(function() {
 
         msg.on("click", function () { $(this).remove(); });
         msg.hide().fadeIn(200).delay(2000).fadeOut(1000, function () { msg.remove(); });
-
-        // i18n comes from django catalog
-        //var content = msg.find("span.message-content");
-        //content.html(django.gettext(content.html()));
-        //content.html(_t(content.html()));
     });
 });
