@@ -364,11 +364,7 @@ class RestHandler(object, metaclass=RestHandlerMeta):
 
         pattern = r'^%s%s/' % (url_prefix, "")  # name)
 
-        urls.urlpatterns += url(
-                     pattern,
-                     include('%s.urls' % name,
-                             namespace=name,
-                             app_name=name)),
+        urls.urlpatterns += url(pattern, include(('%s.urls' % name, name), namespace=name)),
 
     @classmethod
     def _register_wrapper(cls, wrapper, method, data_format, parameters, content, conditions):

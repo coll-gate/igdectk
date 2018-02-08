@@ -93,7 +93,7 @@ class ModuleManager(object):
             if module.name == module_name:
                 return module
 
-        raise ValueError("Invalid module name")
+        raise ValueError("Invalid module name: " + module_name)
 
 """
 Module manager singleton.
